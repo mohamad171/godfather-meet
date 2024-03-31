@@ -1,0 +1,19 @@
+version: 3
+services:
+  frontend:
+    build:
+      context: front
+      target: prod
+    container_name: frontend
+    depends_on:
+        - backend
+    networks:
+      - api
+  backend:
+    build:
+      context: backend
+    networks:
+      - api
+networks:
+  api:
+    driver: bridge
