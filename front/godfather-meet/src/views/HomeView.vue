@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import {useAppwriteState} from "../stores/appwriteState"
 
-
 var state = useAppwriteState();
 const roomNameInput = defineModel()
 
@@ -11,7 +10,8 @@ state.getRooms()
 </script>
 
 <template>
-  <main>
+
+  <main class="container-fluid">
     <div class="d-flex align-items-center">
       <div>
       <label>Room name:</label>
