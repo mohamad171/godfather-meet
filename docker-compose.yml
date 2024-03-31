@@ -1,4 +1,4 @@
-version: 3
+version: "3"
 services:
   frontend:
     build:
@@ -6,7 +6,9 @@ services:
       target: prod
     container_name: frontend
     depends_on:
-        - backend
+      - backend
+    ports:
+      - "9000"
     networks:
       - api
   backend:
@@ -14,6 +16,8 @@ services:
       context: backend
     networks:
       - api
+    ports:
+      - "9100"
 networks:
   api:
     driver: bridge
