@@ -21,7 +21,7 @@ export default defineComponent({
     },
     socketURL: {
       type: String,
-      default: 'http://socket.straiberry.com'
+      default: 'https://websocket.straiberry.com'
     },
     cameraHeight: {
       type: [Number, String],
