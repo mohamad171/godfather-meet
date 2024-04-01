@@ -8,7 +8,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "9000:5173"
+      - "9000:80"
     networks:
       - api
   backend:
