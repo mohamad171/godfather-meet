@@ -1,27 +1,30 @@
 <script>
-import { defineComponent } from 'vue';
-import { io } from 'socket.io-client';
-import 'fast-crypto';
-
-import SimpleSignalClient from 'simple-signal-client';
-
+import {ref} from "vue";
+import {defineComponent} from "vue";
+import {io} from "socket.io-client";
+import "fast-crypto";
+import SimpleSignalClient from "simple-signal-client";
+let uistate = ref({
+  videoCamera: false,
+  microphone: false
+});
 export default defineComponent({
   data() {
     return {
       signalClient: null,
       videoList: [],
       canvas: null,
-      socket: null
+      socket: null,
     };
   },
   props: {
     roomId: {
       type: String,
-      default: 'public-room-v2'
+      default: "public-room-v2"
     },
     socketURL: {
       type: String,
-      default: 'https://websocket.straiberry.com'
+      default: "https://websocket.straiberry.com"
     },
     cameraHeight: {
       type: [Number, String],
@@ -33,7 +36,7 @@ export default defineComponent({
     },
     screenshotFormat: {
       type: String,
-      default: 'image/jpeg'
+      default: "image/jpeg"
     },
     enableAudio: {
       type: Boolean,
@@ -56,7 +59,10 @@ export default defineComponent({
     ioOptions: {
       type: Object,
       default() {
-        return { rejectUnauthorized: false, transports: ['polling', 'websocket'] };
+        return {
+          rejectUnauthorized: false,
+          transports: ["polling", "websocket"]
+        };
       }
     },
     deviceId: {
@@ -77,38 +83,44 @@ export default defineComponent({
         audio: that.enableAudio
       };
       if (that.deviceId && that.enableVideo) {
-        constraints.video = { deviceId: { exact: that.deviceId } };
+        constraints.video = {deviceId: {exact: that.deviceId}};
       }
       try {
-        const localStream = await navigator.mediaDevices.getUserMedia(constraints);
-        this.log('opened', localStream);
+        const localStream = await navigator.mediaDevices.getUserMedia(
+          constraints
+        );
+        this.log("opened", localStream);
         this.joinedRoom(localStream, true);
-        this.signalClient.once('discover', (discoveryData) => {
-          that.log('discovered', discoveryData);
+        this.signalClient.once("discover", discoveryData => {
+          that.log("discovered", discoveryData);
           async function connectToPeer(peerID) {
             if (peerID === that.socket.id) return;
             try {
-              that.log('Connecting to peer');
-              const { peer } = await that.signalClient.connect(peerID, that.roomId, that.peerOptions);
+              that.log("Connecting to peer");
+              const {peer} = await that.signalClient.connect(
+                peerID,
+                that.roomId,
+                that.peerOptions
+              );
               that.videoList.forEach(v => {
                 if (v.isLocal) {
                   that.onPeer(peer, v.stream);
                 }
               });
             } catch (e) {
-              that.log('Error connecting to peer',e);
+              that.log("Error connecting to peer", e);
             }
           }
-          discoveryData.peers.forEach((peerID) => connectToPeer(peerID));
-          that.$emit('opened-room', that.roomId);
+          discoveryData.peers.forEach(peerID => connectToPeer(peerID));
+          that.$emit("opened-room", that.roomId);
         });
       } catch (error) {
-        that.log('Error accessing media devices:', error);
+        that.log("Error accessing media devices:", error);
       }
-      this.signalClient.on('request', async (request) => {
-        that.log('requested', request);
-        const { peer } = await request.accept({}, that.peerOptions);
-        that.log('accepted', peer);
+      this.signalClient.on("request", async request => {
+        that.log("requested", request);
+        const {peer} = await request.accept({}, that.peerOptions);
+        that.log("accepted", peer);
         that.videoList.forEach(v => {
           if (v.isLocal) {
             that.onPeer(peer, v.stream);
@@ -119,24 +131,26 @@ export default defineComponent({
     },
     onPeer(peer, localStream) {
       const that = this;
-      that.log('onPeer');
+      that.log("onPeer");
       peer.addStream(localStream);
-      peer.on('stream', (remoteStream) => {
+      peer.on("stream", remoteStream => {
         that.joinedRoom(remoteStream, false);
-        peer.on('close', () => {
-          const newList = that.videoList.filter(item => item.id !== remoteStream.id);
+        peer.on("close", () => {
+          const newList = that.videoList.filter(
+            item => item.id !== remoteStream.id
+          );
           that.videoList = newList;
-          that.$emit('left-room', remoteStream.id);
+          that.$emit("left-room", remoteStream.id);
         });
-        peer.on('error', (err) => {
-          that.log('peer error ', err);
+        peer.on("error", err => {
+          that.log("peer error ", err);
         });
       });
     },
     joinedRoom(stream, isLocal) {
       const that = this;
       const found = that.videoList.find(video => video.id === stream.id);
-      console.log("Foooound",found)
+      console.log("Foooound", found);
       if (found === undefined) {
         const video = {
           id: stream.id,
@@ -157,8 +171,7 @@ export default defineComponent({
       }, 1000);
     },
     log(message, data = null) {
-        console.log('[VueWebRTC]', message, data);
-
+      console.log("[VueWebRTC]", message, data);
     }
   },
   beforeUnmount() {
@@ -171,28 +184,305 @@ export default defineComponent({
   }
 });
 </script>
-
 <template>
   <div>
-    <div v-for="video in videoList" :key="video.id">
-      <video
-      :ref="`videos`"
-      :muted="video.muted"
-      :style="{ height: `${cameraHeight}px` }"
-      playsinline
-    ></video>
-      <div v-if="video.isLocal">
-        <button class="btn btn-sm">👍</button>
-        <button class="btn btn-sm">👎</button>
-        <button class="btn btn-sm">🤚</button>
+    <div class="flex items-center h-[90px]">
+      <div
+        v-for="video in videoList"
+        :key="video.id"
+        class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] max-h-[100%]"
+      >
+        <video
+          :class="{selfCamera: video.isLocal}"
+          class="w-[100%] h-[100%]"
+          :ref="`videos`"
+          :muted="video.muted"
+          playsinline
+        ></video>
       </div>
-
-
-
+      <div
+        class="h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2"
+      >
+        <div class="flex">
+          <p class="ml-[2px]">نقش شما:</p>
+          <p class="text-[#B51818]">پدرخوانده</p>
+        </div>
+        <p class="mx-[7%]">سناریو پدرخوانده</p>
+      </div>
     </div>
-
+    <div class="px-2 mt-1 h-[58vh]">
+      <div
+        v-for="video in videoList"
+        :key="video.id"
+        class="border w-[100%] h-[19vh] rounded-2xl"
+      >
+        <video
+          :class="{selfCamera: video.isLocal}"
+          class="min-w-[100%] h-[100%]"
+          :ref="`videos`"
+          :muted="video.muted"
+          playsinline
+        ></video>
+      </div>
+      <!-- 16 container -->
+      <div class="flex items-start flex-wrap min-h-[80%] mt-1">
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+        <div
+          class="border w-[23%] m-[1%] h-[10vh] max-h-[23%] overflow-hidden rounded-lg"
+          v-for="video in videoList"
+          :key="video.id"
+        >
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>
+      </div>
+      <div class="w-[100%] flex justify-between h-[40px] mt-1 [direction:ltr]">
+        <button
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] rounded-full flex-center mx-auto"
+        >
+          👍
+        </button>
+        <button
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] rounded-full flex-center mx-auto"
+        >
+          👎
+        </button>
+        <button
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] rounded-full flex-center mx-auto"
+        >
+          🤚
+        </button>
+        <button
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] rounded-full flex-center mx-auto hover:bg-white transition-all"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 384 512"
+            class="w-[22px] mx-auto"
+          >
+            <path
+              fill="white"
+              class="hover:fill-black transition-all"
+              d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"
+            />
+          </svg>
+        </button>
+        <button
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] rounded-full flex-center mx-auto transition-all"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 576 512"
+            class="w-[22px] mx-auto"
+          >
+            <path
+              fill="white"
+              d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
-
 </template>
 
 <style scoped>

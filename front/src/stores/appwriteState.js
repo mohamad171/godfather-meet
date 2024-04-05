@@ -3,8 +3,6 @@ import { defineStore } from 'pinia'
 import { Client,Databases,ID } from 'appwrite';
 import { useToast } from 'vue-toast-notification';
 import { useRouter } from 'vue-router'
-
-
 export const useAppwriteState = defineStore('appwriteState', () => {
     var rooms = ref([])
     var selectedRoom = ref();
