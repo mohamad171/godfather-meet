@@ -10,8 +10,7 @@ state.getRooms()
 </script>
 
 <template>
-
-  <main class="container-fluid">
+  <main class="">
     <div class="d-flex align-items-center">
       <div>
       <label>Room name:</label>
@@ -29,7 +28,5 @@ state.getRooms()
         </li>
       </ul>
     </div>
-    
-
   </main>
 </template>
