@@ -1,10 +1,11 @@
 <script setup>
-import {ref} from "vue";
+import {ref, onMounted} from "vue";
 import {useAppwriteState} from "../stores/appwriteState";
 import WebrtcComponent from "@/components/WebrtcComponent.vue";
 let uistate = ref({
   mobileMenu: false
 });
+var state = useAppwriteState();
 let smaple = [
   [
     "امیر علی",
@@ -49,25 +50,37 @@ let smaple = [
     }
   ]
 ];
-var state = useAppwriteState();
+onMounted(() => {
+  setInterval(() => {
+    if (window.innerWidth > 768) {
+      uistate.value.mobileMenu = true;
+    } else {
+    }
+  });
+});
 </script>
 <template>
-  <div class="text-[white] bg-[#2E2E2E] h-[100vh] relative">
+  <div
+    class="text-[white] bg-[#2E2E2E] h-[100vh] relative flex flex-col md:flex-row"
+  >
     <!-- menu for mobile -->
     <div
       v-if="uistate.mobileMenu"
-      class="w-[100%] z-20 absolute h-[100vh] border-l-[1px] flex flex-col bg-[#2E2E2E]"
+      class="w-[100%] z-30 absolute h-[100vh] flex flex-col bg-[#2E2E2E] md:relative md:w-[39%] md:border-l-[1px]"
     >
       <div class="h-[47%] border-b-[1px]">
         <div class="flex-center text-[18px] mb-1">
           گفتگو با تیم مافیا
 
-          <img src="/xmark.svg" alt="" class="absolute left-3  w-[25px]"
-          @click="uistate.mobileMenu = !uistate.mobileMenu"
-          >
+          <img
+            src="/xmark.svg"
+            alt=""
+            class="absolute left-2 top-1 w-[25px] md:hidden"
+            @click="uistate.mobileMenu = !uistate.mobileMenu"
+          />
         </div>
         <div
-          class="h-[72%] flex flex-col items-start max-w-[85%] overflow-y-auto"
+          class="h-[73%] flex flex-col items-start max-w-[100%] overflow-y-auto pl-[12%]"
         >
           <div class="flex m-1 mr-0 w-[85%]" v-for="item in smaple[1]">
             <div
@@ -86,15 +99,15 @@ var state = useAppwriteState();
             </div>
           </div>
         </div>
-        <div class="h-[17%] flex">
+        <div class="h-[16%] flex">
           <input
             type="text"
-            class="bg-[#252525] p-[14px] w-[82%]"
+            class="bg-[#252525] p-[14px] w-[86%]"
             style="border-radius: 16px 16px 0 0"
             placeholder="اینجا بنویسید"
           />
           <button
-            class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] rounded-full flex-center mx-auto"
+            class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] h-[45px] rounded-full flex-center m-auto"
           >
             <img src="/send.svg" class="w-[23px]" alt="" />
           </button>
@@ -124,25 +137,33 @@ var state = useAppwriteState();
       </div>
     </div>
     <!-- menu for mobile -->
-    <div class="flex items-start h-[60px] w-[100%] justify-between py-2 px-3">
+    <div
+      class="flex items-start h-[60px] w-[100%] justify-between py-2 px-3 md:flex-row-reverse md:absolute right-[39%] z-20 md:w-[250px]"
+    >
       <img
+        class="md:hidden"
         src="/menu.svg"
         alt=""
         @click="uistate.mobileMenu = !uistate.mobileMenu"
       />
-
-      <img src="/logo.png" alt="" class="w-[100px] relative bottom-[22px]" />
+      <img
+        src="/logo.png"
+        alt=""
+        class="w-[100px] bottom-[22px] relative md:min-w-[145px] md:bottom-[30px]"
+      />
       <button
-        class="bg-[#B51818] px-5 h-[28px] rounded-full [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.1)]"
+        class="bg-[#B51818] px-6 h-[32px] rounded-xl text-[18px] [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.1)]"
       >
         <p class="relative bottom-1">خروج</p>
       </button>
     </div>
-    <WebrtcComponent
-      width="150"
-      height="150"
-      :room-id="state.selectedRoom.id"
-    />
+    <div class="md:w-[61%]">
+      <WebrtcComponent
+        width="150"
+        height="150"
+        :room-id="state.selectedRoom.id"
+      />
+    </div>
   </div>
 </template>
 <style scoped>
