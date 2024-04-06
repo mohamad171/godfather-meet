@@ -189,11 +189,11 @@ export default defineComponent({
 </script>
 <template>
   <div>
-    <div class="flex items-center h-[13vh]">
+    <div class="flex items-center h-[13vh] md:h-[39vh]">
       <div
         v-for="video in videoList"
         :key="video.id"
-        class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%]"
+        class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]"
       >
         <video
           width="100%"
@@ -206,7 +206,7 @@ export default defineComponent({
         ></video>
       </div>
       <div
-        class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%]"
+        class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]"
       >
         <div class="flex">
           <p class="ml-[2px]">نقش شما:</p>
@@ -214,12 +214,27 @@ export default defineComponent({
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
-    </div>
-    <div class="px-2 mt-1 h-[76vh] pb-[45px] relative">
       <div
         v-for="video in videoList"
         :key="video.id"
-        class="border w-[100%] h-[19vh] flex rounded-2xl relative overflow-hidden"
+        class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"
+      >
+        <video
+          width="100%"
+          height="100%"
+          :class="{selfCamera: video.isLocal}"
+          class="absolute bottom-0"
+          :ref="`videos`"
+          :muted="video.muted"
+          playsinline
+        ></video>
+      </div>
+    </div>
+    <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
+      <div
+        v-for="video in videoList"
+        :key="video.id"
+        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"
       >
         <video
           width="100%"
@@ -232,11 +247,9 @@ export default defineComponent({
         ></video>
       </div>
       <!-- 16th container -->
-      <div
-        class="flex items-start justify-between flex-wrap h-[70%] max-h-[70%] mt-1 jus"
-      >
+      <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -273,7 +286,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -310,7 +323,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -347,7 +360,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -384,7 +397,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -421,7 +434,43 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
+          v-for="video in videoList"
+          :key="video.id"
+          @click="
+            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
+              (playerStatus.Shownumber = !playerStatus.Shownumber)
+          "
+        >
+          <div
+            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
+            :class="{hidden: playerStatus.Shownumber}"
+          >
+            1
+          </div>
+          <div
+            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
+            :class="{hidden: playerStatus.Showinformatin}"
+          >
+            <div class="[direction:ltr] text-[12px]">
+              امیرعلی<br />
+              #217478
+            </div>
+            <img
+              src="/expand.svg"
+              alt=""
+              class="w-[18px] absolute bottom-1 right-1"
+            />
+          </div>
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>        <div
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -458,7 +507,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -495,7 +544,43 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
+          v-for="video in videoList"
+          :key="video.id"
+          @click="
+            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
+              (playerStatus.Shownumber = !playerStatus.Shownumber)
+          "
+        >
+          <div
+            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
+            :class="{hidden: playerStatus.Shownumber}"
+          >
+            1
+          </div>
+          <div
+            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
+            :class="{hidden: playerStatus.Showinformatin}"
+          >
+            <div class="[direction:ltr] text-[12px]">
+              امیرعلی<br />
+              #217478
+            </div>
+            <img
+              src="/expand.svg"
+              alt=""
+              class="w-[18px] absolute bottom-1 right-1"
+            />
+          </div>
+          <video
+            :class="{selfCamera: video.isLocal}"
+            class="w-[100%] h-[100%]"
+            :ref="`videos`"
+            :muted="video.muted"
+            playsinline
+          ></video>
+        </div>        <div
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -532,7 +617,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -569,7 +654,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -606,192 +691,7 @@ export default defineComponent({
           ></video>
         </div>
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
-          v-for="video in videoList"
-          :key="video.id"
-          @click="
-            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
-              (playerStatus.Shownumber = !playerStatus.Shownumber)
-          "
-        >
-          <div
-            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
-            :class="{hidden: playerStatus.Shownumber}"
-          >
-            1
-          </div>
-          <div
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
-            :class="{hidden: playerStatus.Showinformatin}"
-          >
-            <div class="[direction:ltr] text-[12px]">
-              امیرعلی<br />
-              #217478
-            </div>
-            <img
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1"
-            />
-          </div>
-          <video
-            :class="{selfCamera: video.isLocal}"
-            class="w-[100%] h-[100%]"
-            :ref="`videos`"
-            :muted="video.muted"
-            playsinline
-          ></video>
-        </div>
-        <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
-          v-for="video in videoList"
-          :key="video.id"
-          @click="
-            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
-              (playerStatus.Shownumber = !playerStatus.Shownumber)
-          "
-        >
-          <div
-            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
-            :class="{hidden: playerStatus.Shownumber}"
-          >
-            1
-          </div>
-          <div
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
-            :class="{hidden: playerStatus.Showinformatin}"
-          >
-            <div class="[direction:ltr] text-[12px]">
-              امیرعلی<br />
-              #217478
-            </div>
-            <img
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1"
-            />
-          </div>
-          <video
-            :class="{selfCamera: video.isLocal}"
-            class="w-[100%] h-[100%]"
-            :ref="`videos`"
-            :muted="video.muted"
-            playsinline
-          ></video>
-        </div>
-        <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
-          v-for="video in videoList"
-          :key="video.id"
-          @click="
-            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
-              (playerStatus.Shownumber = !playerStatus.Shownumber)
-          "
-        >
-          <div
-            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
-            :class="{hidden: playerStatus.Shownumber}"
-          >
-            1
-          </div>
-          <div
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
-            :class="{hidden: playerStatus.Showinformatin}"
-          >
-            <div class="[direction:ltr] text-[12px]">
-              امیرعلی<br />
-              #217478
-            </div>
-            <img
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1"
-            />
-          </div>
-          <video
-            :class="{selfCamera: video.isLocal}"
-            class="w-[100%] h-[100%]"
-            :ref="`videos`"
-            :muted="video.muted"
-            playsinline
-          ></video>
-        </div>
-        <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
-          v-for="video in videoList"
-          :key="video.id"
-          @click="
-            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
-              (playerStatus.Shownumber = !playerStatus.Shownumber)
-          "
-        >
-          <div
-            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
-            :class="{hidden: playerStatus.Shownumber}"
-          >
-            1
-          </div>
-          <div
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
-            :class="{hidden: playerStatus.Showinformatin}"
-          >
-            <div class="[direction:ltr] text-[12px]">
-              امیرعلی<br />
-              #217478
-            </div>
-            <img
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1"
-            />
-          </div>
-          <video
-            :class="{selfCamera: video.isLocal}"
-            class="w-[100%] h-[100%]"
-            :ref="`videos`"
-            :muted="video.muted"
-            playsinline
-          ></video>
-        </div>
-        <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
-          v-for="video in videoList"
-          :key="video.id"
-          @click="
-            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
-              (playerStatus.Shownumber = !playerStatus.Shownumber)
-          "
-        >
-          <div
-            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
-            :class="{hidden: playerStatus.Shownumber}"
-          >
-            1
-          </div>
-          <div
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
-            :class="{hidden: playerStatus.Showinformatin}"
-          >
-            <div class="[direction:ltr] text-[12px]">
-              امیرعلی<br />
-              #217478
-            </div>
-            <img
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1"
-            />
-          </div>
-          <video
-            :class="{selfCamera: video.isLocal}"
-            class="w-[100%] h-[100%]"
-            :ref="`videos`"
-            :muted="video.muted"
-            playsinline
-          ></video>
-        </div>
-        <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative"
+          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
           @click="
@@ -830,36 +730,36 @@ export default defineComponent({
       </div>
       <!-- reaction panel container  -->
       <div
-        class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%]"
+        class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]"
       >
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] ml-3"
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]  ml-3"
         >
           👍
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px]"
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] "
         >
           👎
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px]"
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] "
         >
           🤚
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] transition-[300ms]"
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]  transition-[300ms]"
           :class="{'bg-white': playerStatus.microphone}"
           @click="playerStatus.microphone = !playerStatus.microphone"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 384 512"
-            class="w-[29px] mx-auto"
+            class="w-[29px] md:w-[17px] mx-auto"
           >
             <path
               class="fill-white"
-              :class="{fillblacker : playerStatus.microphone}"
+              :class="{fillblacker: playerStatus.microphone}"
               d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"
             />
           </svg>
@@ -872,11 +772,11 @@ export default defineComponent({
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 576 512"
-            class="w-[31px] mx-auto"
+            class="w-[31px] md:w-[19px] mx-auto"
           >
             <path
               class="fill-white"
-              :class="{fillblacker : playerStatus.videoCamera}"
+              :class="{fillblacker: playerStatus.videoCamera}"
               d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"
             />
           </svg>
@@ -898,5 +798,9 @@ video {
 }
 .fillblacker {
   fill: black !important;
+}
+.camera > div {
+  margin-inline: 2px;
+
 }
 </style>
