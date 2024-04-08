@@ -82,6 +82,10 @@ export default defineComponent({
       const that = this;
       this.socket = io(this.socketURL, this.ioOptions);
       this.signalClient = new SimpleSignalClient(this.socket);
+
+      io.on('connection', (socket) => {
+        console.log("Connect")
+      });
       const constraints = {
         video: that.enableVideo,
         audio: that.enableAudio
