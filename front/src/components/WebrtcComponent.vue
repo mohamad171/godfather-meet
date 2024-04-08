@@ -27,8 +27,7 @@ export default defineComponent({
     },
     socketURL: {
       type: String,
-      default: "http://192.168.4.133:5173"
-      // default: "https://websocket.straiberry.com"
+      default: "https://websocket.straiberry.com"
     },
     cameraHeight: {
       type: [Number, String],
@@ -82,10 +81,6 @@ export default defineComponent({
       const that = this;
       this.socket = io(this.socketURL, this.ioOptions);
       this.signalClient = new SimpleSignalClient(this.socket);
-
-      io.on('connection', (socket) => {
-        console.log("Connect")
-      });
       const constraints = {
         video: that.enableVideo,
         audio: that.enableAudio
@@ -135,9 +130,6 @@ export default defineComponent({
           }
         });
       });
-      this.signalClient.on("command", async request => {
-        that.log("command");
-      });
       this.signalClient.discover(that.roomId);
     },
     onPeer(peer, localStream) {
@@ -165,7 +157,7 @@ export default defineComponent({
       if (found === undefined) {
         const video = {
           id: stream.id,
-          muted: false,
+          muted: isLocal,
           stream: stream,
           isLocal: isLocal
         };
@@ -225,23 +217,7 @@ export default defineComponent({
 <!--      <div-->
 <!--        v-for="video in videoList"-->
 <!--        :key="video.id"-->
-<!--        class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex">-->
-<!--        <video-->
-<!--          width="100%"-->
-<!--          height="100%"-->
-<!--          :class="{selfCamera: video.isLocal}"-->
-<!--          class="absolute bottom-0"-->
-<!--          :ref="`videos`"-->
-<!--          :muted="video.isLocal"-->
-<!--          playsinline-->
-<!--        ></video>-->
-<!--      </div>-->
-    </div>
-    <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
-<!--      <div -->
-<!--        v-for="video in videoList"-->
-<!--        :key="video.id"-->
-<!--        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"-->
+<!--        class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"-->
 <!--      >-->
 <!--        <video-->
 <!--          width="100%"-->
@@ -253,6 +229,23 @@ export default defineComponent({
 <!--          playsinline-->
 <!--        ></video>-->
 <!--      </div>-->
+    </div>
+    <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
+      <div
+        v-for="video in videoList"
+        :key="video.id"
+        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"
+      >
+        <video
+          width="100%"
+          height="100%"
+          :class="{selfCamera: video.isLocal}"
+          class="absolute bottom-0"
+          :ref="`videos`"
+          :muted="video.muted"
+          playsinline
+        ></video>
+      </div>
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
@@ -285,13 +278,14 @@ export default defineComponent({
             />
           </div>
           <video
-            :class="(video.isLocal) ? 'border-2 border-green-700' : ''"
+            :class="(video.isLocal) ? 'border-2 border-green-800' : ''"
             class="w-[100%] h-[100%]"
             :ref="`videos`"
             :muted="video.muted"
             playsinline
           ></video>
         </div>
+
 
       </div>
       <!-- reaction panel container  -->
@@ -348,6 +342,7 @@ export default defineComponent({
           </svg>
         </button>
       </div>
+
     </div>
   </div>
 </template>
