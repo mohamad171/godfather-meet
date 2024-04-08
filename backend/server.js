@@ -46,6 +46,13 @@ signalServer.on('disconnect', (socket) => {
    }
    log('left ' + roomId + ' ' + memberId)
 })
+io.on('connection', (socket) => {
+  console.log('a user connected');
+});
+signalServer.on('request', (request) => {
+   request.forward()
+   log('requested')
+})
 
 signalServer.on('request', (request) => {
    request.forward()
