@@ -120,7 +120,6 @@ export default defineComponent({
     unmuteVideo(peer_id){
       this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"unmute_video"})
     },
-
     async join() {
       const that = this;
       this.socket = io(this.socketURL, this.ioOptions);
@@ -131,7 +130,18 @@ export default defineComponent({
       };
 
       this.socket.on("command",(data)=>{
-        console.log(`Command:`,data)
+        var div_element = document.querySelector(`div[data-socketid=${data["peer"]}]`)
+        switch (data["command"]){
+          case "like":
+            // show like on video
+            break;
+          case "dislike":
+            // show like on video
+            break;
+          case "challenge":
+            // show like on video
+            break;
+        }
       })
 
 
@@ -143,7 +153,7 @@ export default defineComponent({
           constraints
         );
         this.log("opened", localStream);
-        this.joinedRoom(localStream, true);
+        this.joinedRoom(localStream, true,that.socket.id);
         this.signalClient.once("discover", discoveryData => {
           that.log("discovered", discoveryData);
           async function connectToPeer(peerID) {
@@ -171,8 +181,9 @@ export default defineComponent({
         that.log("Error accessing media devices:", error);
       }
       this.signalClient.on("request", async request => {
-        that.log("requested", request);
-        const {peer} = await request.accept({}, that.peerOptions);
+        that.log("requested", request.initiator);
+        const {peer} = await request.accept(request.initiator, {"initiator":request.initiator});
+        peer["socket_id"] = request.initiator
         that.log("accepted", peer);
         that.videoList.forEach(v => {
           if (v.isLocal) {
@@ -184,10 +195,10 @@ export default defineComponent({
     },
     onPeer(peer, localStream) {
       const that = this;
-      that.log("onPeer");
       peer.addStream(localStream);
       peer.on("stream", remoteStream => {
-        that.joinedRoom(remoteStream, false);
+        console.log("Stream",remoteStream)
+        that.joinedRoom(remoteStream, false,peer["socket_id"]);
         peer.on("close", () => {
           const newList = that.videoList.filter(
             item => item.id !== remoteStream.id
@@ -200,7 +211,7 @@ export default defineComponent({
         });
       });
     },
-    joinedRoom(stream, isLocal) {
+    joinedRoom(stream, isLocal,socketId) {
       const that = this;
       const found = that.videoList.find(video => video.id === stream.id);
       if (found === undefined) {
@@ -208,6 +219,7 @@ export default defineComponent({
           id: stream.id,
           muted: isLocal,
           stream: stream,
+          socketId: socketId,
           isLocal: isLocal
         };
         that.videoList.push(video);
@@ -280,27 +292,29 @@ export default defineComponent({
 <!--      </div>-->
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
-      <div
-        v-for="video in videoList"
-        :key="video.id"
-        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"
-      >
-        <video
-          width="100%"
-          height="100%"
-          :class="{selfCamera: video.isLocal}"
-          class="absolute bottom-0"
-          :ref="`videos`"
-          :muted="video.muted"
-          playsinline
-        ></video>
-      </div>
+<!--      Speaking video  -->
+<!--      <div-->
+<!--        v-for="video in videoList"-->
+<!--        :key="video.id"-->
+<!--        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"-->
+<!--      >-->
+<!--        <video-->
+<!--          width="100%"-->
+<!--          height="100%"-->
+<!--          :class="{selfCamera: video.isLocal}"-->
+<!--          class="absolute bottom-0"-->
+<!--          :ref="`videos`"-->
+<!--          :muted="video.muted"-->
+<!--          playsinline-->
+<!--        ></video>-->
+<!--      </div>-->
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
           class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="video in videoList"
           :key="video.id"
+          :data-socketId="video.socketId"
           @click="
             (playerStatus.Showinformatin = !playerStatus.Showinformatin),
               (playerStatus.Shownumber = !playerStatus.Shownumber)
@@ -330,6 +344,7 @@ export default defineComponent({
             :class="(video.isLocal) ? 'border-2 border-green-800' : ''"
             class="w-[100%] h-[100%]"
             :ref="`videos`"
+            :id="video.id"
             :muted="video.muted"
             playsinline
           ></video>
