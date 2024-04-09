@@ -162,7 +162,8 @@ onMounted(() => {
       <WebrtcComponent
           width="150"
           height="150"
-          room-id="public"
+          :room-id="$route.params.room_id"
+          :token="$route.params.token"
       />
     </div>
   </div>

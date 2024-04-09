@@ -58,7 +58,6 @@ io.on('connection', (socket) => {
       if(socket.rooms.has(data["room"])){
          io.to(data["room"]).emit("command",data)
       }
-     // io.to().emit("command",data)
   })
 });
 signalServer.on('request', (request) => {
