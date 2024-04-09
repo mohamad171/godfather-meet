@@ -48,17 +48,6 @@ signalServer.on('disconnect', (socket) => {
    log('left ' + roomId + ' ' + memberId)
 })
 
-function checkUserinRoom(roomId,peer_id){
-   let members = rooms.get(roomId);
-   if (members) {
-      members.forEach((item,index)=>{
-         if(item === peer_id){
-            return true;
-         }
-      })
-   }
-   return false;
-}
 
 io.on('connection', (socket) => {
 
@@ -66,11 +55,9 @@ io.on('connection', (socket) => {
      socket.emit("message",data)
   })
    socket.on("command",(data)=>{
-      if(checkUserinRoom(data["room_id"],data["peer_id"])){
-         io.to(data["room_id"]).emit("command",data)
+      if(socket.rooms.has(data["room"])){
+         io.to(data["room"]).emit("command",data)
       }
-
-
      // io.to().emit("command",data)
   })
 });

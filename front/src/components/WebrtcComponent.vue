@@ -27,7 +27,8 @@ export default defineComponent({
     },
     socketURL: {
       type: String,
-      default: "https://websocket.straiberry.com"
+      default: "http://localhost:3000"
+      // default: "https://websocket.straiberry.com"
     },
     cameraHeight: {
       type: [Number, String],
@@ -77,6 +78,49 @@ export default defineComponent({
     this.join();
   },
   methods: {
+
+    sendLike(peer_id){
+      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"like"})
+    },
+    sendDisLike(peer_id){
+      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"dislike"})
+    },
+    sendChallenge(peer_id){
+      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"challenge"})
+    },
+
+    changeVideoStatus(peer_id){
+      if(this.playerStatus.videoCamera === true){
+        this.playerStatus.videoCamera = false
+        this.muteVideo(peer_id)
+      }else{
+        this.playerStatus.videoCamera = true
+        this.unmuteVideo(peer_id)
+      }
+    },
+    changeVoiceStatus(peer_id){
+      if(this.playerStatus.microphone === true){
+        this.playerStatus.microphone = false
+        this.muteVoice(peer_id)
+      }else{
+        this.playerStatus.microphone = true
+        this.unmuteVoice(peer_id)
+      }
+    },
+    muteVoice(peer_id){
+      console.log("mute")
+      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"mute_voice"})
+    },
+    unmuteVoice(peer_id){
+      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"unmute_voice"})
+    },
+    muteVideo(peer_id){
+      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"mute_video"})
+    },
+    unmuteVideo(peer_id){
+      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"unmute_video"})
+    },
+
     async join() {
       const that = this;
       this.socket = io(this.socketURL, this.ioOptions);
@@ -85,6 +129,12 @@ export default defineComponent({
         video: that.enableVideo,
         audio: that.enableAudio
       };
+
+      this.socket.on("command",(data)=>{
+        console.log(`Command:`,data)
+      })
+
+
       if (that.deviceId && that.enableVideo) {
         constraints.video = {deviceId: {exact: that.deviceId}};
       }
@@ -153,7 +203,6 @@ export default defineComponent({
     joinedRoom(stream, isLocal) {
       const that = this;
       const found = that.videoList.find(video => video.id === stream.id);
-      console.log("Foooound", found);
       if (found === undefined) {
         const video = {
           id: stream.id,
@@ -294,23 +343,26 @@ export default defineComponent({
       >
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]  ml-3"
+          @click="sendLike(this.socket.id)"
         >
           👍
         </button>
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] "
+          @click="sendDisLike(this.socket.id)"
         >
           👎
         </button>
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] "
+          @click="sendChallenge(this.socket.id)"
         >
           🤚
         </button>
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]  transition-[300ms]"
           :class="{'bg-white': playerStatus.microphone}"
-          @click="playerStatus.microphone = !playerStatus.microphone"
+          @click="changeVoiceStatus(this.socket.id)"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -327,7 +379,7 @@ export default defineComponent({
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center transition-[300ms]"
           :class="{'bg-white': playerStatus.videoCamera}"
-          @click="playerStatus.videoCamera = !playerStatus.videoCamera"
+          @click="changeVideoStatus(this.socket.id)"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
