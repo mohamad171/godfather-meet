@@ -78,47 +78,74 @@ export default defineComponent({
     this.join();
   },
   methods: {
+    sendLike(peer_id) {
+      this.socket.emit("command", {
+        room: this.roomId,
+        peer: peer_id,
+        command: "like"
+      });
+    },
+    sendDisLike(peer_id) {
+      this.socket.emit("command", {
+        room: this.roomId,
+        peer: peer_id,
+        command: "dislike"
+      });
+    },
+    sendChallenge(peer_id) {
+      this.socket.emit("command", {
+        room: this.roomId,
+        peer: peer_id,
+        command: "challenge"
+      });
+    },
 
-    sendLike(peer_id){
-      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"like"})
-    },
-    sendDisLike(peer_id){
-      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"dislike"})
-    },
-    sendChallenge(peer_id){
-      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"challenge"})
-    },
-
-    changeVideoStatus(peer_id){
-      if(this.playerStatus.videoCamera === true){
-        this.playerStatus.videoCamera = false
-        this.muteVideo(peer_id)
-      }else{
-        this.playerStatus.videoCamera = true
-        this.unmuteVideo(peer_id)
+    changeVideoStatus(peer_id) {
+      if (this.playerStatus.videoCamera === true) {
+        this.playerStatus.videoCamera = false;
+        this.muteVideo(peer_id);
+      } else {
+        this.playerStatus.videoCamera = true;
+        this.unmuteVideo(peer_id);
       }
     },
-    changeVoiceStatus(peer_id){
-      if(this.playerStatus.microphone === true){
-        this.playerStatus.microphone = false
-        this.muteVoice(peer_id)
-      }else{
-        this.playerStatus.microphone = true
-        this.unmuteVoice(peer_id)
+    changeVoiceStatus(peer_id) {
+      if (this.playerStatus.microphone === true) {
+        this.playerStatus.microphone = false;
+        this.muteVoice(peer_id);
+      } else {
+        this.playerStatus.microphone = true;
+        this.unmuteVoice(peer_id);
       }
     },
-    muteVoice(peer_id){
-      console.log("mute")
-      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"mute_voice"})
+    muteVoice(peer_id) {
+      console.log("mute");
+      this.socket.emit("command", {
+        room: this.roomId,
+        peer: peer_id,
+        command: "mute_voice"
+      });
     },
-    unmuteVoice(peer_id){
-      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"unmute_voice"})
+    unmuteVoice(peer_id) {
+      this.socket.emit("command", {
+        room: this.roomId,
+        peer: peer_id,
+        command: "unmute_voice"
+      });
     },
-    muteVideo(peer_id){
-      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"mute_video"})
+    muteVideo(peer_id) {
+      this.socket.emit("command", {
+        room: this.roomId,
+        peer: peer_id,
+        command: "mute_video"
+      });
     },
-    unmuteVideo(peer_id){
-      this.socket.emit("command",{"room":this.roomId,"peer":peer_id,"command":"unmute_video"})
+    unmuteVideo(peer_id) {
+      this.socket.emit("command", {
+        room: this.roomId,
+        peer: peer_id,
+        command: "unmute_video"
+      });
     },
     async join() {
       const that = this;
@@ -129,21 +156,36 @@ export default defineComponent({
         audio: that.enableAudio
       };
 
-      this.socket.on("command",(data)=>{
-        var div_element = document.querySelector(`div[data-socketid=${data["peer"]}]`)
-        switch (data["command"]){
-          case "like":
-            // show like on video
-            break;
-          case "dislike":
-            // show like on video
-            break;
-          case "challenge":
-            // show like on video
-            break;
+      this.socket.on("command", data => {
+        var div_element = document.querySelector(
+          `div[data-socketid=${data["peer"]}]`
+        );
+        if (div_element) {
+          switch (data["command"]) {
+            case "like":
+              div_element.append(
+                '<div class="absolute bottom-0 left-[40%] text-[20px] show-reacton">👍</div>'
+              );
+              console.log("like");
+              // show like on video
+              break;
+            case "dislike":
+              div_element.append(
+                '<div class="absolute bottom-0 left-[40%] text-[20px] show-reacton">👎</div>'
+              );
+              console.log("dislike");
+              // show like on video
+              break;
+            case "challenge":
+              div_element.append(
+                '<div class="absolute bottom-0 left-[40%] text-[20px] show-reacton">🤚</div>'
+              );
+              // show like on video
+              console.log("challenge");
+              break;
+          }
         }
-      })
-
+      });
 
       if (that.deviceId && that.enableVideo) {
         constraints.video = {deviceId: {exact: that.deviceId}};
@@ -153,7 +195,8 @@ export default defineComponent({
           constraints
         );
         this.log("opened", localStream);
-        this.joinedRoom(localStream, true,that.socket.id);
+        console.log(that.socket.id);
+        this.joinedRoom(localStream, true, that.socket.id);
         this.signalClient.once("discover", discoveryData => {
           that.log("discovered", discoveryData);
           async function connectToPeer(peerID) {
@@ -182,8 +225,10 @@ export default defineComponent({
       }
       this.signalClient.on("request", async request => {
         that.log("requested", request.initiator);
-        const {peer} = await request.accept(request.initiator, {"initiator":request.initiator});
-        peer["socket_id"] = request.initiator
+        const {peer} = await request.accept(request.initiator, {
+          initiator: request.initiator
+        });
+        peer["socket_id"] = request.initiator;
         that.log("accepted", peer);
         that.videoList.forEach(v => {
           if (v.isLocal) {
@@ -197,8 +242,8 @@ export default defineComponent({
       const that = this;
       peer.addStream(localStream);
       peer.on("stream", remoteStream => {
-        console.log("Stream",remoteStream)
-        that.joinedRoom(remoteStream, false,peer["socket_id"]);
+        console.log("Stream", remoteStream);
+        that.joinedRoom(remoteStream, false, peer["socket_id"]);
         peer.on("close", () => {
           const newList = that.videoList.filter(
             item => item.id !== remoteStream.id
@@ -211,7 +256,7 @@ export default defineComponent({
         });
       });
     },
-    joinedRoom(stream, isLocal,socketId) {
+    joinedRoom(stream, isLocal, socketId) {
       const that = this;
       const found = that.videoList.find(video => video.id === stream.id);
       if (found === undefined) {
@@ -251,21 +296,21 @@ export default defineComponent({
 <template>
   <div>
     <div class="flex items-center h-[13vh] md:h-[39vh]">
-<!--      <div-->
-<!--        v-for="video in videoList"-->
-<!--        :key="video.id"-->
-<!--        class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]"-->
-<!--      >-->
-<!--        <video-->
-<!--          width="100%"-->
-<!--          height="100%"-->
-<!--          :class="{selfCamera: video.isLocal}"-->
-<!--          class="absolute bottom-0"-->
-<!--          :ref="`videos`"-->
-<!--          :muted="video.muted"-->
-<!--          playsinline-->
-<!--        ></video>-->
-<!--      </div>-->
+      <!--      <div-->
+      <!--        v-for="video in videoList"-->
+      <!--        :key="video.id"-->
+      <!--        class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]"-->
+      <!--      >-->
+      <!--        <video-->
+      <!--          width="100%"-->
+      <!--          height="100%"-->
+      <!--          :class="{selfCamera: video.isLocal}"-->
+      <!--          class="absolute bottom-0"-->
+      <!--          :ref="`videos`"-->
+      <!--          :muted="video.muted"-->
+      <!--          playsinline-->
+      <!--        ></video>-->
+      <!--      </div>-->
       <div
         class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]"
       >
@@ -275,39 +320,39 @@ export default defineComponent({
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
-<!--      <div-->
-<!--        v-for="video in videoList"-->
-<!--        :key="video.id"-->
-<!--        class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"-->
-<!--      >-->
-<!--        <video-->
-<!--          width="100%"-->
-<!--          height="100%"-->
-<!--          :class="{selfCamera: video.isLocal}"-->
-<!--          class="absolute bottom-0"-->
-<!--          :ref="`videos`"-->
-<!--          :muted="video.muted"-->
-<!--          playsinline-->
-<!--        ></video>-->
-<!--      </div>-->
+      <!--      <div-->
+      <!--        v-for="video in videoList"-->
+      <!--        :key="video.id"-->
+      <!--        class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"-->
+      <!--      >-->
+      <!--        <video-->
+      <!--          width="100%"-->
+      <!--          height="100%"-->
+      <!--          :class="{selfCamera: video.isLocal}"-->
+      <!--          class="absolute bottom-0"-->
+      <!--          :ref="`videos`"-->
+      <!--          :muted="video.muted"-->
+      <!--          playsinline-->
+      <!--        ></video>-->
+      <!--      </div>-->
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
-<!--      Speaking video  -->
-<!--      <div-->
-<!--        v-for="video in videoList"-->
-<!--        :key="video.id"-->
-<!--        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"-->
-<!--      >-->
-<!--        <video-->
-<!--          width="100%"-->
-<!--          height="100%"-->
-<!--          :class="{selfCamera: video.isLocal}"-->
-<!--          class="absolute bottom-0"-->
-<!--          :ref="`videos`"-->
-<!--          :muted="video.muted"-->
-<!--          playsinline-->
-<!--        ></video>-->
-<!--      </div>-->
+      <!--      Speaking video  -->
+      <!--      <div-->
+      <!--        v-for="video in videoList"-->
+      <!--        :key="video.id"-->
+      <!--        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"-->
+      <!--      >-->
+      <!--        <video-->
+      <!--          width="100%"-->
+      <!--          height="100%"-->
+      <!--          :class="{selfCamera: video.isLocal}"-->
+      <!--          class="absolute bottom-0"-->
+      <!--          :ref="`videos`"-->
+      <!--          :muted="video.muted"-->
+      <!--          playsinline-->
+      <!--        ></video>-->
+      <!--      </div>-->
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
@@ -326,6 +371,10 @@ export default defineComponent({
           >
             1
           </div>
+          <!-- <div class="absolute bottom-0 left-[40%] text-[20px] show-reacton"
+          >
+            👍
+          </div> -->
           <div
             class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
             :class="{hidden: playerStatus.Showinformatin}"
@@ -341,7 +390,7 @@ export default defineComponent({
             />
           </div>
           <video
-            :class="(video.isLocal) ? 'border-2 border-green-800' : ''"
+            :class="video.isLocal ? 'border-2 border-green-800' : ''"
             class="w-[100%] h-[100%]"
             :ref="`videos`"
             :id="video.id"
@@ -349,33 +398,31 @@ export default defineComponent({
             playsinline
           ></video>
         </div>
-
-
       </div>
       <!-- reaction panel container  -->
       <div
         class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]"
       >
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]  ml-3"
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3"
           @click="sendLike(this.socket.id)"
         >
           👍
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] "
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendDisLike(this.socket.id)"
         >
           👎
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] "
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendChallenge(this.socket.id)"
         >
           🤚
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]  transition-[300ms]"
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] transition-[300ms]"
           :class="{'bg-white': playerStatus.microphone}"
           @click="changeVoiceStatus(this.socket.id)"
         >
@@ -409,7 +456,6 @@ export default defineComponent({
           </svg>
         </button>
       </div>
-
     </div>
   </div>
 </template>
@@ -429,6 +475,5 @@ video {
 }
 .camera > div {
   margin-inline: 2px;
-
 }
 </style>
