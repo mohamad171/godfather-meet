@@ -16,7 +16,8 @@ export default defineComponent({
         Showinformatin: true,
         Shownumber: false,
         microphone: false,
-        videoCamera: false
+        videoCamera: false,
+        challenge: false
       })
     };
   },
@@ -160,28 +161,33 @@ export default defineComponent({
         var div_element = document.querySelector(
           `div[data-socketid=${data["peer"]}]`
         );
+        const childElement = div_element.querySelector("#reactionConatiner");
+        console.log(childElement);
         if (div_element) {
           switch (data["command"]) {
             case "like":
-              div_element.append(
-                '<div class="absolute bottom-0 left-[40%] text-[20px] show-reacton">👍</div>'
-              );
-              console.log("like");
-              // show like on video
+              childElement.textContent = "👍";
+              childElement.classList.add("show-reaction");
+              setTimeout(() => {
+                childElement.textContent = "";
+                childElement.classList.toggle("show-reaction");
+              }, 2000);
               break;
             case "dislike":
-              div_element.append(
-                '<div class="absolute bottom-0 left-[40%] text-[20px] show-reacton">👎</div>'
-              );
-              console.log("dislike");
-              // show like on video
+              childElement.textContent = "👎";
+              childElement.classList.add("show-reaction");
+              setTimeout(() => {
+                childElement.textContent = "";
+                childElement.classList.toggle("show-reaction");
+              }, 2000);
               break;
             case "challenge":
-              div_element.append(
-                '<div class="absolute bottom-0 left-[40%] text-[20px] show-reacton">🤚</div>'
-              );
-              // show like on video
-              console.log("challenge");
+              this.playerStatus.challenge = !this.playerStatus.challenge;
+              if (this.playerStatus.challenge) {
+                childElement.textContent = "🤚";
+              } else {
+                childElement.textContent = "";
+              }
               break;
           }
         }
@@ -371,10 +377,10 @@ export default defineComponent({
           >
             1
           </div>
-          <!-- <div class="absolute bottom-0 left-[40%] text-[20px] show-reacton"
-          >
-            👍
-          </div> -->
+          <div
+            class="absolute bottom-2 left-[37%] text-[20px]"
+            id="reactionConatiner"
+          ></div>
           <div
             class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
             :class="{hidden: playerStatus.Showinformatin}"
@@ -418,6 +424,7 @@ export default defineComponent({
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendChallenge(this.socket.id)"
+          :class="{'bg-white': playerStatus.challenge}"
         >
           🤚
         </button>

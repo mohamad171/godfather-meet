@@ -29,22 +29,5 @@
   .container2 input:checked ~ .checkmark {
     background-color: #DE3838;
   }
-  /* var class */
-/* .show-reaction {
-  animation-name: showReaction;
-  animation: 1 3s ease-in-out;
-}
-@keyframes showReaction {
-  0% {
-    opacity: .25 !important;
-  }
-  25%{
-    opacity: 1 !important;
-  }
-  100%{
-    opacity: 0 !important;
-  }
-  
-} */
   
 
