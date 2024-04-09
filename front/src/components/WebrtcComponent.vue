@@ -161,9 +161,10 @@ export default defineComponent({
         var div_element = document.querySelector(
           `div[data-socketid=${data["peer"]}]`
         );
-        const childElement = div_element.querySelector("#reactionConatiner");
-        console.log(childElement);
-        if (div_element) {
+        console.log(div_element)
+        if (div_element !== "") {
+          const childElement = div_element.querySelector("#reactionConatiner");
+          console.log(childElement);
           switch (data["command"]) {
             case "like":
               childElement.textContent = "👍";
@@ -190,6 +191,8 @@ export default defineComponent({
               }
               break;
           }
+        } else {
+          console.log("div el not recognized");
         }
       });
 
