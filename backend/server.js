@@ -30,6 +30,7 @@ signalServer.on('discover', (request) => {
       rooms.set(roomId, members);
    }
    members.add(memberId);
+   request.socket.join(roomId)
    request.socket.roomId = roomId;
    request.discover({
       peers: Array.from(members)
@@ -48,12 +49,13 @@ signalServer.on('disconnect', (socket) => {
 })
 io.on('connection', (socket) => {
   console.log('a user connected');
+  socket.on("message",(data)=>{
+     socket.emit("message",data)
+  })
+   socket.on("command",(data)=>{
+     socket.emit("command",data)
+  })
 });
-signalServer.on('request', (request) => {
-   request.forward()
-   log('requested')
-})
-
 signalServer.on('request', (request) => {
    request.forward()
    log('requested')
