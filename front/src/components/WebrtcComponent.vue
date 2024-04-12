@@ -73,8 +73,13 @@ export default defineComponent({
     deviceId: {
       type: String,
       default: null
+    },
+    token: {
+      type: String,
+      default: null
     }
   },
+
   mounted() {
     this.join();
   },
@@ -162,8 +167,7 @@ export default defineComponent({
         var div_element = document.querySelector(
           "div[data-socketid='"+data["peer"]+"']"
         );
-        console.log(div_element)
-        if (div_element !== "") {
+        if (div_element) {
           const childElement = div_element.querySelector("#reactionConatiner");
           console.log(childElement);
           switch (data["command"]) {
@@ -247,7 +251,7 @@ export default defineComponent({
           }
         });
       });
-      this.signalClient.discover(that.roomId);
+      this.signalClient.discover({"room":that.roomId,"token":this.token});
     },
     onPeer(peer, localStream) {
       const that = this;

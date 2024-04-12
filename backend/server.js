@@ -1,4 +1,5 @@
 const app = require('express')();
+const api = require('./godfather_api_interface')
 let server = {};
 
 server = require('http').createServer(app);
@@ -23,19 +24,24 @@ app.get('/', function (req, res) {
 signalServer.on('discover', (request) => {
    log('discover');
    let memberId = request.socket.id;
-   let roomId = request.discoveryData;
-   let members = rooms.get(roomId);
-   if (!members) {
-      members = new Set();
-      rooms.set(roomId, members);
+   let roomId = request.discoveryData["room"];
+   var token = request.discoveryData["token"];
+   if(token){
+      api.joinPlayer(token,roomId,"player")
+      let members = rooms.get(roomId);
+      if (!members) {
+         members = new Set();
+         rooms.set(roomId, members);
+      }
+      members.add(memberId);
+      request.socket.join(roomId)
+      request.socket.roomId = roomId;
+      request.discover({
+         peers: Array.from(members)
+      });
+      log('joined ' + roomId + ' ' + memberId)
    }
-   members.add(memberId);
-   request.socket.join(roomId)
-   request.socket.roomId = roomId;
-   request.discover({
-      peers: Array.from(members)
-   });
-   log('joined ' + roomId + ' ' + memberId)
+
 })
 
 signalServer.on('disconnect', (socket) => {
