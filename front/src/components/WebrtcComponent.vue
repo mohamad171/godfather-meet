@@ -158,8 +158,9 @@ export default defineComponent({
       };
 
       this.socket.on("command", data => {
+        console.log(data)
         var div_element = document.querySelector(
-          `div[data-socketid=${data["peer"]}]`
+          "div[data-socketid='"+data["peer"]+"']"
         );
         console.log(div_element)
         if (div_element !== "") {
@@ -219,6 +220,7 @@ export default defineComponent({
               );
               that.videoList.forEach(v => {
                 if (v.isLocal) {
+                  peer["socket_id"] = peerID
                   that.onPeer(peer, v.stream);
                 }
               });
