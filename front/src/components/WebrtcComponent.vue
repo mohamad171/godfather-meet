@@ -202,11 +202,16 @@ export default defineComponent({
       });
       this.socket.on("join_game", data => {
         if(data["status"]){
-          // Successfull join
+          // Successful join
         }else{
-          // Join faild
+          // Join failed
         }
       });
+
+      this.socket.on("players_info",data => {
+
+      })
+
       if (that.deviceId && that.enableVideo) {
         constraints.video = {deviceId: {exact: that.deviceId}};
       }
