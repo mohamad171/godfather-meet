@@ -92,10 +92,10 @@ io.on('connection', (socket) => {
     })
     socket.on("players_info", (data) => {
         if (socket.rooms.has(data["room"])) {
-            axios.post(`${baseUrl}/playersinfo?secret=${godfatherSecretKey}`, {
+            axios.post(`${baseUrl}/playerinfo?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"], "socket_id": socket.id,"token":data["token"]
             }).then(value => {
-                io.to(data["room"]).emit("players_info", value.data["player"])
+                io.to(data["room"]).emit("players_info", value.data)
             })
         }
 
