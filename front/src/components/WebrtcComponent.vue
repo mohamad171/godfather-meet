@@ -15,9 +15,11 @@ export default defineComponent({
         isDead: true,
         Showinformatin: true,
         Shownumber: false,
-        microphone: false,
+        microphone: true,
         videoCamera: false,
-        challenge: false
+        challenge: false,
+        isJoined: true,
+        Error: false
       })
     };
   },
@@ -116,7 +118,8 @@ export default defineComponent({
       }
     },
     changeVoiceStatus(peer_id) {
-      if (this.playerStatus.microphone === true) {
+      console.log(this.playerStatus.microphone);
+      if (this.playerStatus.microphone) {
         this.playerStatus.microphone = false;
         this.muteVoice(peer_id);
       } else {
@@ -163,9 +166,9 @@ export default defineComponent({
       };
 
       this.socket.on("command", data => {
-        console.log(data)
+        console.log(data);
         var div_element = document.querySelector(
-          "div[data-socketid='"+data["peer"]+"']"
+          "div[data-socketid='" + data["peer"] + "']"
         );
         if (div_element) {
           const childElement = div_element.querySelector("#reactionConatiner");
@@ -201,18 +204,14 @@ export default defineComponent({
         }
       });
       this.socket.on("join_game", data => {
-        if(data["status"]){
-          // Successful join
-          // TODO Hide preloader
-        }else{
-          // Join failed
-          // TODO Show error message
+        if (data["status"]) {
+          this.playerStatus.isJoined = false;
+        } else {
+          this.playerStatus.isJoined = false;
+          this.playerStatus.Error = true;
         }
       });
-
-      this.socket.on("players_info",data => {
-
-      })
+      this.socket.on("players_info", data => {});
 
       if (that.deviceId && that.enableVideo) {
         constraints.video = {deviceId: {exact: that.deviceId}};
@@ -237,7 +236,7 @@ export default defineComponent({
               );
               that.videoList.forEach(v => {
                 if (v.isLocal) {
-                  peer["socket_id"] = peerID
+                  peer["socket_id"] = peerID;
                   that.onPeer(peer, v.stream);
                 }
               });
@@ -264,7 +263,7 @@ export default defineComponent({
           }
         });
       });
-      this.signalClient.discover({"room":that.roomId,"token":this.token});
+      this.signalClient.discover({room: that.roomId, token: this.token});
     },
     onPeer(peer, localStream) {
       const that = this;
@@ -323,6 +322,29 @@ export default defineComponent({
 </script>
 <template>
   <div>
+    <div
+      v-if="playerStatus.isJoined"
+      class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col"
+    >
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-[red] font-[800]"
+        role="status"
+      ></div>
+      <p class="text-[green] font-[800] text-[20px] mt-2">درحال ورود به اتاق</p>
+    </div>
+    <div
+      v-if="playerStatus.Error"
+      class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col"
+    >
+      <p class="text-[red] font-[800] text-[20px] mt-2">
+        خطا در هنگام ورود به اتاق
+      </p>
+      <button
+        class="border p-2 rounded-lg hover:text-black hover:bg-white transition-all mt-2"
+      >
+        بازگشت به اپلیکیشن
+      </button>
+    </div>
     <div class="flex items-center h-[13vh] md:h-[39vh]">
       <!--      <div-->
       <!--        v-for="video in videoList"-->
@@ -385,7 +407,7 @@ export default defineComponent({
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
           class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
-          v-for="video in videoList"
+          v-for="(video, index) in videoList"
           :key="video.id"
           :data-socketId="video.socketId"
           @click="
@@ -393,11 +415,17 @@ export default defineComponent({
               (playerStatus.Shownumber = !playerStatus.Shownumber)
           "
         >
+          <img
+            src="/microphone-mute.svg"
+            alt=""
+            class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[white]"
+            v-if="playerStatus.microphone == false"
+          />
           <div
             class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
             :class="{hidden: playerStatus.Shownumber}"
           >
-            1
+            {{ index + 1 }}
           </div>
           <div
             class="absolute bottom-2 left-[37%] text-[20px]"
@@ -459,11 +487,23 @@ export default defineComponent({
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 384 512"
             class="w-[29px] md:w-[17px] mx-auto"
+            v-if="playerStatus.microphone"
           >
             <path
               class="fill-white"
               :class="{fillblacker: playerStatus.microphone}"
               d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"
+            />
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 512"
+            fill="white"
+            class="w-[39px] md:w-[27px] mx-auto"
+            v-if="playerStatus.microphone == false"
+          >
+            <path
+              d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L472.1 344.7c15.2-26 23.9-56.3 23.9-88.7V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 21.2-5.1 41.1-14.2 58.7L416 300.8V96c0-53-43-96-96-96s-96 43-96 96v54.3L38.8 5.1zm362.5 407l-43.1-33.9C346.1 382 333.3 384 320 384c-70.7 0-128-57.3-128-128v-8.7L144.7 210c-.5 1.9-.7 3.9-.7 6v40c0 89.1 66.2 162.7 152 174.4V464H248c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H344V430.4c20.4-2.8 39.7-9.1 57.3-18.2z"
             />
           </svg>
         </button>

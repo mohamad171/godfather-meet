@@ -1,30 +1,41 @@
 <script setup>
-import { ref } from "vue";
-import {useAppwriteState} from "../stores/appwriteState"
+import {ref} from "vue";
+import {useAppwriteState} from "../stores/appwriteState";
 
 var state = useAppwriteState();
-const roomNameInput = defineModel()
+const roomNameInput = defineModel();
 
-state.getRooms()
-
+state.getRooms();
 </script>
 
 <template>
-  <main class="">
-    <div class="d-flex align-items-center">
-      <div>
-      <label>Room name:</label>
-      <input class="form-control" v-model="roomNameInput" />
-      <button class="btn btn-sm btn-warning mt-2" @click="state.createRoom(roomNameInput)">Create room</button>
+  <main class="bg-[#333333] text-[white] h-[100vh]">
+    <div class="">
+      <div class="flex flex-col">
+        <label>oom name:</label>
+        <div>
+          <input class="w-[200px] m-1" v-model="roomNameInput" />
+          <button
+            class="m-1 border p-1"
+            @click="state.createRoom(roomNameInput)"
+          >
+            Create room
+          </button>
+        </div>
+      </div>
     </div>
-    </div>
-    <hr/>
+    <hr />
     <div>
-      <label>List of rooms</label>
+      <label class="text-[20px]">List of rooms</label>
       <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between" v-for="room in state.rooms">
+        <li
+          class="list-group-item d-flex justify-content-between border w-[100%] p-2"
+          v-for="room in state.rooms"
+        >
           <p>{{ room.name }}</p>
-          <button class="btn btn-sm btn-success" @click="state.joinRoom(room)">Join</button>
+          <button class="border p-1" @click="state.joinRoom(room)">
+            Join
+          </button>
         </li>
       </ul>
     </div>
