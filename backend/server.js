@@ -82,7 +82,7 @@ io.on('connection', (socket) => {
     socket.on("command", (data) => {
 
         if (socket.rooms.has(data["room"])) {
-            axios.post(`${baseUrl}/join?secret=${godfatherSecretKey}`, {
+            axios.post(`${baseUrl}/command?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"], "socket_id": socket.id,"command":data["command"]
             }).then(value => {
                 io.to(data["room"]).emit("command", data)
