@@ -203,8 +203,10 @@ export default defineComponent({
       this.socket.on("join_game", data => {
         if(data["status"]){
           // Successful join
+          // TODO Hide preloader
         }else{
           // Join failed
+          // TODO Show error message
         }
       });
 
