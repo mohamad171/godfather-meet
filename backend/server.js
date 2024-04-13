@@ -1,5 +1,8 @@
 const app = require('express')();
 const api = require('./godfather_api_interface')
+const axios = require("axios");
+let godfatherSecretKey = "ds54fs56d4fx53dfxd";
+let baseUrl = "https://godfathergame.ir/api/v1/games"
 let server = {};
 
 server = require('http').createServer(app);
@@ -21,14 +24,17 @@ app.get('/', function (req, res) {
    res.send('Lobby server<br/>rooms: ' + rooms.size + '<br/>members: ' + sum);
 });
 
-signalServer.on('discover', (request) => {
+signalServer.on('discover', async (request) => {
    log('discover');
    let memberId = request.socket.id;
    let roomId = request.discoveryData["room"];
    var token = request.discoveryData["token"];
    if(token){
-      api.joinPlayer(token,roomId,"player")
-      let members = rooms.get(roomId);
+      axios.post(`${baseUrl}/join?secret=${godfatherSecretKey}`,{
+        "token":token,"room_code":roomId,"action":"play"
+    }).then((response)=>{
+        console.log(response.data)
+         let members = rooms.get(roomId);
       if (!members) {
          members = new Set();
          rooms.set(roomId, members);
@@ -39,7 +45,19 @@ signalServer.on('discover', (request) => {
       request.discover({
          peers: Array.from(members)
       });
+      io.to(roomId).emit("join_game",{"status":true,"data":response.data})
       log('joined ' + roomId + ' ' + memberId)
+    }).catch((error)=>{
+       io.to(request.socket.id).emit("join_game",{"status":false,"data":"Invalid token"})
+        if (error.response){
+            console.log(error.response.data)
+            return error.response.data
+        }
+        return {}
+
+    })
+
+
    }
 
 })

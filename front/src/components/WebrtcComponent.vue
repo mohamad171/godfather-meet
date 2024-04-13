@@ -200,7 +200,13 @@ export default defineComponent({
           console.log("div el not recognized");
         }
       });
-
+      this.socket.on("join_game", data => {
+        if(data["status"]){
+          // Successfull join
+        }else{
+          // Join faild
+        }
+      });
       if (that.deviceId && that.enableVideo) {
         constraints.video = {deviceId: {exact: that.deviceId}};
       }
