@@ -31,7 +31,8 @@ signalServer.on('discover', async (request) => {
    var token = request.discoveryData["token"];
    if(token){
       axios.post(`${baseUrl}/join?secret=${godfatherSecretKey}`,{
-        "token":token,"room_code":roomId,"action":"play"
+        "token":token,"room_code":roomId,"action":"play",
+          "socket_id":request.socket.id
     }).then((response)=>{
         console.log(response.data)
          let members = rooms.get(roomId);
