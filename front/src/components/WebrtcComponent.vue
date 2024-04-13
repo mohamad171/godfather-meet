@@ -18,7 +18,7 @@ export default defineComponent({
         microphone: true,
         videoCamera: false,
         challenge: false,
-        isJoined: true,
+        showPreLoader: true,
         Error: false
       })
     };
@@ -205,13 +205,21 @@ export default defineComponent({
       });
       this.socket.on("join_game", data => {
         if (data["status"]) {
-          this.playerStatus.isJoined = false;
+          this.playerStatus.showPreLoader = false;
+
+          this.socket.emit("players_info",{"room":this.roomId,
+            "socket_id":this.socket.id,
+            "token":this.token
+          })
+
         } else {
-          this.playerStatus.isJoined = false;
+          this.playerStatus.showPreLoader = false;
           this.playerStatus.Error = true;
         }
       });
-      this.socket.on("players_info", data => {});
+      this.socket.on("players_info", data => {
+        console.log(data)
+      });
 
       if (that.deviceId && that.enableVideo) {
         constraints.video = {deviceId: {exact: that.deviceId}};
@@ -323,7 +331,7 @@ export default defineComponent({
 <template>
   <div>
     <div
-      v-if="playerStatus.isJoined"
+      v-if="playerStatus.showPreLoader"
       class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col"
     >
       <div
