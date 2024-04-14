@@ -198,11 +198,9 @@ function updatePlayers(data) {
 .flex-center {
   @apply flex items-center justify-center;
 }
-
 input:focus {
   @apply outline-none;
 }
-
 * {
   direction: rtl;
 }

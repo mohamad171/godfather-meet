@@ -434,7 +434,6 @@ export default defineComponent({
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         {{players}}
-
         <div
           class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="(video, index) in videoList"
@@ -458,7 +457,7 @@ export default defineComponent({
             {{ index + 1 }}
           </div>
           <div
-            class="absolute bottom-[1px] left-[37%] text-[20px]"
+            class="absolute bottom-[1px] left-[37%] text-[20px] z-40"
             id="reactionConatiner"
           ></div>
           <div
