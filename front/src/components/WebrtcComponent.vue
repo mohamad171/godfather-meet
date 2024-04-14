@@ -9,6 +9,7 @@ export default defineComponent({
     return {
       signalClient: null,
       videoList: [],
+      players: [],
       canvas: null,
       socket: null,
       playerStatus: ref({
@@ -23,6 +24,7 @@ export default defineComponent({
       })
     };
   },
+  emits: ['update_players'],
   props: {
     roomId: {
       type: String,
@@ -85,6 +87,18 @@ export default defineComponent({
   mounted() {
     this.join();
   },
+  beforeDestroy() {
+    if (this.signalClient) {
+      this.signalClient.destroy();
+
+    }
+    if (this.socket) {
+      this.socket.disconnect();
+    }
+  },
+
+
+
   methods: {
     sendLike(peer_id) {
       this.socket.emit("command", {
@@ -218,7 +232,21 @@ export default defineComponent({
         }
       });
       this.socket.on("players_info", data => {
+        if(data["status"] === "ok"){
+          this.players =  data["data"]["player"];
+          this.$emit('update_players', this.players)
+
+
+        }
+
+      });
+      this.socket.on("leave_room", data => {
         console.log(data)
+        if(data["status"] === "ok"){
+          this.players =  data["data"]["player"];
+          this.$emit('update_players', this.players)
+        }
+
       });
 
       if (that.deviceId && that.enableVideo) {
@@ -318,14 +346,7 @@ export default defineComponent({
       console.log("[VueWebRTC]", message, data);
     }
   },
-  beforeUnmount() {
-    if (this.signalClient) {
-      this.signalClient.destroy();
-    }
-    if (this.socket) {
-      this.socket.disconnect();
-    }
-  }
+
 });
 </script>
 <template>
@@ -413,6 +434,8 @@ export default defineComponent({
       <!--      </div>-->
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
+        {{players}}
+
         <div
           class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="(video, index) in videoList"

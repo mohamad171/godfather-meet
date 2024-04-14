@@ -34,7 +34,6 @@ signalServer.on('discover', async (request) => {
             "token": token, "room_code": roomId, "action": "play",
             "socket_id": request.socket.id
         }).then((response) => {
-            console.log(response.data)
             let members = rooms.get(roomId);
             if (!members) {
                 members = new Set();
@@ -52,9 +51,7 @@ signalServer.on('discover', async (request) => {
             io.to(request.socket.id).emit("join_game", {"status": false, "data": "Invalid token"})
             if (error.response) {
                 console.log(error.response.data)
-                return error.response.data
             }
-            return {}
 
         })
 
@@ -70,6 +67,12 @@ signalServer.on('disconnect', (socket) => {
     if (members) {
         members.delete(memberId)
     }
+    axios.post(`${baseUrl}/leave?secret=${godfatherSecretKey}`, {
+                "room_code": roomId, "socket_id": socket.id,
+            }).then(value => {
+                io.to(roomId).emit("leave_room", value.data)
+            })
+    // io.to(roomId).emit("leave_room",{"status":"ok"})
     log('left ' + roomId + ' ' + memberId)
 })
 

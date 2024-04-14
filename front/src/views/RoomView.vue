@@ -6,22 +6,11 @@ import WebrtcComponent from "@/components/WebrtcComponent.vue";
 let uistate = ref({
   mobileMenu: false
 });
+
 var state = useAppwriteState();
+var players = ref([]);
 let smaple = [
-  [
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی",
-    "امیر علی"
-  ],
+
   [
     {
       message:
@@ -59,8 +48,14 @@ onMounted(() => {
     }
   });
 });
+
+function updatePlayers(data){
+  console.log("Emittttt")
+  players.value = data
+}
 </script>
 <template>
+
   <div
     class="text-[white] bg-[#2E2E2E] h-[100vh] relative flex flex-col md:flex-row"
   >
@@ -126,13 +121,13 @@ onMounted(() => {
         <p class="mr-2 text-[22px] mb-1">تارگت خود را انتخاب کنید</p>
         <div class="flex flex-wrap w-[80%] justify-between">
           <label
-            v-for="item in smaple[0]"
+            v-for="item in players"
             class="my-[1px] text-[24px] container2 w-[45%]"
           >
             <input type="checkbox" />
 
             <span class="checkmark"></span>
-            {{ item }}
+            <p>{{ item.profile.user.first_name }} {{ item.profile.user.last_name }}</p>
           </label>
         </div>
       </div>
@@ -162,6 +157,7 @@ onMounted(() => {
       <WebrtcComponent
         width="150"
         height="150"
+        @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"
       />
