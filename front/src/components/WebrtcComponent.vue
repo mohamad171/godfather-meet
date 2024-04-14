@@ -241,7 +241,6 @@ export default defineComponent({
 
       });
       this.socket.on("leave_room", data => {
-        console.log(data)
         if(data["status"] === "ok"){
           this.players =  data["data"]["player"];
           this.$emit('update_players', this.players)

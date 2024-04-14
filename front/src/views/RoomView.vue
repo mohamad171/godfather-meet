@@ -50,7 +50,6 @@ onMounted(() => {
 });
 
 function updatePlayers(data){
-  console.log("Emittttt")
   players.value = data
 }
 </script>

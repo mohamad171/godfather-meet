@@ -71,7 +71,9 @@ signalServer.on('disconnect', (socket) => {
                 "room_code": roomId, "socket_id": socket.id,
             }).then(value => {
                 io.to(roomId).emit("leave_room", value.data)
-            })
+            }).catch((error) => {
+
+    })
     // io.to(roomId).emit("leave_room",{"status":"ok"})
     log('left ' + roomId + ' ' + memberId)
 })
@@ -89,6 +91,8 @@ io.on('connection', (socket) => {
                 "room_code": data["room"], "socket_id": socket.id,"command":data["command"]
             }).then(value => {
                 io.to(data["room"]).emit("command", data)
+            }).catch( (error) => {
+
             })
 
         }
@@ -99,6 +103,8 @@ io.on('connection', (socket) => {
                 "room_code": data["room"], "socket_id": socket.id,"token":data["token"]
             }).then(value => {
                 io.to(data["room"]).emit("players_info", value.data)
+            }).catch( (error) => {
+
             })
         }
 
