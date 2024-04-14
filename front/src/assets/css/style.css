@@ -26,7 +26,6 @@ body {
 }
 .checkmark {
   position: absolute;
-  top: 10px;
   right: 0;
   height: 20px;
   width: 20px;

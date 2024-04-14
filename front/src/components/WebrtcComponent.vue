@@ -194,7 +194,7 @@ export default defineComponent({
               setTimeout(() => {
                 childElement.textContent = "";
                 childElement.classList.toggle("show-reaction");
-              }, 2000);
+              }, 800);
               break;
             case "dislike":
               childElement.textContent = "👎";
@@ -202,7 +202,7 @@ export default defineComponent({
               setTimeout(() => {
                 childElement.textContent = "";
                 childElement.classList.toggle("show-reaction");
-              }, 2000);
+              }, 800);
               break;
             case "challenge":
               this.playerStatus.challenge = !this.playerStatus.challenge;
@@ -458,7 +458,7 @@ export default defineComponent({
             {{ index + 1 }}
           </div>
           <div
-            class="absolute bottom-2 left-[37%] text-[20px]"
+            class="absolute bottom-[1px] left-[37%] text-[20px]"
             id="reactionConatiner"
           ></div>
           <div
@@ -490,23 +490,29 @@ export default defineComponent({
         class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]"
       >
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3"
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3 "
           @click="sendLike(this.socket.id)"
         >
+        <p class="text-center pt-1">
           👍
+        </p>
         </button>
-        <button
+        <button         
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendDisLike(this.socket.id)"
         >
+        <p class="text-center pt-[7px]">
           👎
+        </p>
         </button>
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendChallenge(this.socket.id)"
           :class="{'bg-white': playerStatus.challenge}"
         >
+        <p class="text-center pt-[7px] pr-[2px]">
           🤚
+        </p>
         </button>
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] transition-[300ms]"
@@ -560,6 +566,9 @@ export default defineComponent({
 </template>
 
 <style scoped>
+.flex-center {
+  @apply flex items-center justify-center
+}
 video {
   width: 100%;
 }
