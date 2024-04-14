@@ -4,14 +4,12 @@
 @layer utilities {
   .show-reaction {
     animation-name: showReaction !important;
-    animation-duration: 800ms;
+    animation-duration: 1000ms;
     animation-iteration-count: 1;
   }
   @keyframes showReaction {
     0% {
       scale: 1;
-    }
-    25% {
     }
     50% {
       scale: 1.5;
