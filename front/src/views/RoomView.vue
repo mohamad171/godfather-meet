@@ -61,7 +61,7 @@ function updatePlayers(data) {
       class="w-[100%] h-[100%] inset-0 bg-black absolute z-50 flex items-center justify-center"
       v-if="uistate.DesktopWarning"
     >
-      <p>لطفا برای استفاده از برنامه از موبایل اسنفاده کنید</p>
+      <p>لطفا برای استفاده از برنامه از موبایل استفاده کنید</p>
     </div>
     <!-- menu for mobile -->
     <div
