@@ -7,7 +7,7 @@ let uistate = ref({
   mobileMenu: false,
   DesktopWarning: false
 });
-let tabs = ref(["پیام ها", "اکت شب"]);
+let tabs = ref(["پیام ها", "اکت شب" , "گرداننده"]);
 var players = ref([]);
 let smaple = [
   [
