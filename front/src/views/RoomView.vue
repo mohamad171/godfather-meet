@@ -48,7 +48,6 @@ onMounted(() => {
     }
   });
 });
-
 function updatePlayers(data) {
   players.value = data;
 }
@@ -75,7 +74,7 @@ function updatePlayers(data) {
         @click="uistate.mobileMenu = !uistate.mobileMenu"
       />
       <TabGroup>
-        <TabList class="w-[98%] mx-[1%] py-2 flex mt-[30px]">
+        <TabList class="w-[90%] bg-[rgba(255,0,0,0.3)] ml-[1%] flex mt-[30px]">
           <Tab
             v-for="context in tabs"
             as="template"
@@ -87,11 +86,11 @@ function updatePlayers(data) {
                 'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
                 'ring-offset-2 ring-offset-[red] focus:outline-none ',
                 selected
-                  ? 'bg-[black] text-[red] shadow'
-                  : 'text-[whitesmoke] hover:bg-white/[0.12]'
+                  ? 'bg-[black] text-[red] shadow border-[4px] border-[red]'
+                  : 'text-[whitesmoke] hover:bg-white/[0.05]'
               ]"
             >
-              {{ context }}
+              {{ context }} 
             </button>
           </Tab>
         </TabList>

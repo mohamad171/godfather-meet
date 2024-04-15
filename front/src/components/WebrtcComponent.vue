@@ -186,7 +186,6 @@ export default defineComponent({
         );
         if (div_element) {
           const childElement = div_element.querySelector("#reactionConatiner");
-          console.log(childElement);
           switch (data["command"]) {
             case "like":
               childElement.textContent = "👍";
@@ -235,8 +234,6 @@ export default defineComponent({
         if(data["status"] === "ok"){
           this.players =  data["data"]["player"];
           this.$emit('update_players', this.players)
-
-
         }
 
       });
