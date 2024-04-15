@@ -14,8 +14,6 @@ export default defineComponent({
       socket: null,
       playerStatus: ref({
         isDead: true,
-        Showinformatin: true,
-        Shownumber: false,
         microphone: true,
         videoCamera: false,
         challenge: false,
@@ -24,7 +22,7 @@ export default defineComponent({
       })
     };
   },
-  emits: ['update_players'],
+  emits: ["update_players"],
   props: {
     roomId: {
       type: String,
@@ -90,14 +88,11 @@ export default defineComponent({
   beforeDestroy() {
     if (this.signalClient) {
       this.signalClient.destroy();
-
     }
     if (this.socket) {
       this.socket.disconnect();
     }
   },
-
-
 
   methods: {
     sendLike(peer_id) {
@@ -122,6 +117,23 @@ export default defineComponent({
       });
     },
 
+    onVideoClick(event) {
+      var parent_div = event.target.parentElement;
+      let numberHolder = parent_div.querySelector("#numberHolder");
+      let informationHolder = parent_div.querySelector("#informationHolder");
+      let nameHolder = parent_div.querySelector("#nameHolder");
+      let IdHolder = parent_div.querySelector("#IdHolder");
+      let dataInfo = parent_div.getAttribute("data-info");
+      numberHolder.classList.toggle("hidden");
+      informationHolder.classList.toggle("hidden");
+      if (dataInfo) {
+        var jData = JSON.parse(dataInfo);
+        let fullName =
+          jData.profile.user.first_name + " " + jData.profile.user.last_name;
+        nameHolder.textContent = fullName;
+        IdHolder.textContent = `#${jData.profile.unique_id}`;
+      }
+    },
     changeVideoStatus(peer_id) {
       if (this.playerStatus.videoCamera === true) {
         this.playerStatus.videoCamera = false;
@@ -220,29 +232,27 @@ export default defineComponent({
         if (data["status"]) {
           this.playerStatus.showPreLoader = false;
 
-          this.socket.emit("players_info",{"room":this.roomId,
-            "socket_id":this.socket.id,
-            "token":this.token
-          })
-
+          this.socket.emit("players_info", {
+            room: this.roomId,
+            socket_id: this.socket.id,
+            token: this.token
+          });
         } else {
           this.playerStatus.showPreLoader = false;
           this.playerStatus.Error = true;
         }
       });
       this.socket.on("players_info", data => {
-        if(data["status"] === "ok"){
-          this.players =  data["data"]["player"];
-          this.$emit('update_players', this.players)
+        if (data["status"] === "ok") {
+          this.players = data["data"]["player"];
+          this.$emit("update_players", this.players);
         }
-
       });
       this.socket.on("leave_room", data => {
-        if(data["status"] === "ok"){
-          this.players =  data["data"]["player"];
-          this.$emit('update_players', this.players)
+        if (data["status"] === "ok") {
+          this.players = data["data"]["player"];
+          this.$emit("update_players", this.players);
         }
-
       });
 
       if (that.deviceId && that.enableVideo) {
@@ -341,8 +351,7 @@ export default defineComponent({
     log(message, data = null) {
       console.log("[VueWebRTC]", message, data);
     }
-  },
-
+  }
 });
 </script>
 <template>
@@ -430,16 +439,13 @@ export default defineComponent({
       <!--      </div>-->
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
-        {{players}}
+        {{ players }}
         <div
           class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="(video, index) in videoList"
           :key="video.id"
           :data-socketId="video.socketId"
-          @click="
-            (playerStatus.Showinformatin = !playerStatus.Showinformatin),
-              (playerStatus.Shownumber = !playerStatus.Shownumber)
-          "
+          @click="onVideoClick"
         >
           <img
             src="/microphone-mute.svg"
@@ -448,8 +454,8 @@ export default defineComponent({
             v-if="playerStatus.microphone == false"
           />
           <div
+            id="numberHolder"
             class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
-            :class="{hidden: playerStatus.Shownumber}"
           >
             {{ index + 1 }}
           </div>
@@ -458,12 +464,12 @@ export default defineComponent({
             id="reactionConatiner"
           ></div>
           <div
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20"
-            :class="{hidden: playerStatus.Showinformatin}"
+            id="informationHolder"
+            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden"
           >
-            <div class="[direction:ltr] text-[12px]">
-              امیرعلی<br />
-              #217478
+            <div class="[direction:ltr] text-[12px] h-[40px] flex flex-col">
+              <p id="nameHolder"></p>
+              <p id="IdHolder"></p>
             </div>
             <img
               src="/expand.svg"
@@ -486,29 +492,23 @@ export default defineComponent({
         class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]"
       >
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3 "
+          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3"
           @click="sendLike(this.socket.id)"
         >
-        <p class="text-center pt-1">
-          👍
-        </p>
+          <p class="text-center pt-1">👍</p>
         </button>
-        <button         
+        <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendDisLike(this.socket.id)"
         >
-        <p class="text-center pt-[7px]">
-          👎
-        </p>
+          <p class="text-center pt-[7px]">👎</p>
         </button>
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendChallenge(this.socket.id)"
           :class="{'bg-white': playerStatus.challenge}"
         >
-        <p class="text-center pt-[7px] pr-[2px]">
-          🤚
-        </p>
+          <p class="text-center pt-[7px] pr-[2px]">🤚</p>
         </button>
         <button
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] transition-[300ms]"
@@ -563,7 +563,7 @@ export default defineComponent({
 
 <style scoped>
 .flex-center {
-  @apply flex items-center justify-center
+  @apply flex items-center justify-center;
 }
 video {
   width: 100%;

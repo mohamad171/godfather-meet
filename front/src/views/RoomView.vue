@@ -54,10 +54,8 @@ function setDataPeerVideo(){
           "div[data-socketid='" + element["socket_id"] + "']"
         );
     if (div_element){
-      div_element.setAttribute("data-info",element)
+      div_element.setAttribute("data-info",JSON.stringify(element))
     }
-
-
   })
 }
 function updatePlayers(data){
@@ -84,11 +82,11 @@ function updatePlayers(data){
       <img
         src="/xmark.svg"
         alt=""
-        class="absolute left-2 top-1 w-[25px] md:hidden"
+        class="absolute left-2 top-1 w-[30px] hover:scale-[1.1] transition-all cursor-pointer md:hidden"
         @click="uistate.mobileMenu = !uistate.mobileMenu"
       />
       <TabGroup>
-        <TabList class="w-[90%] bg-[rgba(255,0,0,0.3)] ml-[1%] flex mt-[30px]">
+        <TabList class="w-[100%] bg-[rgba(255,0,0,0.3)] ml-[1%] flex">
           <Tab
             v-for="context in tabs"
             as="template"
@@ -97,7 +95,7 @@ function updatePlayers(data){
           >
             <button
               :class="[
-                'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+                'w-[28%] rounded-lg py-2.5 text-sm font-medium leading-5',
                 'ring-offset-2 ring-offset-[red] focus:outline-none ',
                 selected
                   ? 'bg-[black] text-[red] shadow border-[4px] border-[red]'
@@ -111,7 +109,7 @@ function updatePlayers(data){
         <TabPanels class="h-[100%]">
           <TabPanel class="h-[100%]">
             <div class="h-[100%]">
-              <div class="flex-center text-[18px] mb-1">گفتگو با تیم مافیا</div>
+              <div class="flex-center text-[18px] my-1">گفتگو با تیم مافیا</div>
               <div
                 class="h-[85%] flex flex-col items-start max-w-[100%] overflow-y-auto pl-[12%]"
               >
