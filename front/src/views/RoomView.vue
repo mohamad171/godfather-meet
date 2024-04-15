@@ -48,8 +48,21 @@ onMounted(() => {
     }
   });
 });
-function updatePlayers(data) {
-  players.value = data;
+function setDataPeerVideo(){
+  players.value.forEach((element) => {
+    var div_element = document.querySelector(
+          "div[data-socketid='" + element["socket_id"] + "']"
+        );
+    if (div_element){
+      div_element.setAttribute("data-info",element)
+    }
+
+
+  })
+}
+function updatePlayers(data){
+  players.value = data
+  setDataPeerVideo();
 }
 </script>
 <template>
@@ -62,6 +75,7 @@ function updatePlayers(data) {
     >
       <p>لطفا برای استفاده از برنامه از موبایل استفاده کنید</p>
     </div>
+
     <!-- menu for mobile -->
     <div
       v-if="uistate.mobileMenu"
@@ -78,7 +92,7 @@ function updatePlayers(data) {
           <Tab
             v-for="context in tabs"
             as="template"
-            :key="category"
+            :key="context"
             v-slot="{selected}"
           >
             <button
@@ -197,9 +211,11 @@ function updatePlayers(data) {
 .flex-center {
   @apply flex items-center justify-center;
 }
+
 input:focus {
   @apply outline-none;
 }
+
 * {
   direction: rtl;
 }
