@@ -5,40 +5,53 @@ import WebrtcComponent from "@/components/WebrtcComponent.vue";
 import {TabGroup, TabList, Tab, TabPanels, TabPanel} from "@headlessui/vue";
 let uistate = ref({
   mobileMenu: false,
-  DesktopWarning: false
+  DesktopWarning: false,
+  tabs: ["پیام ها", "اکت شب", "گرداننده"]
 });
-let tabs = ref(["پیام ها", "اکت شب" , "گرداننده"]);
+// elements ref
+let messageContainer = ref(null);
+let messegeInput = ref(null);
 var players = ref([]);
-let smaple = [
-  [
-    {
-      message:
-        "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
-      number: "8",
-      role: "ماتادور",
-      name: "رضا"
-    },
-    {
-      message: "نه بابا 4 که منم شماره 3 رو بدیم بره",
-      number: "6",
-      role: "'پدرخوانده'",
-      name: "محمد"
-    },
-    {
-      message:
-        "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
-      number: "8",
-      role: "ماتادور",
-      name: "امیرعلی"
-    },
-    {
-      message: " ,نه بابا 4 که منم شماره 3 رو بدیم بره شهروند صد بازی ام",
-      number: "6",
-      role: "'پدرخوانده'",
-      name: "محمد"
-    }
-  ]
-];
+class messageModel {
+  message;
+  number;
+  role;
+  name;
+  constructor(message, number, role, name) {
+    this.message = message;
+    this.number = number;
+    this.role = role;
+    this.name = name;
+  }
+}
+let smaple = ref([
+  {
+    message:
+      "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
+    number: "8",
+    role: "ماتادور",
+    name: "رضا"
+  },
+  {
+    message: "نه بابا 4 که منم شماره 3 رو بدیم بره",
+    number: "6",
+    role: "'پدرخوانده'",
+    name: "محمد"
+  },
+  {
+    message:
+      "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
+    number: "8",
+    role: "ماتادور",
+    name: "امیرعلی"
+  },
+  {
+    message: " ,نه بابا 4 که منم شماره 3 رو بدیم بره شهروند صد بازی ام",
+    number: "6",
+    role: "'پدرخوانده'",
+    name: "محمد"
+  }
+]);
 onMounted(() => {
   setInterval(() => {
     if (window.innerWidth > 768) {
@@ -46,22 +59,39 @@ onMounted(() => {
     } else {
       uistate.value.DesktopWarning = false;
     }
-  });
+  }, 2000);
 });
-function setDataPeerVideo(){
-  players.value.forEach((element) => {
+function setDataPeerVideo() {
+  players.value.forEach(element => {
     var div_element = document.querySelector(
-          "div[data-socketid='" + element["socket_id"] + "']"
-        );
-    if (div_element){
-      div_element.setAttribute("data-info",JSON.stringify(element))
+      "div[data-socketid='" + element["socket_id"] + "']"
+    );
+    if (div_element) {
+      div_element.setAttribute("data-info", JSON.stringify(element));
     }
-  })
+  });
 }
-function updatePlayers(data){
-  players.value = data
+function updatePlayers(data) {
+  players.value = data;
   setDataPeerVideo();
 }
+let smapleinput = {
+  message: "لورم ایسپوم متن ساهتگی",
+  number: 8,
+  role: "گادفادر",
+  name: "علی"
+};
+let sendMessege = () => {
+  let newMessege = messegeInput.value.value;
+  console.log(newMessege);
+  messegeInput.value.value = "";
+  // smaple.value.push(
+  //   new messageModel(input, input.number, input.role, input.name)
+  // );
+  setTimeout(() => {
+    messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+  }, 100);
+};
 </script>
 <template>
   <div
@@ -88,7 +118,7 @@ function updatePlayers(data){
       <TabGroup>
         <TabList class="w-[100%] bg-[rgba(255,0,0,0.3)] ml-[1%] flex">
           <Tab
-            v-for="context in tabs"
+            v-for="context in uistate.tabs"
             as="template"
             :key="context"
             v-slot="{selected}"
@@ -102,63 +132,65 @@ function updatePlayers(data){
                   : 'text-[whitesmoke] hover:bg-white/[0.05]'
               ]"
             >
-              {{ context }} 
+              {{ context }}
             </button>
           </Tab>
         </TabList>
-        <TabPanels class="h-[100%]">
+        <TabPanels class="h-[93%] overflow-hidden">
           <TabPanel class="h-[100%]">
-            <div class="h-[100%]">
-              <div class="flex-center text-[18px] my-1">گفتگو با تیم مافیا</div>
+            <div class="flex-center text-[18px] my-1">گفتگو با تیم مافیا</div>
+            <div
+              ref="messageContainer"
+              class="h-[83%] flex flex-col items-start max-w-[100%] overflow-y-auto pl-[12%]"
+            >
               <div
-                class="h-[85%] flex flex-col items-start max-w-[100%] overflow-y-auto pl-[12%]"
+                class="flex m-1 mr-0 max-w-[85%] mt-2"
+                v-for="item in smaple"
               >
                 <div
-                  class="flex m-1 mr-0 max-w-[85%] mt-2"
-                  v-for="item in smaple[0]"
+                  class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] min-w-[30px] max-h-[32px] py-[1px] rounded-full flex-center ml-1"
                 >
-                  <div
-                    class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] min-w-[30px] max-h-[32px] py-[1px] rounded-full flex-center ml-1"
-                  >
-                    {{ item.number }}
+                  {{ item.number }}
+                </div>
+                <div
+                  class="bg-[#252525] min-h-[75px] p-2 [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-md w-[100%]"
+                >
+                  <div class="flex items-end">
+                    <p class="ml-1 text-[#D9D9D9]">{{ item.name }}</p>
+                    <p class="text-[#B51818] text-[10px]">{{ item.role }}</p>
                   </div>
-                  <div
-                    class="bg-[#252525] min-h-[75px] p-2 [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-md w-[100%]"
-                  >
-                    <div class="flex items-end">
-                      <p class="ml-1 text-[#D9D9D9]">{{ item.name }}</p>
-                      <p class="text-[#B51818] text-[10px]">{{ item.role }}</p>
-                    </div>
-                    <p class="text-[11px]">{{ item.message }}</p>
-                  </div>
+                  <p class="text-[11px]">{{ item.message }}</p>
                 </div>
               </div>
-              <div class="h-[10%] flex">
-                <input
-                  type="text"
-                  class="bg-[#252525] p-[14px] w-[88%]"
-                  style="border-radius: 16px 16px 0 0"
-                  placeholder="اینجا بنویسید"
-                />
-                <button
-                  class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[45px] h-[45px] rounded-full flex-center mx-[2%]"
-                >
-                  <img src="/send.svg" class="w-[23px]" alt="" />
-                </button>
-              </div></div
-          ></TabPanel>
+            </div>
+            <div class="h-[10%] mt-[1.2%] flex">
+              <input
+                type="text"
+                class="bg-[#252525] p-[14px] w-[88%]"
+                style="border-radius: 16px 16px 0 0"
+                placeholder="اینجا بنویسید"
+                ref="messegeInput"
+              />
+              <button
+                class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[55px] h-[55px] mt-[5px] rounded-full flex-center mx-[2%]"
+                @click="sendMessege(smapleinput)"
+              >
+                <img src="/send.svg" class="w-[23px]" alt="" />
+              </button>
+            </div>
+          </TabPanel>
           <TabPanel>
             <div class="h-[53%] pt-[40px]">
-                <button
-                  class="absolute bottom-[3%] py-1 px-8 rounded-md left-[5%] bg-[#217C0B] text-[20px] w-[90%]"
-                >
-                  ثبت
-                </button>
+              <button
+                class="absolute bottom-[3%] py-1 px-8 rounded-md left-[5%] bg-[#217C0B] text-[20px] w-[90%]"
+              >
+                ثبت
+              </button>
               <p class="mr-2 text-[20px] mb-1">تارگت خود را انتخاب کنید</p>
               <div class="flex flex-wrap w-[90%] pr-[4%] justify-between">
                 <label
                   v-for="item in players"
-                  class="my-[5px] container2 w-[45%] flex items-center "
+                  class="my-[5px] container2 w-[45%] flex items-center"
                 >
                   <input type="checkbox" />
                   <span class="checkmark"></span>
@@ -168,14 +200,17 @@ function updatePlayers(data){
                   </p>
                 </label>
               </div>
-            </div></TabPanel
-          >
+            </div>
+          </TabPanel>
+          <TabPanel class="flex-center pt-[50px]">
+            <button class="w-[40%] h-[80px] bg-black rounded">تقسیم نقش</button>
+          </TabPanel>
         </TabPanels>
       </TabGroup>
     </div>
     <!-- menu for mobile -->
     <div
-      class="flex items-start h-[60px] w-[100%] justify-between py-2 px-3 md:flex-row-reverse md:absolute right-[39%] z-20 md:w-[250px] "
+      class="flex items-start h-[60px] w-[100%] justify-between py-2 px-3 md:flex-row-reverse md:absolute right-[39%] z-20 md:w-[250px]"
     >
       <img
         class="md:hidden cursor-pointer p-1"
@@ -183,7 +218,7 @@ function updatePlayers(data){
         alt=""
         @click="uistate.mobileMenu = !uistate.mobileMenu"
       />
-        <img
+      <img
         src="/logo.png"
         alt=""
         class="w-[100px] left-[42%] top-[-17px] absolute z-[40] md:min-w-[145px] md:bottom-[30px]"
@@ -209,12 +244,11 @@ function updatePlayers(data){
 .flex-center {
   @apply flex items-center justify-center;
 }
-
 input:focus {
   @apply outline-none;
 }
-
 * {
   direction: rtl;
+  scroll-behavior: smooth;
 }
 </style>
