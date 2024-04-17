@@ -113,12 +113,15 @@ io.on('connection', (socket) => {
     })
 
     socket.on("set_roles",(data) => {
+        console.log(data)
         if (socket.rooms.has(data["room"])) {
+
             axios.post(`${baseUrl}/set-roles?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"],
                 "socket_id": socket.id
             }).then(value => {
-                value.data["players"].forEach( (player) => {
+                value.data["data"]["players"].forEach( (player) => {
+                    console.log(player)
                     if(player.room_role === "player"){
                         const socket_ins = io.sockets.sockets.get(player.socket_id);
 
@@ -131,7 +134,6 @@ io.on('connection', (socket) => {
 
                 } )
             }).catch( (error) => {
-
             })
 
         }

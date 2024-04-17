@@ -12,6 +12,8 @@ let uistate = ref({
 let messageContainer = ref(null);
 let messegeInput = ref(null);
 var players = ref([]);
+let socket;
+let myPlayer = ref();
 class messageModel {
   message;
   number;
@@ -71,9 +73,38 @@ function setDataPeerVideo() {
     }
   });
 }
+function setMyPlayer(player){
+      myPlayer.value = player
+}
+
 function updatePlayers(data) {
-  players.value = data;
+  players.value = data["players"];
   setDataPeerVideo();
+  console.log(data)
+  socket = data["socket"];
+
+
+  socket.on("role", (role_data) => {
+    setMyPlayer(role_data)
+  } )
+
+  socket.on("message", (message) => {
+    console.log(message)
+  } )
+
+
+
+
+
+}
+
+
+
+function setRoles(room_id){
+  if(socket){
+    console.log("Sending request...")
+    socket.emit("set_roles",{"room":room_id})
+  }
 }
 let smapleinput = {
   message: "لورم ایسپوم متن ساهتگی",
@@ -88,12 +119,14 @@ let sendMessege = () => {
   // smaple.value.push(
   //   new messageModel(input, input.number, input.role, input.name)
   // );
+  socket.emit("message",{"message":"hello"})
   setTimeout(() => {
     messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
   }, 100);
 };
 </script>
 <template>
+  {{myPlayer}}
   <div
     class="text-[white] bg-[#2E2E2E] h-[100vh] relative flex flex-col md:flex-row"
   >
@@ -138,7 +171,7 @@ let sendMessege = () => {
         </TabList>
         <TabPanels class="h-[93%] overflow-hidden">
           <TabPanel class="h-[100%]">
-            <div class="flex-center text-[18px] my-1">گفتگو با تیم مافیا</div>
+            <div class="flex-center text-[18px] my-1">گفتگو با گرداننده</div>
             <div
               ref="messageContainer"
               class="h-[83%] flex flex-col items-start max-w-[100%] overflow-y-auto pl-[12%]"
@@ -203,7 +236,7 @@ let sendMessege = () => {
             </div>
           </TabPanel>
           <TabPanel class="flex-center pt-[50px]">
-            <button class="w-[40%] h-[80px] bg-black rounded">تقسیم نقش</button>
+            <button class="w-[40%] h-[80px] bg-black rounded" @click="setRoles($route.params.room_id)">تقسیم نقش</button>
           </TabPanel>
         </TabPanels>
       </TabGroup>
@@ -228,8 +261,11 @@ let sendMessege = () => {
       >
         <p class="relative bottom-1">خروج</p>
       </button>
+
     </div>
+
     <div class="md:w-[61%]">
+
       <WebrtcComponent
         width="150"
         height="150"
