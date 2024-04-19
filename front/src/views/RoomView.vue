@@ -137,11 +137,11 @@ let sendMessege = () => {
           </Tab>
         </TabList>
         <TabPanels class="h-[93%] overflow-hidden">
-          <TabPanel class="h-[100%]">
+          <TabPanel class="h-[100%] relative">
             <div class="flex-center text-[18px] my-1">گفتگو با تیم مافیا</div>
             <div
               ref="messageContainer"
-              class="h-[83%] flex flex-col items-start max-w-[100%] overflow-y-auto pl-[12%]"
+              class="h-[83%] flex flex-col border  items-start max-w-[100%] overflow-y-auto pl-[12%]"
             >
               <div
                 class="flex m-1 mr-0 max-w-[85%] mt-2"
@@ -163,7 +163,7 @@ let sendMessege = () => {
                 </div>
               </div>
             </div>
-            <div class="h-[10%] mt-[1.2%] flex">
+            <div class="absolute bottom-0 flex">
               <input
                 type="text"
                 class="bg-[#252525] p-[14px] w-[88%]"
