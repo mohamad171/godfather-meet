@@ -96,13 +96,11 @@ export default defineComponent({
   },
 
   methods: {
-    setMyVideo(){
+    setMyVideo() {
       players.value.forEach(element => {
-
         if (element["socket_id"] === socket.id) {
-          myPlayer.value = element
+          myPlayer.value = element;
         }
-
       });
     },
     sendLike(peer_id) {
@@ -255,13 +253,19 @@ export default defineComponent({
       this.socket.on("players_info", data => {
         if (data["status"] === "ok") {
           this.players = data["data"]["player"];
-          this.$emit("update_players",{"players":this.players,"socket":this.socket});
+          this.$emit("update_players", {
+            players: this.players,
+            socket: this.socket
+          });
         }
       });
       this.socket.on("leave_room", data => {
         if (data["status"] === "ok") {
           this.players = data["data"]["player"];
-          this.$emit("update_players", {"players":this.players,"socket":this.socket});
+          this.$emit("update_players", {
+            players: this.players,
+            socket: this.socket
+          });
         }
       });
 
@@ -364,6 +368,347 @@ export default defineComponent({
   }
 });
 </script>
+<!-- <script setup>
+import {ref, onMounted, onBeforeUnmount} from "vue";
+import io from "socket.io-client";
+import "fast-crypto";
+import SimpleSignalClient from "simple-signal-client";
+const playerStatus = ref({
+  isDead: true,
+  microphone: true,
+  videoCamera: false,
+  challenge: false,
+  showPreLoader: true,
+  Error: false
+});
+const signalClient = ref(null);
+const myPlayer = ref(null);
+const videoList = ref([]);
+const players = ref([]);
+const canvas = ref(null);
+let socket = null;
+const videos = ref();
+const roomId = "public-room-v2";
+const socketURL = "http://localhost:3000";
+const cameraHeight = 160;
+const autoplay = true;
+const screenshotFormat = "image/jpeg";
+const enableAudio = true;
+const enableVideo = true;
+const enableLogs = false;
+const peerOptions = {};
+const ioOptions = {
+  rejectUnauthorized: false,
+  transports: ["polling", "websocket"]
+};
+const deviceId = null;
+const token = null;
+
+const setMyVideo = () => {
+  players.value.forEach(element => {
+    if (element.socket_id === socket.id) {
+      myPlayer.value = element;
+    }
+  });
+};
+
+const sendLike = peer_id => {
+  socket.emit("command", {
+    room: roomId,
+    peer: peer_id,
+    command: "like"
+  });
+};
+
+const sendDisLike = peer_id => {
+  socket.emit("command", {
+    room: roomId,
+    peer: peer_id,
+    command: "dislike"
+  });
+};
+
+const sendChallenge = peer_id => {
+  socket.emit("command", {
+    room: roomId,
+    peer: peer_id,
+    command: "challenge"
+  });
+};
+
+const onVideoClick = event => {
+  const parentDiv = event.target.parentElement;
+  const numberHolder = parentDiv.querySelector("#numberHolder");
+  const informationHolder = parentDiv.querySelector("#informationHolder");
+  const nameHolder = parentDiv.querySelector("#nameHolder");
+  const IdHolder = parentDiv.querySelector("#IdHolder");
+  const dataInfo = parentDiv.getAttribute("data-info");
+  numberHolder.classList.toggle("hidden");
+  informationHolder.classList.toggle("hidden");
+  if (dataInfo) {
+    const jData = JSON.parse(dataInfo);
+    const fullName = `${jData.profile.user.first_name} ${jData.profile.user.last_name}`;
+    nameHolder.textContent = fullName;
+    IdHolder.textContent = `#${jData.profile.unique_id}`;
+  }
+};
+
+const changeVideoStatus = peer_id => {
+  if (playerStatus.value.videoCamera) {
+    playerStatus.value.videoCamera = false;
+    muteVideo(peer_id);
+  } else {
+    playerStatus.value.videoCamera = true;
+    unmuteVideo(peer_id);
+  }
+};
+
+const changeVoiceStatus = peer_id => {
+  if (playerStatus.value.microphone) {
+    playerStatus.value.microphone = false;
+    muteVoice(peer_id);
+  } else {
+    playerStatus.value.microphone = true;
+    unmuteVoice(peer_id);
+  }
+};
+
+const muteVoice = peer_id => {
+  socket.emit("command", {
+    room: roomId,
+    peer: peer_id,
+    command: "mute_voice"
+  });
+};
+
+const unmuteVoice = peer_id => {
+  socket.emit("command", {
+    room: roomId,
+    peer: peer_id,
+    command: "unmute_voice"
+  });
+};
+
+const muteVideo = peer_id => {
+  socket.emit("command", {
+    room: roomId,
+    peer: peer_id,
+    command: "mute_video"
+  });
+};
+
+const unmuteVideo = peer_id => {
+  socket.emit("command", {
+    room: roomId,
+    peer: peer_id,
+    command: "unmute_video"
+  });
+};
+
+const join = async () => {
+  console.warn("running");
+  console.log(socket);
+  socket = io(socketURL, ioOptions);
+  signalClient.value = new SimpleSignalClient(socket);
+  const constraints = {
+    video: enableVideo,
+    audio: enableAudio
+  };
+
+  socket.on("command", data => {
+    console.log(command);
+    console.log(data);
+    const divElement = document.querySelector(
+      `div[data-socketid='${data.peer}']`
+    );
+    if (divElement) {
+      const childElement = divElement.querySelector("#reactionConatiner");
+      switch (data.command) {
+        case "like":
+          childElement.textContent = "👍";
+          childElement.classList.add("show-reaction");
+          setTimeout(() => {
+            childElement.textContent = "";
+            childElement.classList.toggle("show-reaction");
+          }, 800);
+          break;
+        case "dislike":
+          childElement.textContent = "👎";
+          childElement.classList.add("show-reaction");
+          setTimeout(() => {
+            childElement.textContent = "";
+            childElement.classList.toggle("show-reaction");
+          }, 800);
+          break;
+        case "challenge":
+          playerStatus.value.challenge = !playerStatus.value.challenge;
+          if (playerStatus.value.challenge) {
+            childElement.textContent = "🤚";
+          } else {
+            childElement.textContent = "";
+          }
+          break;
+      }
+    } else {
+      console.log("div el not recognized");
+    }
+  });
+
+  socket.on("join_game", data => {
+    if (data.status) {
+      playerStatus.value.showPreLoader = false;
+      socket.emit("players_info", {
+        room: roomId,
+        socket_id: socket.id,
+        token
+      });
+    } else {
+      playerStatus.value.showPreLoader = false;
+      playerStatus.value.Error = true;
+    }
+  });
+
+  socket.on("players_info", data => {
+    if (data.status === "ok") {
+      players.value = data.data.player;
+      emit("update_players", {players: players.value, socket: socket});
+    }
+  });
+
+  socket.on("leave_room", data => {
+    if (data.status === "ok") {
+      players.value = data.data.player;
+      emit("update_players", {players: players.value, socket: socket});
+    }
+  });
+
+  if (deviceId && enableVideo) {
+    constraints.video = {deviceId: {exact: deviceId}};
+  }
+
+  try {
+    const localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    log("opened", localStream);
+    joinedRoom(localStream, true, socket.id);
+    signalClient.value.once("discover", discoveryData => {
+      log("discovered", discoveryData);
+      async function connectToPeer(peerID) {
+        if (peerID === socket.id) return;
+        try {
+          log("Connecting to peer");
+          const {peer} = await signalClient.value.connect(
+            peerID,
+            roomId,
+            peerOptions
+          );
+          videoList.value.forEach(v => {
+            if (v.isLocal) {
+              peer.socket_id = peerID;
+              onPeer(peer, v.stream);
+            }
+          });
+        } catch (e) {
+          log("Error connecting to peer", e);
+        }
+      }
+      discoveryData.peers.forEach(peerID => connectToPeer(peerID));
+      emit("opened-room", roomId);
+    });
+  } catch (error) {
+    log("Error accessing media devices:", error);
+  }
+
+  signalClient.value.on("request", async request => {
+    log("requested", request.initiator);
+    const {peer} = await request.accept(request.initiator, {
+      initiator: request.initiator
+    });
+    peer.socket_id = request.initiator;
+    log("accepted", peer);
+    videoList.value.forEach(v => {
+      if (v.isLocal) {
+        onPeer(peer, v.stream);
+      }
+    });
+  });
+
+  signalClient.value.discover({room: roomId, token});
+};
+const onPeer = (peer, localStream) => {
+  peer.addStream(localStream);
+  peer.on("stream", remoteStream => {
+    console.log("Stream", remoteStream);
+    joinedRoom(remoteStream, false, peer.socket_id);
+    peer.on("close", () => {
+      const newList = videoList.value.filter(
+        item => item.id !== remoteStream.id
+      );
+      videoList.value = newList;
+      emit("left-room", remoteStream.id);
+    });
+    peer.on("error", err => {
+      log("peer error ", err);
+    });
+  });
+};
+
+const joinedRoom = (stream, isLocal, socketId) => {
+  const found = videoList.value.find(video => video.id === stream.id);
+  if (found === undefined) {
+    const video = {
+      id: stream.id,
+      muted: isLocal,
+      stream: stream,
+      socketId,
+      isLocal
+    };
+    videoList.value.push(video);
+  }
+  setTimeout(() => {
+    for (let i = 0; i < videos.length; i++) {
+      if (ref.videos[i].srcObject === null) {
+        ref.videos[i].srcObject = stream;
+        ref.videos[i].autoplay = autoplay;
+      }
+    }
+  }, 1000);
+};
+
+const log = (prefix, msg) => {
+  if (enableLogs) console.log(`${prefix}:`, msg);
+};
+
+const likeThisVideo = peerId => {
+  sendLike(peerId);
+};
+
+const dislikeThisVideo = peerId => {
+  sendDisLike(peerId);
+};
+
+const challengeThisVideo = peerId => {
+  sendChallenge(peerId);
+};
+
+const videoStatusChanged = peerId => {
+  changeVideoStatus(peerId);
+};
+
+const voiceStatusChanged = peerId => {
+  changeVoiceStatus(peerId);
+};
+
+onMounted(() => {
+  setTimeout(() => {
+    join();
+  }, 1000);
+  console.log(socket);
+});
+
+onBeforeUnmount(() => {
+  socket.close();
+});
+</script> -->
 <template>
   <div>
     <div
@@ -489,7 +834,7 @@ export default defineComponent({
           <video
             :class="video.isLocal ? 'border-2 border-green-800' : ''"
             class="w-[100%] h-[100%]"
-            :ref="`videos`"
+            ref="videos"
             :id="video.id"
             :muted="video.muted"
             playsinline
