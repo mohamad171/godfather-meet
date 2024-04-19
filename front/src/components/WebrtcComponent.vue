@@ -8,6 +8,7 @@ export default defineComponent({
   data() {
     return {
       signalClient: null,
+      myPlayer: null,
       videoList: [],
       players: [],
       canvas: null,
@@ -95,6 +96,15 @@ export default defineComponent({
   },
 
   methods: {
+    setMyVideo(){
+      players.value.forEach(element => {
+
+        if (element["socket_id"] === socket.id) {
+          myPlayer.value = element
+        }
+
+      });
+    },
     sendLike(peer_id) {
       this.socket.emit("command", {
         room: this.roomId,
@@ -245,13 +255,13 @@ export default defineComponent({
       this.socket.on("players_info", data => {
         if (data["status"] === "ok") {
           this.players = data["data"]["player"];
-          this.$emit("update_players", this.players);
+          this.$emit("update_players",{"players":this.players,"socket":this.socket});
         }
       });
       this.socket.on("leave_room", data => {
         if (data["status"] === "ok") {
           this.players = data["data"]["player"];
-          this.$emit("update_players", this.players);
+          this.$emit("update_players", {"players":this.players,"socket":this.socket});
         }
       });
 
@@ -439,7 +449,6 @@ export default defineComponent({
       <!--      </div>-->
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
-        {{ players }}
         <div
           class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="(video, index) in videoList"

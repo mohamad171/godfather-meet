@@ -45,6 +45,8 @@ signalServer.on('discover', async (request) => {
             request.discover({
                 peers: Array.from(members)
             });
+            if(response.data["room_role"] === "god")
+                request.socket.join(`god-${roomId}`);
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
         }).catch((error) => {
@@ -108,6 +110,33 @@ io.on('connection', (socket) => {
             })
         }
 
+    })
+
+    socket.on("set_roles",(data) => {
+        console.log(data)
+        if (socket.rooms.has(data["room"])) {
+
+            axios.post(`${baseUrl}/set-roles?secret=${godfatherSecretKey}`, {
+                "room_code": data["room"],
+                "socket_id": socket.id
+            }).then(value => {
+                value.data["data"]["players"].forEach( (player) => {
+                    console.log(player)
+                    if(player.room_role === "player"){
+                        const socket_ins = io.sockets.sockets.get(player.socket_id);
+
+                        if(player.role.side === 0 && socket_ins){
+                            socket_ins.join(`mafia-${player.room__code}`)
+                        }
+
+                        io.to(player["socket_id"]).emit("role", player)
+                    }
+
+                } )
+            }).catch( (error) => {
+            })
+
+        }
     })
 });
 signalServer.on('request', (request) => {
