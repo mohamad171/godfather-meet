@@ -1,30 +1,383 @@
-<script>
+<!--<script>-->
+<!--import {ref} from "vue";-->
+<!--import {defineComponent} from "vue";-->
+<!--import {io} from "socket.io-client";-->
+<!--import "fast-crypto";-->
+<!--import SimpleSignalClient from "simple-signal-client";-->
+
+<!--export default defineComponent({-->
+<!--  data() {-->
+<!--    return {-->
+<!--      signalClient: null,-->
+<!--      myPlayer: null,-->
+<!--      videoList: [],-->
+<!--      players: [],-->
+<!--      canvas: null,-->
+<!--      socket: null,-->
+<!--      playerStatus: ref({-->
+<!--        isDead: true,-->
+<!--        microphone: true,-->
+<!--        videoCamera: false,-->
+<!--        challenge: false,-->
+<!--        showPreLoader: true,-->
+<!--        Error: false-->
+<!--      })-->
+<!--    };-->
+<!--  },-->
+<!--  emits: ["update_players"],-->
+<!--  props: {-->
+<!--    roomId: {-->
+<!--      type: String,-->
+<!--      default: "public-room-v2"-->
+<!--    },-->
+<!--    socketURL: {-->
+<!--      type: String,-->
+<!--      default: "http://localhost:3000"-->
+<!--      // default: "https://websocket.straiberry.com"-->
+<!--    },-->
+<!--    cameraHeight: {-->
+<!--      type: [Number, String],-->
+<!--      default: 160-->
+<!--    },-->
+<!--    autoplay: {-->
+<!--      type: Boolean,-->
+<!--      default: true-->
+<!--    },-->
+<!--    screenshotFormat: {-->
+<!--      type: String,-->
+<!--      default: "image/jpeg"-->
+<!--    },-->
+<!--    enableAudio: {-->
+<!--      type: Boolean,-->
+<!--      default: true-->
+<!--    },-->
+<!--    enableVideo: {-->
+<!--      type: Boolean,-->
+<!--      default: true-->
+<!--    },-->
+<!--    enableLogs: {-->
+<!--      type: Boolean,-->
+<!--      default: false-->
+<!--    },-->
+<!--    peerOptions: {-->
+<!--      type: Object,-->
+<!--      default() {-->
+<!--        return {};-->
+<!--      }-->
+<!--    },-->
+<!--    ioOptions: {-->
+<!--      type: Object,-->
+<!--      default() {-->
+<!--        return {-->
+<!--          rejectUnauthorized: false,-->
+<!--          transports: ["polling", "websocket"]-->
+<!--        };-->
+<!--      }-->
+<!--    },-->
+<!--    deviceId: {-->
+<!--      type: String,-->
+<!--      default: null-->
+<!--    },-->
+<!--    token: {-->
+<!--      type: String,-->
+<!--      default: null-->
+<!--    }-->
+<!--  },-->
+
+<!--  mounted() {-->
+<!--    join();-->
+<!--  },-->
+<!--  beforeDestroy() {-->
+<!--    if (signalClient) {-->
+<!--      signalClient.destroy();-->
+<!--    }-->
+<!--    if (socket) {-->
+<!--      socket.disconnect();-->
+<!--    }-->
+<!--  },-->
+
+<!--  methods: {-->
+<!--    setMyVideo() {-->
+<!--      players.value.forEach(element => {-->
+<!--        if (element["socket_id"] === socket.id) {-->
+<!--          myPlayer.value = element;-->
+<!--        }-->
+<!--      });-->
+<!--    },-->
+<!--    sendLike(peer_id) {-->
+<!--      socket.emit("command", {-->
+<!--        room: props.roomId,-->
+<!--        peer: peer_id,-->
+<!--        command: "like"-->
+<!--      });-->
+<!--    },-->
+<!--    sendDisLike(peer_id) {-->
+<!--      socket.emit("command", {-->
+<!--        room: props.roomId,-->
+<!--        peer: peer_id,-->
+<!--        command: "dislike"-->
+<!--      });-->
+<!--    },-->
+<!--    sendChallenge(peer_id) {-->
+<!--      socket.emit("command", {-->
+<!--        room: props.roomId,-->
+<!--        peer: peer_id,-->
+<!--        command: "challenge"-->
+<!--      });-->
+<!--    },-->
+
+<!--    onVideoClick(event) {-->
+<!--      var parent_div = event.target.parentElement;-->
+<!--      let numberHolder = parent_div.querySelector("#numberHolder");-->
+<!--      let informationHolder = parent_div.querySelector("#informationHolder");-->
+<!--      let nameHolder = parent_div.querySelector("#nameHolder");-->
+<!--      let IdHolder = parent_div.querySelector("#IdHolder");-->
+<!--      let dataInfo = parent_div.getAttribute("data-info");-->
+<!--      numberHolder.classList.toggle("hidden");-->
+<!--      informationHolder.classList.toggle("hidden");-->
+<!--      if (dataInfo) {-->
+<!--        var jData = JSON.parse(dataInfo);-->
+<!--        let fullName =-->
+<!--            jData.profile.user.first_name + " " + jData.profile.user.last_name;-->
+<!--        nameHolder.textContent = fullName;-->
+<!--        IdHolder.textContent = `#${jData.profile.unique_id}`;-->
+<!--      }-->
+<!--    },-->
+<!--    changeVideoStatus(peer_id) {-->
+<!--      if (playerStatus.videoCamera === true) {-->
+<!--        playerStatus.videoCamera = false;-->
+<!--        muteVideo(peer_id);-->
+<!--      } else {-->
+<!--        playerStatus.videoCamera = true;-->
+<!--        unmuteVideo(peer_id);-->
+<!--      }-->
+<!--    },-->
+<!--    changeVoiceStatus(peer_id) {-->
+<!--      console.log(playerStatus.microphone);-->
+<!--      if (playerStatus.microphone) {-->
+<!--        playerStatus.microphone = false;-->
+<!--        muteVoice(peer_id);-->
+<!--      } else {-->
+<!--        playerStatus.microphone = true;-->
+<!--        unmuteVoice(peer_id);-->
+<!--      }-->
+<!--    },-->
+<!--    muteVoice(peer_id) {-->
+<!--      console.log("mute");-->
+<!--      socket.emit("command", {-->
+<!--        room: props.roomId,-->
+<!--        peer: peer_id,-->
+<!--        command: "mute_voice"-->
+<!--      });-->
+<!--    },-->
+<!--    unmuteVoice(peer_id) {-->
+<!--      socket.emit("command", {-->
+<!--        room: props.roomId,-->
+<!--        peer: peer_id,-->
+<!--        command: "unmute_voice"-->
+<!--      });-->
+<!--    },-->
+<!--    muteVideo(peer_id) {-->
+<!--      socket.emit("command", {-->
+<!--        room: props.roomId,-->
+<!--        peer: peer_id,-->
+<!--        command: "mute_video"-->
+<!--      });-->
+<!--    },-->
+<!--    unmuteVideo(peer_id) {-->
+<!--      socket.emit("command", {-->
+<!--        room: props.roomId,-->
+<!--        peer: peer_id,-->
+<!--        command: "unmute_video"-->
+<!--      });-->
+<!--    },-->
+<!--    async join() {-->
+<!--      const that = this;-->
+<!--      socket = io(socketURL, props.ioOptions);-->
+<!--      signalClient = new SimpleSignalClient(socket);-->
+<!--      const constraints = {-->
+<!--        video: props.enableVideo,-->
+<!--        audio: props.enableAudio-->
+<!--      };-->
+
+<!--      socket.on("command", data => {-->
+<!--        console.log(data);-->
+<!--        var div_element = document.querySelector(-->
+<!--            "div[data-socketid='" + data["peer"] + "']"-->
+<!--        );-->
+<!--        if (div_element) {-->
+<!--          const childElement = div_element.querySelector("#reactionConatiner");-->
+<!--          switch (data["command"]) {-->
+<!--            case "like":-->
+<!--              childElement.textContent = "👍";-->
+<!--              childElement.classList.add("show-reaction");-->
+<!--              setTimeout(() => {-->
+<!--                childElement.textContent = "";-->
+<!--                childElement.classList.toggle("show-reaction");-->
+<!--              }, 800);-->
+<!--              break;-->
+<!--            case "dislike":-->
+<!--              childElement.textContent = "👎";-->
+<!--              childElement.classList.add("show-reaction");-->
+<!--              setTimeout(() => {-->
+<!--                childElement.textContent = "";-->
+<!--                childElement.classList.toggle("show-reaction");-->
+<!--              }, 800);-->
+<!--              break;-->
+<!--            case "challenge":-->
+<!--              playerStatus.challenge = !playerStatus.challenge;-->
+<!--              if (playerStatus.challenge) {-->
+<!--                childElement.textContent = "🤚";-->
+<!--              } else {-->
+<!--                childElement.textContent = "";-->
+<!--              }-->
+<!--              break;-->
+<!--          }-->
+<!--        } else {-->
+<!--          console.log("div el not recognized");-->
+<!--        }-->
+<!--      });-->
+<!--      socket.on("join_game", data => {-->
+<!--        if (data["status"]) {-->
+<!--          playerStatus.showPreLoader = false;-->
+
+<!--          socket.emit("players_info", {-->
+<!--            room: props.roomId,-->
+<!--            socket_id: socket.id,-->
+<!--            token: props.token-->
+<!--          });-->
+<!--        } else {-->
+<!--          playerStatus.showPreLoader = false;-->
+<!--          playerStatus.Error = true;-->
+<!--        }-->
+<!--      });-->
+<!--      socket.on("players_info", data => {-->
+<!--        if (data["status"] === "ok") {-->
+<!--          players = data["data"]["player"];-->
+<!--          $emit("update_players", {-->
+<!--            players: players,-->
+<!--            socket: socket-->
+<!--          });-->
+<!--        }-->
+<!--      });-->
+<!--      socket.on("leave_room", data => {-->
+<!--        if (data["status"] === "ok") {-->
+<!--          players = data["data"]["player"];-->
+<!--          $emit("update_players", {-->
+<!--            players: players,-->
+<!--            socket: socket-->
+<!--          });-->
+<!--        }-->
+<!--      });-->
+
+<!--      if (props.deviceId && props.enableVideo) {-->
+<!--        constraints.video = {deviceId: {exact: props.deviceId}};-->
+<!--      }-->
+<!--      try {-->
+<!--        const localStream = await navigator.mediaDevices.getUserMedia(-->
+<!--            constraints-->
+<!--        );-->
+<!--        log("opened", localStream);-->
+<!--        console.log(socket.id);-->
+<!--        joinedRoom(localStream, true, socket.id);-->
+<!--        signalClient.once("discover", discoveryData => {-->
+<!--          log("discovered", discoveryData);-->
+
+<!--          async function connectToPeer(peerID) {-->
+<!--            if (peerID === socket.id) return;-->
+<!--            try {-->
+<!--              log("Connecting to peer");-->
+<!--              const {peer} = await signalClient.connect(-->
+<!--                  peerID,-->
+<!--                  props.roomId,-->
+<!--                  peerOptions-->
+<!--              );-->
+<!--              videoList.forEach(v => {-->
+<!--                if (v.isLocal) {-->
+<!--                  peer["socket_id"] = peerID;-->
+<!--                  onPeer(peer, v.stream);-->
+<!--                }-->
+<!--              });-->
+<!--            } catch (e) {-->
+<!--              log("Error connecting to peer", e);-->
+<!--            }-->
+<!--          }-->
+
+<!--          discoveryData.peers.forEach(peerID => connectToPeer(peerID));-->
+<!--          $emit("opened-room", props.roomId);-->
+<!--        });-->
+<!--      } catch (error) {-->
+<!--        log("Error accessing media devices:", error);-->
+<!--      }-->
+<!--      signalClient.on("request", async request => {-->
+<!--        log("requested", request.initiator);-->
+<!--        const {peer} = await request.accept(request.initiator, {-->
+<!--          initiator: request.initiator-->
+<!--        });-->
+<!--        peer["socket_id"] = request.initiator;-->
+<!--        log("accepted", peer);-->
+<!--        videoList.forEach(v => {-->
+<!--          if (v.isLocal) {-->
+<!--            onPeer(peer, v.stream);-->
+<!--          }-->
+<!--        });-->
+<!--      });-->
+<!--      signalClient.discover({room: props.roomId, token: props.token});-->
+<!--    },-->
+<!--    onPeer(peer, localStream) {-->
+<!--      const that = this;-->
+<!--      peer.addStream(localStream);-->
+<!--      peer.on("stream", remoteStream => {-->
+<!--        console.log("Stream", remoteStream);-->
+<!--        joinedRoom(remoteStream, false, peer["socket_id"]);-->
+<!--        peer.on("close", () => {-->
+<!--          const newList = videoList.filter(-->
+<!--              item => item.id !== remoteStream.id-->
+<!--          );-->
+<!--          videoList = newList;-->
+<!--          $emit("left-room", remoteStream.id);-->
+<!--        });-->
+<!--        peer.on("error", err => {-->
+<!--          log("peer error ", err);-->
+<!--        });-->
+<!--      });-->
+<!--    },-->
+<!--    joinedRoom(stream, isLocal, socketId) {-->
+<!--      const that = this;-->
+<!--      const found = videoList.find(video => video.id === stream.id);-->
+<!--      if (found === undefined) {-->
+<!--        const video = {-->
+<!--          id: stream.id,-->
+<!--          muted: isLocal,-->
+<!--          stream: stream,-->
+<!--          socketId: socketId,-->
+<!--          isLocal: isLocal-->
+<!--        };-->
+<!--        videoList.push(video);-->
+<!--        console.log(videoList);-->
+<!--      }-->
+<!--      setTimeout(function () {-->
+<!--        for (let i = 0, len = $refs.videos.length; i < len; i++) {-->
+<!--          if ($refs.videos[i].srcObject === null) {-->
+<!--            $refs.videos[i].srcObject = stream;-->
+<!--            $refs.videos[i].autoplay = autoplay;-->
+<!--          }-->
+<!--        }-->
+<!--      }, 1000);-->
+<!--    },-->
+<!--    log(message, data = null) {-->
+<!--      console.log("[VueWebRTC]", message, data);-->
+<!--    }-->
+<!--  }-->
+<!--});-->
+<!--</script>-->
+
+<script setup>
 import {ref} from "vue";
-import {defineComponent} from "vue";
 import {io} from "socket.io-client";
 import "fast-crypto";
 import SimpleSignalClient from "simple-signal-client";
-export default defineComponent({
-  data() {
-    return {
-      signalClient: null,
-      myPlayer: null,
-      videoList: [],
-      players: [],
-      canvas: null,
-      socket: null,
-      playerStatus: ref({
-        isDead: true,
-        microphone: true,
-        videoCamera: false,
-        challenge: false,
-        showPreLoader: true,
-        Error: false
-      })
-    };
-  },
-  emits: ["update_players"],
-  props: {
+var props = defineProps({
     roomId: {
       type: String,
       default: "public-room-v2"
@@ -81,292 +434,296 @@ export default defineComponent({
       type: String,
       default: null
     }
-  },
-
-  mounted() {
-    this.join();
-  },
-  beforeDestroy() {
-    if (this.signalClient) {
-      this.signalClient.destroy();
-    }
-    if (this.socket) {
-      this.socket.disconnect();
-    }
-  },
-
-  methods: {
-    setMyVideo() {
+  })
+var signalClient;
+var myPlayer = null;
+var videoList = [];
+var players = [];
+var canvas = null;
+var socket = null;
+var playerStatus = ref({
+  isDead: true,
+  microphone: true,
+  videoCamera: false,
+  challenge: false,
+  showPreLoader: true,
+  Error: false
+})
+var videos = ref(null)
+function setMyVideo() {
       players.value.forEach(element => {
         if (element["socket_id"] === socket.id) {
           myPlayer.value = element;
         }
       });
-    },
-    sendLike(peer_id) {
-      this.socket.emit("command", {
-        room: this.roomId,
-        peer: peer_id,
-        command: "like"
-      });
-    },
-    sendDisLike(peer_id) {
-      this.socket.emit("command", {
-        room: this.roomId,
-        peer: peer_id,
-        command: "dislike"
-      });
-    },
-    sendChallenge(peer_id) {
-      this.socket.emit("command", {
-        room: this.roomId,
-        peer: peer_id,
-        command: "challenge"
-      });
-    },
-
-    onVideoClick(event) {
-      var parent_div = event.target.parentElement;
-      let numberHolder = parent_div.querySelector("#numberHolder");
-      let informationHolder = parent_div.querySelector("#informationHolder");
-      let nameHolder = parent_div.querySelector("#nameHolder");
-      let IdHolder = parent_div.querySelector("#IdHolder");
-      let dataInfo = parent_div.getAttribute("data-info");
-      numberHolder.classList.toggle("hidden");
-      informationHolder.classList.toggle("hidden");
-      if (dataInfo) {
-        var jData = JSON.parse(dataInfo);
-        let fullName =
-          jData.profile.user.first_name + " " + jData.profile.user.last_name;
-        nameHolder.textContent = fullName;
-        IdHolder.textContent = `#${jData.profile.unique_id}`;
-      }
-    },
-    changeVideoStatus(peer_id) {
-      if (this.playerStatus.videoCamera === true) {
-        this.playerStatus.videoCamera = false;
-        this.muteVideo(peer_id);
-      } else {
-        this.playerStatus.videoCamera = true;
-        this.unmuteVideo(peer_id);
-      }
-    },
-    changeVoiceStatus(peer_id) {
-      console.log(this.playerStatus.microphone);
-      if (this.playerStatus.microphone) {
-        this.playerStatus.microphone = false;
-        this.muteVoice(peer_id);
-      } else {
-        this.playerStatus.microphone = true;
-        this.unmuteVoice(peer_id);
-      }
-    },
-    muteVoice(peer_id) {
-      console.log("mute");
-      this.socket.emit("command", {
-        room: this.roomId,
-        peer: peer_id,
-        command: "mute_voice"
-      });
-    },
-    unmuteVoice(peer_id) {
-      this.socket.emit("command", {
-        room: this.roomId,
-        peer: peer_id,
-        command: "unmute_voice"
-      });
-    },
-    muteVideo(peer_id) {
-      this.socket.emit("command", {
-        room: this.roomId,
-        peer: peer_id,
-        command: "mute_video"
-      });
-    },
-    unmuteVideo(peer_id) {
-      this.socket.emit("command", {
-        room: this.roomId,
-        peer: peer_id,
-        command: "unmute_video"
-      });
-    },
-    async join() {
-      const that = this;
-      this.socket = io(this.socketURL, this.ioOptions);
-      this.signalClient = new SimpleSignalClient(this.socket);
-      const constraints = {
-        video: that.enableVideo,
-        audio: that.enableAudio
-      };
-
-      this.socket.on("command", data => {
-        console.log(data);
-        var div_element = document.querySelector(
-          "div[data-socketid='" + data["peer"] + "']"
-        );
-        if (div_element) {
-          const childElement = div_element.querySelector("#reactionConatiner");
-          switch (data["command"]) {
-            case "like":
-              childElement.textContent = "👍";
-              childElement.classList.add("show-reaction");
-              setTimeout(() => {
-                childElement.textContent = "";
-                childElement.classList.toggle("show-reaction");
-              }, 800);
-              break;
-            case "dislike":
-              childElement.textContent = "👎";
-              childElement.classList.add("show-reaction");
-              setTimeout(() => {
-                childElement.textContent = "";
-                childElement.classList.toggle("show-reaction");
-              }, 800);
-              break;
-            case "challenge":
-              this.playerStatus.challenge = !this.playerStatus.challenge;
-              if (this.playerStatus.challenge) {
-                childElement.textContent = "🤚";
-              } else {
-                childElement.textContent = "";
-              }
-              break;
-          }
-        } else {
-          console.log("div el not recognized");
-        }
-      });
-      this.socket.on("join_game", data => {
-        if (data["status"]) {
-          this.playerStatus.showPreLoader = false;
-
-          this.socket.emit("players_info", {
-            room: this.roomId,
-            socket_id: this.socket.id,
-            token: this.token
-          });
-        } else {
-          this.playerStatus.showPreLoader = false;
-          this.playerStatus.Error = true;
-        }
-      });
-      this.socket.on("players_info", data => {
-        if (data["status"] === "ok") {
-          this.players = data["data"]["player"];
-          this.$emit("update_players", {
-            players: this.players,
-            socket: this.socket
-          });
-        }
-      });
-      this.socket.on("leave_room", data => {
-        if (data["status"] === "ok") {
-          this.players = data["data"]["player"];
-          this.$emit("update_players", {
-            players: this.players,
-            socket: this.socket
-          });
-        }
-      });
-
-      if (that.deviceId && that.enableVideo) {
-        constraints.video = {deviceId: {exact: that.deviceId}};
-      }
-      try {
-        const localStream = await navigator.mediaDevices.getUserMedia(
-          constraints
-        );
-        this.log("opened", localStream);
-        console.log(that.socket.id);
-        this.joinedRoom(localStream, true, that.socket.id);
-        this.signalClient.once("discover", discoveryData => {
-          that.log("discovered", discoveryData);
-          async function connectToPeer(peerID) {
-            if (peerID === that.socket.id) return;
-            try {
-              that.log("Connecting to peer");
-              const {peer} = await that.signalClient.connect(
-                peerID,
-                that.roomId,
-                that.peerOptions
-              );
-              that.videoList.forEach(v => {
-                if (v.isLocal) {
-                  peer["socket_id"] = peerID;
-                  that.onPeer(peer, v.stream);
-                }
-              });
-            } catch (e) {
-              that.log("Error connecting to peer", e);
-            }
-          }
-          discoveryData.peers.forEach(peerID => connectToPeer(peerID));
-          that.$emit("opened-room", that.roomId);
-        });
-      } catch (error) {
-        that.log("Error accessing media devices:", error);
-      }
-      this.signalClient.on("request", async request => {
-        that.log("requested", request.initiator);
-        const {peer} = await request.accept(request.initiator, {
-          initiator: request.initiator
-        });
-        peer["socket_id"] = request.initiator;
-        that.log("accepted", peer);
-        that.videoList.forEach(v => {
-          if (v.isLocal) {
-            that.onPeer(peer, v.stream);
-          }
-        });
-      });
-      this.signalClient.discover({room: that.roomId, token: this.token});
-    },
-    onPeer(peer, localStream) {
-      const that = this;
-      peer.addStream(localStream);
-      peer.on("stream", remoteStream => {
-        console.log("Stream", remoteStream);
-        that.joinedRoom(remoteStream, false, peer["socket_id"]);
-        peer.on("close", () => {
-          const newList = that.videoList.filter(
-            item => item.id !== remoteStream.id
-          );
-          that.videoList = newList;
-          that.$emit("left-room", remoteStream.id);
-        });
-        peer.on("error", err => {
-          that.log("peer error ", err);
-        });
-      });
-    },
-    joinedRoom(stream, isLocal, socketId) {
-      const that = this;
-      const found = that.videoList.find(video => video.id === stream.id);
-      if (found === undefined) {
-        const video = {
-          id: stream.id,
-          muted: isLocal,
-          stream: stream,
-          socketId: socketId,
-          isLocal: isLocal
-        };
-        that.videoList.push(video);
-        console.log(that.videoList);
-      }
-      setTimeout(function () {
-        for (let i = 0, len = that.$refs.videos.length; i < len; i++) {
-          if (that.$refs.videos[i].srcObject === null) {
-            that.$refs.videos[i].srcObject = stream;
-            that.$refs.videos[i].autoplay = that.autoplay;
-          }
-        }
-      }, 1000);
-    },
-    log(message, data = null) {
-      console.log("[VueWebRTC]", message, data);
     }
+function sendLike(peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    command: "like"
+  });
+}
+function sendDisLike(peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    command: "dislike"
+  });
+}
+function sendChallenge(peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    command: "challenge"
+  });
+}
+
+function onVideoClick(event) {
+  var parent_div = event.target.parentElement;
+  let numberHolder = parent_div.querySelector("#numberHolder");
+  let informationHolder = parent_div.querySelector("#informationHolder");
+  let nameHolder = parent_div.querySelector("#nameHolder");
+  let IdHolder = parent_div.querySelector("#IdHolder");
+  let dataInfo = parent_div.getAttribute("data-info");
+  numberHolder.classList.toggle("hidden");
+  informationHolder.classList.toggle("hidden");
+  if (dataInfo) {
+    var jData = JSON.parse(dataInfo);
+    let fullName =
+        jData.profile.user.first_name + " " + jData.profile.user.last_name;
+    nameHolder.textContent = fullName;
+    IdHolder.textContent = `#${jData.profile.unique_id}`;
   }
-});
+}
+function changeVideoStatus(peer_id) {
+  if (playerStatus.videoCamera === true) {
+    playerStatus.videoCamera = false;
+    muteVideo(peer_id);
+  } else {
+    playerStatus.videoCamera = true;
+    unmuteVideo(peer_id);
+  }
+}
+function changeVoiceStatus(peer_id) {
+  console.log(playerStatus.microphone);
+  if (playerStatus.microphone) {
+    playerStatus.microphone = false;
+    muteVoice(peer_id);
+  } else {
+    playerStatus.microphone = true;
+    unmuteVoice(peer_id);
+  }
+}
+function muteVoice(peer_id) {
+  console.log("mute");
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    command: "mute_voice"
+  });
+}
+function unmuteVoice(peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    command: "unmute_voice"
+  });
+}
+function muteVideo(peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    command: "mute_video"
+  });
+}
+function unmuteVideo(peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    command: "unmute_video"
+  });
+}
+async function  join() {
+  socket = io(props.socketURL, props.ioOptions);
+  signalClient = new SimpleSignalClient(socket);
+  const constraints = {
+    video: props.enableVideo,
+    audio: props.enableAudio
+  };
+
+  socket.on("command", data => {
+    console.log(data);
+    var div_element = document.querySelector(
+        "div[data-socketid='" + data["peer"] + "']"
+    );
+    if (div_element) {
+      const childElement = div_element.querySelector("#reactionConatiner");
+      switch (data["command"]) {
+        case "like":
+          childElement.textContent = "👍";
+          childElement.classList.add("show-reaction");
+          setTimeout(() => {
+            childElement.textContent = "";
+            childElement.classList.toggle("show-reaction");
+          }, 800);
+          break;
+        case "dislike":
+          childElement.textContent = "👎";
+          childElement.classList.add("show-reaction");
+          setTimeout(() => {
+            childElement.textContent = "";
+            childElement.classList.toggle("show-reaction");
+          }, 800);
+          break;
+        case "challenge":
+          playerStatus.challenge = !playerStatus.challenge;
+          if (playerStatus.challenge) {
+            childElement.textContent = "🤚";
+          } else {
+            childElement.textContent = "";
+          }
+          break;
+      }
+    } else {
+      console.log("div el not recognized");
+    }
+  });
+  socket.on("join_game", data => {
+    if (data["status"]) {
+      playerStatus.showPreLoader = false;
+
+      socket.emit("players_info", {
+        room: props.roomId,
+        socket_id: socket.id,
+        token: props.token
+      });
+    } else {
+      playerStatus.showPreLoader = false;
+      playerStatus.Error = true;
+    }
+  });
+  socket.on("players_info", data => {
+    if (data["status"] === "ok") {
+      players = data["data"]["player"];
+      // $emit("update_players", {
+      //   players: players,
+      //   socket: socket
+      // });
+    }
+  });
+  socket.on("leave_room", data => {
+    if (data["status"] === "ok") {
+      players = data["data"]["player"];
+      // $emit("update_players", {
+      //   players: players,
+      //   socket: socket
+      // });
+    }
+  });
+
+  if (props.deviceId && props.enableVideo) {
+    constraints.video = {deviceId: {exact: props.deviceId}};
+  }
+  try {
+    // TODO Change here
+    const localStream = await navigator.mediaDevices.getUserMedia(
+        constraints
+    );
+    console.log(socket.id);
+    joinedRoom(localStream, true, socket.id);
+    signalClient.once("discover", discoveryData => {
+      console.log("discovered", discoveryData);
+
+      async function connectToPeer(peerID) {
+        if (peerID === socket.id) return;
+        try {
+          console.log("Connecting to peer");
+          const {peer} = await signalClient.connect(
+              peerID,
+              props.roomId,
+              props.peerOptions
+          );
+          videoList.forEach(v => {
+            if (v.isLocal) {
+              peer["socket_id"] = peerID;
+              onPeer(peer, v.stream);
+            }
+          });
+        } catch (e) {
+          console.log("Error connecting to peer", e);
+        }
+      }
+
+      discoveryData.peers.forEach(peerID => connectToPeer(peerID));
+      // $emit("opened-room", props.roomId);
+    });
+  } catch (error) {
+    console.log("Error accessing media devices:", error);
+  }
+  signalClient.on("request", async request => {
+    console.log("requested", request.initiator);
+    const {peer} = await request.accept(request.initiator, {
+      initiator: request.initiator
+    });
+    peer["socket_id"] = request.initiator;
+    console.log("accepted", peer);
+    videoList.forEach(v => {
+      if (v.isLocal) {
+        onPeer(peer, v.stream);
+      }
+    });
+  });
+  signalClient.discover({room: props.roomId, token: props.token});
+}
+function onPeer(peer, localStream) {
+  peer.addStream(localStream);
+  peer.on("stream", remoteStream => {
+    console.log("Stream", remoteStream);
+    joinedRoom(remoteStream, false, peer["socket_id"]);
+    peer.on("close", () => {
+      const newList = videoList.filter(
+          item => item.id !== remoteStream.id
+      );
+      videoList = newList;
+      $emit("left-room", remoteStream.id);
+    });
+    peer.on("error", err => {
+      console.log("peer error ", err);
+    });
+  });
+}
+function joinedRoom(stream, isLocal, socketId) {
+  const found = videoList.find(video => video.id === stream.id);
+  if (found === undefined) {
+    const video = {
+      id: stream.id,
+      muted: isLocal,
+      stream: stream,
+      socketId: socketId,
+      isLocal: isLocal
+    };
+    videoList.push(video);
+    console.log(videoList);
+  }
+  // TODO Here
+  setTimeout(function () {
+    for (let i = 0, len = videos.length; i < len; i++) {
+      if (videos[i].srcObject === null) {
+        videos[i].srcObject = stream;
+        videos[i].autoplay = autoplay;
+      }
+    }
+  }, 1000);
+}
+function log(message, data = null) {
+  console.log("[VueWebRTC]", message, data);
+}
+
+
+join()
+
+
 </script>
 <!-- <script setup>
 import {ref, onMounted, onBeforeUnmount} from "vue";
@@ -712,24 +1069,24 @@ onBeforeUnmount(() => {
 <template>
   <div>
     <div
-      v-if="playerStatus.showPreLoader"
-      class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col"
+        v-if="playerStatus.showPreLoader"
+        class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col"
     >
       <div
-        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-[red] font-[800]"
-        role="status"
+          class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-[red] font-[800]"
+          role="status"
       ></div>
       <p class="text-[green] font-[800] text-[20px] mt-2">درحال ورود به اتاق</p>
     </div>
     <div
-      v-if="playerStatus.Error"
-      class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col"
+        v-if="playerStatus.Error"
+        class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col"
     >
       <p class="text-[red] font-[800] text-[20px] mt-2">
         خطا در هنگام ورود به اتاق
       </p>
       <button
-        class="border p-2 rounded-lg hover:text-black hover:bg-white transition-all mt-2"
+          class="border p-2 rounded-lg hover:text-black hover:bg-white transition-all mt-2"
       >
         بازگشت به اپلیکیشن
       </button>
@@ -751,7 +1108,7 @@ onBeforeUnmount(() => {
       <!--        ></video>-->
       <!--      </div>-->
       <div
-        class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]"
+          class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]"
       >
         <div class="flex">
           <p class="ml-[2px]">نقش شما:</p>
@@ -759,21 +1116,21 @@ onBeforeUnmount(() => {
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
-      <!--      <div-->
-      <!--        v-for="video in videoList"-->
-      <!--        :key="video.id"-->
-      <!--        class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"-->
-      <!--      >-->
-      <!--        <video-->
-      <!--          width="100%"-->
-      <!--          height="100%"-->
-      <!--          :class="{selfCamera: video.isLocal}"-->
-      <!--          class="absolute bottom-0"-->
-      <!--          :ref="`videos`"-->
-      <!--          :muted="video.muted"-->
-      <!--          playsinline-->
-      <!--        ></video>-->
-      <!--      </div>-->
+            <div
+              v-for="video in videoList"
+              :key="video.id"
+              class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"
+            >
+              <video
+                width="100%"
+                height="100%"
+                :class="{selfCamera: video.isLocal}"
+                class="absolute bottom-0"
+                ref="videos"
+                :muted="video.muted"
+                playsinline
+              ></video>
+            </div>
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
       <!--      Speaking video  -->
@@ -795,118 +1152,118 @@ onBeforeUnmount(() => {
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
-          class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
-          v-for="(video, index) in videoList"
-          :key="video.id"
-          :data-socketId="video.socketId"
-          @click="onVideoClick"
+            class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
+            v-for="(video, index) in videoList"
+            :key="video.id"
+            :data-socketId="video.socketId"
+            @click="onVideoClick"
         >
           <img
-            src="/microphone-mute.svg"
-            alt=""
-            class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[white]"
-            v-if="playerStatus.microphone == false"
+              src="/microphone-mute.svg"
+              alt=""
+              class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[white]"
+              v-if="playerStatus.microphone == false"
           />
           <div
-            id="numberHolder"
-            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
+              id="numberHolder"
+              class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
           >
             {{ index + 1 }}
           </div>
           <div
-            class="absolute bottom-[1px] left-[37%] text-[20px] z-40"
-            id="reactionConatiner"
+              class="absolute bottom-[1px] left-[37%] text-[20px] z-40"
+              id="reactionConatiner"
           ></div>
           <div
-            id="informationHolder"
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden"
+              id="informationHolder"
+              class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden"
           >
             <div class="[direction:ltr] text-[12px] h-[40px] flex flex-col">
               <p id="nameHolder"></p>
               <p id="IdHolder"></p>
             </div>
             <img
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1"
+                src="/expand.svg"
+                alt=""
+                class="w-[18px] absolute bottom-1 right-1"
             />
           </div>
           <video
-            :class="video.isLocal ? 'border-2 border-green-800' : ''"
-            class="w-[100%] h-[100%]"
-            ref="videos"
-            :id="video.id"
-            :muted="video.muted"
-            playsinline
+              :class="video.isLocal ? 'border-2 border-green-800' : ''"
+              class="w-[100%] h-[100%]"
+              ref="videos"
+              :id="video.id"
+              :muted="video.muted"
+              playsinline
           ></video>
         </div>
       </div>
       <!-- reaction panel container  -->
       <div
-        class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]"
+          class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]"
       >
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3"
-          @click="sendLike(this.socket.id)"
+            class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3"
+            @click="sendLike(socket.id)"
         >
           <p class="text-center pt-1">👍</p>
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
-          @click="sendDisLike(this.socket.id)"
+            class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
+            @click="sendDisLike(socket.id)"
         >
           <p class="text-center pt-[7px]">👎</p>
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
-          @click="sendChallenge(this.socket.id)"
-          :class="{'bg-white': playerStatus.challenge}"
+            class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
+            @click="sendChallenge(socket.id)"
+            :class="{'bg-white': playerStatus.challenge}"
         >
           <p class="text-center pt-[7px] pr-[2px]">🤚</p>
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] transition-[300ms]"
-          :class="{'bg-white': playerStatus.microphone}"
-          @click="changeVoiceStatus(this.socket.id)"
+            class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] transition-[300ms]"
+            :class="{'bg-white': playerStatus.microphone}"
+            @click="changeVoiceStatus(socket.id)"
         >
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 384 512"
-            class="w-[29px] md:w-[17px] mx-auto"
-            v-if="playerStatus.microphone"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 384 512"
+              class="w-[29px] md:w-[17px] mx-auto"
+              v-if="playerStatus.microphone"
           >
             <path
-              class="fill-white"
-              :class="{fillblacker: playerStatus.microphone}"
-              d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"
+                class="fill-white"
+                :class="{fillblacker: playerStatus.microphone}"
+                d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"
             />
           </svg>
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 512"
-            fill="white"
-            class="w-[39px] md:w-[27px] mx-auto"
-            v-if="playerStatus.microphone == false"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 512"
+              fill="white"
+              class="w-[39px] md:w-[27px] mx-auto"
+              v-if="playerStatus.microphone == false"
           >
             <path
-              d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L472.1 344.7c15.2-26 23.9-56.3 23.9-88.7V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 21.2-5.1 41.1-14.2 58.7L416 300.8V96c0-53-43-96-96-96s-96 43-96 96v54.3L38.8 5.1zm362.5 407l-43.1-33.9C346.1 382 333.3 384 320 384c-70.7 0-128-57.3-128-128v-8.7L144.7 210c-.5 1.9-.7 3.9-.7 6v40c0 89.1 66.2 162.7 152 174.4V464H248c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H344V430.4c20.4-2.8 39.7-9.1 57.3-18.2z"
+                d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L472.1 344.7c15.2-26 23.9-56.3 23.9-88.7V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 21.2-5.1 41.1-14.2 58.7L416 300.8V96c0-53-43-96-96-96s-96 43-96 96v54.3L38.8 5.1zm362.5 407l-43.1-33.9C346.1 382 333.3 384 320 384c-70.7 0-128-57.3-128-128v-8.7L144.7 210c-.5 1.9-.7 3.9-.7 6v40c0 89.1 66.2 162.7 152 174.4V464H248c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H344V430.4c20.4-2.8 39.7-9.1 57.3-18.2z"
             />
           </svg>
         </button>
         <button
-          class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center transition-[300ms]"
-          :class="{'bg-white': playerStatus.videoCamera}"
-          @click="changeVideoStatus(this.socket.id)"
+            class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center transition-[300ms]"
+            :class="{'bg-white': playerStatus.videoCamera}"
+            @click="changeVideoStatus(socket.id)"
         >
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 576 512"
-            class="w-[31px] md:w-[19px] mx-auto"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 576 512"
+              class="w-[31px] md:w-[19px] mx-auto"
           >
             <path
-              class="fill-white"
-              :class="{fillblacker: playerStatus.videoCamera}"
-              d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"
+                class="fill-white"
+                :class="{fillblacker: playerStatus.videoCamera}"
+                d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"
             />
           </svg>
         </button>
@@ -919,18 +1276,22 @@ onBeforeUnmount(() => {
 .flex-center {
   @apply flex items-center justify-center;
 }
+
 video {
   width: 100%;
 }
+
 .deadPlayer::after {
   content: "";
   position: absolute;
   inset: 0;
   background-color: rgba(192, 0, 0, 0.45);
 }
+
 .fillblacker {
   fill: black !important;
 }
+
 .camera > div {
   margin-inline: 2px;
 }
