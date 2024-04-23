@@ -84,7 +84,16 @@ signalServer.on('disconnect', (socket) => {
 io.on('connection', (socket) => {
 
     socket.on("message", (data) => {
-        socket.emit("message", data)
+        axios.post(`${baseUrl}/send-message?secret=${godfatherSecretKey}`, {
+                "room_code": data["room"],
+                "socket_id": socket.id,
+                "message":data["message"]
+            }).then(value => {
+                console.log(value.data)
+            }).catch( (error) => {
+                console.log(error)
+            })
+
     })
     socket.on("command", (data) => {
 
@@ -104,6 +113,7 @@ io.on('connection', (socket) => {
             axios.post(`${baseUrl}/playerinfo?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"], "socket_id": socket.id,"token":data["token"]
             }).then(value => {
+                console.log(value.data)
                 io.to(data["room"]).emit("players_info", value.data)
             }).catch( (error) => {
 

@@ -71,9 +71,11 @@ function setDataPeerVideo() {
     if (div_element) {
       div_element.setAttribute("data-info", JSON.stringify(element));
     }
-
     if(element["socket_id"] === socket.id){
-      console.log(element)
+      myPlayer.value = element
+      if(myPlayer["room_role"] !== "god"){
+        uistate.value.tabs.pop()
+      }
     }
   });
 }
@@ -94,11 +96,6 @@ function updatePlayers(data) {
   socket.on("message", (message) => {
     console.log(message)
   } )
-
-
-
-
-
 }
 
 
@@ -111,20 +108,11 @@ function setRoles(room_id){
     socket.emit("set_roles",{"room":room_id})
   }
 }
-let smapleinput = {
-  message: "لورم ایسپوم متن ساهتگی",
-  number: 8,
-  role: "گادفادر",
-  name: "علی"
-};
-let sendMessege = () => {
+
+let sendMessege = (room_id) => {
   let newMessege = messegeInput.value.value;
-  console.log(newMessege);
   messegeInput.value.value = "";
-  // smaple.value.push(
-  //   new messageModel(input, input.number, input.role, input.name)
-  // );
-  socket.emit("message",{"message":"hello"})
+  socket.emit("message",{"message":newMessege,"room":room_id})
   setTimeout(() => {
     messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
   }, 100);
@@ -211,7 +199,7 @@ let sendMessege = () => {
               />
               <button
                 class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[55px] h-[55px] mt-[5px] rounded-full flex-center mx-[2%]"
-                @click="sendMessege(smapleinput)"
+                @click="sendMessege($route.params.room_id)"
               >
                 <img src="/send.svg" class="w-[23px]" alt="" />
               </button>
@@ -279,6 +267,7 @@ let sendMessege = () => {
         :token="$route.params.token"
         v-model:socket="socket"
         v-model:players="players"
+        v-model:myPlayer="myPlayer"
       />
     </div>
   </div>

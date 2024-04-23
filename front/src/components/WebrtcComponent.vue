@@ -436,13 +436,13 @@ var props = defineProps({
     }
   })
 var signalClient;
-var myPlayer = null;
 var videoList = [];
 var canvas = null;
 // var socket = null;
 
 var socket = defineModel('socket')
 var players = defineModel('players')
+var myPlayer = defineModel('myPlayer')
 var emit = defineEmits(["update_players"])
 var playerStatus = ref({
   isDead: true,
@@ -1114,9 +1114,9 @@ onBeforeUnmount(() => {
       <div
           class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]"
       >
-        <div class="flex">
+        <div class="flex" v-if="myPlayer && myPlayer.room_role === 'player'">
           <p class="ml-[2px]">نقش شما:</p>
-          <p class="text-[#B51818]">پدرخوانده</p>
+          <p class="text-[#B51818]"><span ></span></p>
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
