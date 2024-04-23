@@ -71,18 +71,21 @@ function setDataPeerVideo() {
     if (div_element) {
       div_element.setAttribute("data-info", JSON.stringify(element));
     }
+
+    if(element["socket_id"] === socket.id){
+      console.log(element)
+    }
   });
 }
 function setMyPlayer(player){
       myPlayer.value = player
+  console.log(myPlayer)
 }
 
 function updatePlayers(data) {
-  players.value = data["players"];
-  setDataPeerVideo();
-  console.log(data)
-  socket = data["socket"];
 
+  socket = data["socket"];
+  setDataPeerVideo();
 
   socket.on("role", (role_data) => {
     setMyPlayer(role_data)
@@ -97,6 +100,8 @@ function updatePlayers(data) {
 
 
 }
+
+
 
 
 
@@ -272,6 +277,8 @@ let sendMessege = () => {
         @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"
+        v-model:socket="socket"
+        v-model:players="players"
       />
     </div>
   </div>

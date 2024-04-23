@@ -438,9 +438,12 @@ var props = defineProps({
 var signalClient;
 var myPlayer = null;
 var videoList = [];
-var players = [];
 var canvas = null;
-var socket = null;
+// var socket = null;
+
+var socket = defineModel('socket')
+var players = defineModel('players')
+var emit = defineEmits(["update_players"])
 var playerStatus = ref({
   isDead: true,
   microphone: true,
@@ -606,20 +609,20 @@ async function  join() {
   });
   socket.on("players_info", data => {
     if (data["status"] === "ok") {
-      players = data["data"]["player"];
-      // $emit("update_players", {
-      //   players: players,
-      //   socket: socket
-      // });
+      players.value = data["data"]["player"];
+      emit("update_players", {
+        players: players,
+        socket: socket
+      });
     }
   });
   socket.on("leave_room", data => {
     if (data["status"] === "ok") {
       players = data["data"]["player"];
-      // $emit("update_players", {
-      //   players: players,
-      //   socket: socket
-      // });
+      emit("update_players", {
+        players: players,
+        socket: socket
+      });
     }
   });
 
