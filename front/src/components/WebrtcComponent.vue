@@ -497,21 +497,20 @@ function onVideoClick(event) {
   }
 }
 function changeVideoStatus(peer_id) {
-  if (playerStatus.videoCamera === true) {
-    playerStatus.videoCamera = false;
+  if (playerStatus.value.videoCamera === true) {
+    playerStatus.value.videoCamera = false;
     muteVideo(peer_id);
   } else {
-    playerStatus.videoCamera = true;
+    playerStatus.value.videoCamera = true;
     unmuteVideo(peer_id);
   }
 }
 function changeVoiceStatus(peer_id) {
-  console.log(playerStatus.microphone);
-  if (playerStatus.microphone) {
-    playerStatus.microphone = false;
+  if (playerStatus.value.microphone) {
+    playerStatus.value.microphone = false;
     muteVoice(peer_id);
   } else {
-    playerStatus.microphone = true;
+    playerStatus.value.microphone = true;
     unmuteVoice(peer_id);
   }
 }
@@ -577,8 +576,8 @@ async function  join() {
           }, 800);
           break;
         case "challenge":
-          playerStatus.challenge = !playerStatus.challenge;
-          if (playerStatus.challenge) {
+          playerStatus.value.challenge = !playerStatus.value.challenge;
+          if (playerStatus.value.challenge) {
             childElement.textContent = "🤚";
           } else {
             childElement.textContent = "";
@@ -590,8 +589,10 @@ async function  join() {
     }
   });
   socket.on("join_game", data => {
+    console.log("Join")
     if (data["status"]) {
-      playerStatus.showPreLoader = false;
+      playerStatus.value.showPreLoader = false;
+      console.log("After disable...")
 
       socket.emit("players_info", {
         room: props.roomId,
@@ -599,8 +600,8 @@ async function  join() {
         token: props.token
       });
     } else {
-      playerStatus.showPreLoader = false;
-      playerStatus.Error = true;
+      playerStatus.value.showPreLoader = false;
+      playerStatus.value.Error = true;
     }
   });
   socket.on("players_info", data => {
