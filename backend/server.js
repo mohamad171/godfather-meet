@@ -45,8 +45,16 @@ signalServer.on('discover', async (request) => {
             request.discover({
                 peers: Array.from(members)
             });
+            console.log(response.data)
             if(response.data["room_role"] === "god")
                 request.socket.join(`god-${roomId}`);
+            else if(response.data["data"]["role"]){
+                console.log("User has role")
+                if(response.data["data"]["role"]["side"] === 0){
+                    console.log("Add To mafia room")
+                    request.socket.join(`mafia-${roomId}`);
+                }
+            }
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
         }).catch((error) => {
@@ -89,7 +97,13 @@ io.on('connection', (socket) => {
                 "socket_id": socket.id,
                 "message":data["message"]
             }).then(value => {
-                console.log(value.data)
+                if(value.data["status"] === "ok"){
+                    if(value.data["data"]["message"]["receiver"]){
+                        console.log("Send to",value.data["data"]["message"]["receiver"])
+                        io.to(value.data["data"]["message"]["receiver"]).emit("message",value.data["data"]["message"])
+                    }
+
+                }
             }).catch( (error) => {
                 console.log(error)
             })

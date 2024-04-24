@@ -26,34 +26,9 @@ class messageModel {
     this.name = name;
   }
 }
-let smaple = ref([
-  {
-    message:
-      "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
-    number: "8",
-    role: "ماتادور",
-    name: "رضا"
-  },
-  {
-    message: "نه بابا 4 که منم شماره 3 رو بدیم بره",
-    number: "6",
-    role: "'پدرخوانده'",
-    name: "محمد"
-  },
-  {
-    message:
-      "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
-    number: "8",
-    role: "ماتادور",
-    name: "امیرعلی"
-  },
-  {
-    message: " ,نه بابا 4 که منم شماره 3 رو بدیم بره شهروند صد بازی ام",
-    number: "6",
-    role: "'پدرخوانده'",
-    name: "محمد"
-  }
-]);
+
+
+var messages = ref([])
 onMounted(() => {
   setInterval(() => {
     if (window.innerWidth > 768) {
@@ -95,6 +70,10 @@ function updatePlayers(data) {
 
   socket.on("message", (message) => {
     console.log(message)
+    messages.value.push(new messageModel(message.message,message.sender.id,message.sender.role.name,message.sender.profile.user.first_name))
+    setTimeout(() => {
+    messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+  }, 100);
   } )
 }
 
@@ -113,9 +92,7 @@ let sendMessege = (room_id) => {
   let newMessege = messegeInput.value.value;
   messegeInput.value.value = "";
   socket.emit("message",{"message":newMessege,"room":room_id})
-  setTimeout(() => {
-    messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
-  }, 100);
+
 };
 </script>
 <template>
@@ -164,14 +141,14 @@ let sendMessege = (room_id) => {
         </TabList>
         <TabPanels class="h-[93%] overflow-hidden">
           <TabPanel class="h-[100%]">
-            <div class="flex-center text-[18px] my-1">گفتگو با گرداننده</div>
+            <div class="flex-center text-[18px] my-1">گفتگو</div>
             <div
               ref="messageContainer"
               class="h-[83%] flex flex-col border  items-start max-w-[100%] overflow-y-auto pl-[12%]"
             >
               <div
                 class="flex m-1 mr-0 max-w-[85%] mt-2"
-                v-for="item in smaple"
+                v-for="item in messages"
               >
                 <div
                   class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] min-w-[30px] max-h-[32px] py-[1px] rounded-full flex-center ml-1"
