@@ -33,7 +33,7 @@ state.getRooms();
           v-for="room in state.rooms"
         >
           <p>{{ room.name }}</p>
-          <button class="border p-1" @click="state.joinRoom(room)">
+          <button class="border p-1" @click="$router.push('/room/20890509/7b0ef3b9f86d9671a45bd952ce388bc66b13c37c');">
             Join
           </button>
         </li>
