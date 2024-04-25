@@ -384,7 +384,7 @@ var props = defineProps({
     },
     socketURL: {
       type: String,
-      default: "http://localhost:3000"
+      default: "https://websocket.straiberry.com"
       // default: "https://websocket.straiberry.com"
     },
     cameraHeight: {
