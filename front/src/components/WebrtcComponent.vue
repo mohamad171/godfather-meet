@@ -377,64 +377,65 @@ import {ref} from "vue";
 import {io} from "socket.io-client";
 import "fast-crypto";
 import SimpleSignalClient from "simple-signal-client";
+
 var props = defineProps({
-    roomId: {
-      type: String,
-      default: "public-room-v2"
-    },
-    socketURL: {
-      type: String,
-      default: "https://websocket.straiberry.com"
-      // default: "https://websocket.straiberry.com"
-    },
-    cameraHeight: {
-      type: [Number, String],
-      default: 160
-    },
-    autoplay: {
-      type: Boolean,
-      default: true
-    },
-    screenshotFormat: {
-      type: String,
-      default: "image/jpeg"
-    },
-    enableAudio: {
-      type: Boolean,
-      default: true
-    },
-    enableVideo: {
-      type: Boolean,
-      default: true
-    },
-    enableLogs: {
-      type: Boolean,
-      default: false
-    },
-    peerOptions: {
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    ioOptions: {
-      type: Object,
-      default() {
-        return {
-          rejectUnauthorized: false,
-          transports: ["polling", "websocket"]
-        };
-      }
-    },
-    deviceId: {
-      type: String,
-      default: null
-    },
-    token: {
-      type: String,
-      default: null
+  roomId: {
+    type: String,
+    default: "public-room-v2"
+  },
+  socketURL: {
+    type: String,
+    default: "https://websocket.straiberry.com"
+    // default: "https://websocket.straiberry.com"
+  },
+  cameraHeight: {
+    type: [Number, String],
+    default: 160
+  },
+  autoplay: {
+    type: Boolean,
+    default: true
+  },
+  screenshotFormat: {
+    type: String,
+    default: "image/jpeg"
+  },
+  enableAudio: {
+    type: Boolean,
+    default: true
+  },
+  enableVideo: {
+    type: Boolean,
+    default: true
+  },
+  enableLogs: {
+    type: Boolean,
+    default: false
+  },
+  peerOptions: {
+    type: Object,
+    default() {
+      return {};
     }
-  })
+  },
+  ioOptions: {
+    type: Object,
+    default() {
+      return {
+        rejectUnauthorized: false,
+        transports: ["polling", "websocket"]
+      };
+    }
+  },
+  deviceId: {
+    type: String,
+    default: null
+  },
+  token: {
+    type: String,
+    default: null
+  }
+})
 var signalClient;
 var videoList = [];
 var canvas = null;
@@ -453,13 +454,15 @@ var playerStatus = ref({
   Error: false
 })
 var videos = ref(null)
+
 function setMyVideo() {
-      players.value.forEach(element => {
-        if (element["socket_id"] === socket.id) {
-          myPlayer.value = element;
-        }
-      });
+  players.value.forEach(element => {
+    if (element["socket_id"] === socket.id) {
+      myPlayer.value = element;
     }
+  });
+}
+
 function sendLike(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -467,6 +470,7 @@ function sendLike(peer_id) {
     command: "like"
   });
 }
+
 function sendDisLike(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -474,6 +478,7 @@ function sendDisLike(peer_id) {
     command: "dislike"
   });
 }
+
 function sendChallenge(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -499,6 +504,7 @@ function onVideoClick(event) {
     IdHolder.textContent = `#${jData.profile.unique_id}`;
   }
 }
+
 function changeVideoStatus(peer_id) {
   if (playerStatus.value.videoCamera === true) {
     playerStatus.value.videoCamera = false;
@@ -508,6 +514,7 @@ function changeVideoStatus(peer_id) {
     unmuteVideo(peer_id);
   }
 }
+
 function changeVoiceStatus(peer_id) {
   if (playerStatus.value.microphone) {
     playerStatus.value.microphone = false;
@@ -517,6 +524,7 @@ function changeVoiceStatus(peer_id) {
     unmuteVoice(peer_id);
   }
 }
+
 function muteVoice(peer_id) {
   console.log("mute");
   socket.emit("command", {
@@ -525,6 +533,7 @@ function muteVoice(peer_id) {
     command: "mute_voice"
   });
 }
+
 function unmuteVoice(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -532,6 +541,7 @@ function unmuteVoice(peer_id) {
     command: "unmute_voice"
   });
 }
+
 function muteVideo(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -539,6 +549,7 @@ function muteVideo(peer_id) {
     command: "mute_video"
   });
 }
+
 function unmuteVideo(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -546,7 +557,8 @@ function unmuteVideo(peer_id) {
     command: "unmute_video"
   });
 }
-async function  join() {
+
+async function join() {
   socket = io(props.socketURL, props.ioOptions);
   signalClient = new SimpleSignalClient(socket);
   const constraints = {
@@ -680,6 +692,7 @@ async function  join() {
   });
   signalClient.discover({room: props.roomId, token: props.token});
 }
+
 function onPeer(peer, localStream) {
   peer.addStream(localStream);
   peer.on("stream", remoteStream => {
@@ -697,6 +710,7 @@ function onPeer(peer, localStream) {
     });
   });
 }
+
 function joinedRoom(stream, isLocal, socketId) {
   const found = videoList.find(video => video.id === stream.id);
   if (found === undefined) {
@@ -720,6 +734,7 @@ function joinedRoom(stream, isLocal, socketId) {
     }
   }, 1000);
 }
+
 function log(message, data = null) {
   console.log("[VueWebRTC]", message, data);
 }
@@ -1116,25 +1131,25 @@ onBeforeUnmount(() => {
       >
         <div class="flex" v-if="myPlayer && myPlayer.room_role === 'player'">
           <p class="ml-[2px]">نقش شما:</p>
-          <p class="text-[#B51818]"><span ></span></p>
+          <p class="text-[#B51818]"><span></span></p>
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
-            <div
-              v-for="video in videoList"
-              :key="video.id"
-              class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"
-            >
-              <video
-                width="100%"
-                height="100%"
-                :class="{selfCamera: video.isLocal}"
-                class="absolute bottom-0"
-                ref="videos"
-                :muted="video.muted"
-                playsinline
-              ></video>
-            </div>
+      <div
+          v-for="video in videoList"
+          :key="video.id"
+          class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"
+      >
+        <video
+            width="100%"
+            height="100%"
+            :class="{selfCamera: video.isLocal}"
+            class="absolute bottom-0"
+            ref="videos"
+            :muted="video.muted"
+            playsinline
+        ></video>
+      </div>
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
       <!--      Speaking video  -->
