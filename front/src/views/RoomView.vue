@@ -26,34 +26,8 @@ class messageModel {
     this.name = name;
   }
 }
-let smaple = ref([
-  {
-    message:
-      "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
-    number: "8",
-    role: "ماتادور",
-    name: "رضا"
-  },
-  {
-    message: "نه بابا 4 که منم شماره 3 رو بدیم بره",
-    number: "6",
-    role: "'پدرخوانده'",
-    name: "محمد"
-  },
-  {
-    message:
-      "سلام تیم خیلی خوبی داریم بنظرم شماره 4 رو با رای بدیم بیرون فردا یکی از مافیا ها رو هم میدیم بیرون که سفید بشیم",
-    number: "8",
-    role: "ماتادور",
-    name: "امیرعلی"
-  },
-  {
-    message: " ,نه بابا 4 که منم شماره 3 رو بدیم بره شهروند صد بازی ام",
-    number: "6",
-    role: "'پدرخوانده'",
-    name: "محمد"
-  }
-]);
+
+var messages = ref([]);
 onMounted(() => {
   setInterval(() => {
     if (window.innerWidth > 768) {
@@ -71,62 +45,58 @@ function setDataPeerVideo() {
     if (div_element) {
       div_element.setAttribute("data-info", JSON.stringify(element));
     }
+    if (element["socket_id"] === socket.id) {
+      myPlayer.value = element;
+      if (myPlayer["room_role"] !== "god") {
+        uistate.value.tabs.pop();
+      }
+    }
   });
 }
-function setMyPlayer(player){
-      myPlayer.value = player
+function setMyPlayer(player) {
+  myPlayer.value = player;
+  console.log(myPlayer);
 }
 
 function updatePlayers(data) {
-  players.value = data["players"];
-  setDataPeerVideo();
-  console.log(data)
   socket = data["socket"];
+  setDataPeerVideo();
 
+  socket.on("role", role_data => {
+    setMyPlayer(role_data);
+  });
 
-  socket.on("role", (role_data) => {
-    setMyPlayer(role_data)
-  } )
-
-  socket.on("message", (message) => {
-    console.log(message)
-  } )
-
-
-
-
-
+  socket.on("message", message => {
+    console.log(message);
+    messages.value.push(
+      new messageModel(
+        message.message,
+        message.sender.id,
+        message.sender.role.name,
+        message.sender.profile.user.first_name
+      )
+    );
+    setTimeout(() => {
+      messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+    }, 100);
+  });
 }
 
-
-
-function setRoles(room_id){
-  if(socket){
-    console.log("Sending request...")
-    socket.emit("set_roles",{"room":room_id})
+function setRoles(room_id) {
+  if (socket) {
+    console.log("Sending request...");
+    socket.emit("set_roles", {room: room_id});
   }
 }
-let smapleinput = {
-  message: "لورم ایسپوم متن ساهتگی",
-  number: 8,
-  role: "گادفادر",
-  name: "علی"
-};
-let sendMessege = () => {
+
+let sendMessege = room_id => {
   let newMessege = messegeInput.value.value;
-  console.log(newMessege);
   messegeInput.value.value = "";
-  // smaple.value.push(
-  //   new messageModel(input, input.number, input.role, input.name)
-  // );
-  socket.emit("message",{"message":"hello"})
-  setTimeout(() => {
-    messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
-  }, 100);
+  socket.emit("message", {message: newMessege, room: room_id});
 };
 </script>
 <template>
-  {{myPlayer}}
+  {{ myPlayer }}
   <div
     class="text-[white] bg-[#2E2E2E] h-[100vh] relative flex flex-col md:flex-row"
   >
@@ -171,42 +141,50 @@ let sendMessege = () => {
         </TabList>
         <TabPanels class="h-[93%] overflow-hidden">
           <TabPanel class="h-[100%]">
-            <div class="flex-center text-[18px] my-1">گفتگو با گرداننده</div>
+            <div class="text-[22px] m-3 mr-4">
+              گفتگو تیم
+              <span class="text-[#9c2525] font-bold">مافیا</span>
+            </div>
             <div
               ref="messageContainer"
-              class="h-[83%] flex flex-col border  items-start max-w-[100%] overflow-y-auto pl-[12%]"
+              class="h-[80%] flex flex-col items-start max-w-[100%] overflow-y-auto pl-[12%]"
             >
               <div
-                class="flex m-1 mr-0 max-w-[85%] mt-2"
-                v-for="item in smaple"
+                class="flex m-1 mr-0 max-w-[98%] mt-2"
+                v-for="item in messages"
               >
                 <div
-                  class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] min-w-[30px] max-h-[32px] py-[1px] rounded-full flex-center ml-1"
+                  class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] min-w-[30px] max-h-[32px] py-[1px] rounded-full flex-center mx-1"
                 >
                   {{ item.number }}
                 </div>
                 <div
-                  class="bg-[#252525] min-h-[75px] p-2 [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-md w-[100%]"
+                  class="bg-[#252525] min-h-[75px] p-2 [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-md"
                 >
                   <div class="flex items-end">
                     <p class="ml-1 text-[#D9D9D9]">{{ item.name }}</p>
                     <p class="text-[#B51818] text-[10px]">{{ item.role }}</p>
                   </div>
-                  <p class="text-[11px]">{{ item.message }}</p>
+                  <p
+                    class="text-[12px] min-h-[40px]"
+                    style="display: inline-block; word-break: break-word"
+                  >
+                    {{ item.message }}
+                  </p>
                 </div>
               </div>
             </div>
-            <div class="absolute bottom-0 flex">
-              <input
-                type="text"
-                class="bg-[#252525] p-[14px] w-[88%]"
+            <div class="absolute bottom-0 flex w-[100%]">
+              <textarea
+                @keyup.enter.exact="sendMessege($route.params.room_id)"
+                class="bg-[#252525] p-[14px] h-[60px] w-[88%] resize-none"
                 style="border-radius: 16px 16px 0 0"
                 placeholder="اینجا بنویسید"
                 ref="messegeInput"
               />
               <button
                 class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[55px] h-[55px] mt-[5px] rounded-full flex-center mx-[2%]"
-                @click="sendMessege(smapleinput)"
+                @click="sendMessege($route.params.room_id)"
               >
                 <img src="/send.svg" class="w-[23px]" alt="" />
               </button>
@@ -236,7 +214,12 @@ let sendMessege = () => {
             </div>
           </TabPanel>
           <TabPanel class="flex-center pt-[50px]">
-            <button class="w-[40%] h-[80px] bg-black rounded" @click="setRoles($route.params.room_id)">تقسیم نقش</button>
+            <button
+              class="w-[40%] h-[80px] bg-black rounded"
+              @click="setRoles($route.params.room_id)"
+            >
+              تقسیم نقش
+            </button>
           </TabPanel>
         </TabPanels>
       </TabGroup>
@@ -261,17 +244,18 @@ let sendMessege = () => {
       >
         <p class="relative bottom-1">خروج</p>
       </button>
-
     </div>
 
     <div class="md:w-[61%]">
-
       <WebrtcComponent
         width="150"
         height="150"
         @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"
+        v-model:socket="socket"
+        v-model:players="players"
+        v-model:myPlayer="myPlayer"
       />
     </div>
   </div>
@@ -286,5 +270,8 @@ input:focus {
 * {
   direction: rtl;
   scroll-behavior: smooth;
+}
+::-webkit-scrollbar {
+  display: none;
 }
 </style>

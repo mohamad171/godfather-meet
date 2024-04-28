@@ -440,7 +440,12 @@ var myPlayer = null;
 var videoList = [];
 var players = [];
 var canvas = null;
-var socket = null;
+// var socket = null;
+
+var socket = defineModel('socket')
+var players = defineModel('players')
+var myPlayer = defineModel('myPlayer')
+var emit = defineEmits(["update_players"])
 var playerStatus = ref({
   isDead: true,
   microphone: true,
@@ -451,12 +456,13 @@ var playerStatus = ref({
 })
 var videos = ref([])
 function setMyVideo() {
-      players.value.forEach(element => {
-        if (element["socket_id"] === socket.id) {
-          myPlayer.value = element;
-        }
-      });
+  players.value.forEach(element => {
+    if (element["socket_id"] === socket.id) {
+      myPlayer.value = element;
     }
+  });
+}
+
 function sendLike(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -606,20 +612,20 @@ async function  join() {
   });
   socket.on("players_info", data => {
     if (data["status"] === "ok") {
-      players = data["data"]["player"];
-      // $emit("update_players", {
-      //   players: players,
-      //   socket: socket
-      // });
+      players.value = data["data"]["player"];
+      emit("update_players", {
+        players: players,
+        socket: socket
+      });
     }
   });
   socket.on("leave_room", data => {
     if (data["status"] === "ok") {
       players = data["data"]["player"];
-      // $emit("update_players", {
-      //   players: players,
-      //   socket: socket
-      // });
+      emit("update_players", {
+        players: players,
+        socket: socket
+      });
     }
   });
 
@@ -627,6 +633,7 @@ async function  join() {
     constraints.video = {deviceId: {exact: props.deviceId}};
   }
   try {
+    // TODO Change here
     const localStream = await navigator.mediaDevices.getUserMedia(
         constraints
     );
@@ -638,7 +645,7 @@ async function  join() {
       async function connectToPeer(peerID) {
         if (peerID === socket.id) return;
         try {
-          console.log("Connecting to peer",peerID,props.roomId,props.peerOptions);
+          console.log("Connecting to peer");
           const {peer} = await signalClient.connect(
               peerID,
               props.roomId,
@@ -695,7 +702,6 @@ function onPeer(peer, localStream) {
 }
 function joinedRoom(stream, isLocal, socketId) {
   const found = videoList.find(video => video.id === stream.id);
-  console.log("Found:",found)
   if (found === undefined) {
     const video = {
       id: stream.id,
@@ -705,6 +711,7 @@ function joinedRoom(stream, isLocal, socketId) {
       isLocal: isLocal
     };
     videoList.push(video);
+    console.log(videoList);
   }
   for (let i = 0, len = videos.value.length; i < len; i++) {
       if (videos.value[i].srcObject === null) {

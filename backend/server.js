@@ -45,8 +45,16 @@ signalServer.on('discover', async (request) => {
             request.discover({
                 peers: Array.from(members)
             });
+            console.log(response.data)
             if(response.data["room_role"] === "god")
                 request.socket.join(`god-${roomId}`);
+            else if(response.data["data"]["role"]){
+                console.log("User has role")
+                if(response.data["data"]["role"]["side"] === 0){
+                    console.log("Add To mafia room")
+                    request.socket.join(`mafia-${roomId}`);
+                }
+            }
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
         }).catch((error) => {
@@ -84,7 +92,22 @@ signalServer.on('disconnect', (socket) => {
 io.on('connection', (socket) => {
 
     socket.on("message", (data) => {
-        socket.emit("message", data)
+        axios.post(`${baseUrl}/send-message?secret=${godfatherSecretKey}`, {
+                "room_code": data["room"],
+                "socket_id": socket.id,
+                "message":data["message"]
+            }).then(value => {
+                if(value.data["status"] === "ok"){
+                    if(value.data["data"]["message"]["receiver"]){
+                        console.log("Send to",value.data["data"]["message"]["receiver"])
+                        io.to(value.data["data"]["message"]["receiver"]).emit("message",value.data["data"]["message"])
+                    }
+
+                }
+            }).catch( (error) => {
+                console.log(error)
+            })
+
     })
     socket.on("command", (data) => {
 
@@ -104,6 +127,7 @@ io.on('connection', (socket) => {
             axios.post(`${baseUrl}/playerinfo?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"], "socket_id": socket.id,"token":data["token"]
             }).then(value => {
+                console.log(value.data)
                 io.to(data["room"]).emit("players_info", value.data)
             }).catch( (error) => {
 
