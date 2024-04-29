@@ -187,7 +187,7 @@ io.on('connection', (socket) => {
                 "targets":data["targets"]
             }).then(value => {
                 if(value.data["status"] === "ok"){
-                    io.to(`god-${data["room"]}`).emit("action",value.data["data"])
+                    io.to(`god-${data["room"]}`).emit("actions",value.data["data"])
                 }
             }).catch( (error) => {
                 console.log(error)

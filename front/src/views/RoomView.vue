@@ -120,7 +120,7 @@ function updatePlayers(data) {
     }, 100);
   });
 
-  socket.on("action", data => {
+  socket.on("actions", data => {
     console.log("action",data)
   })
 }
