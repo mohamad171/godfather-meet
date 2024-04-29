@@ -136,6 +136,21 @@ io.on('connection', (socket) => {
 
     })
 
+    socket.on("load_messages", (data) => {
+        console.log("Rooom is:",data["room"])
+        if (socket.rooms.has(data["room"])) {
+            axios.post(`${baseUrl}/messages?secret=${godfatherSecretKey}`, {
+                "room_code": data["room"], "socket_id": socket.id
+            }).then(value => {
+                console.log(value.data)
+                socket.emit("load_messages", value.data)
+            }).catch( (error) => {
+
+            })
+        }
+
+    })
+
     socket.on("set_roles",(data) => {
         console.log(data)
         if (socket.rooms.has(data["room"])) {

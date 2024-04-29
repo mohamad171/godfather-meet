@@ -5,7 +5,9 @@ import {useAppwriteState} from "../stores/appwriteState";
 import WebrtcComponent from "@/components/WebrtcComponent.vue";
 import {TabGroup, TabList, Tab, TabPanels, TabPanel} from "@headlessui/vue";
 const selectedPlayer = ref();
+import {useRoute} from 'vue-router'
 
+const route = useRoute();
 let uistate = ref({
   mobileMenu: false,
   DesktopWarning: false,
@@ -74,13 +76,13 @@ function setMyPlayer(player) {
 function updatePlayers(data) {
   socket = data["socket"];
   setDataPeerVideo();
+  socket.emit("load_messages",{"room":route.params.room_id})
 
   socket.on("role", role_data => {
     setMyPlayer(role_data);
   });
 
   socket.on("message", message => {
-    console.log(message);
     messages.value.push(
       new messageModel(
         message.message,
@@ -91,6 +93,25 @@ function updatePlayers(data) {
     );
     setTimeout(() => {
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+    }, 100);
+  });
+  socket.on("load_messages", data => {
+    for(var i=0;i < data.data.messages.length;i++){
+      var message = data.messages[i]
+      messages.value.push(
+      new messageModel(
+        message.message,
+        message.sender.id,
+        message.sender.role.name,
+        message.sender.profile.user.first_name
+      )
+    );
+    }
+
+    setTimeout(() => {
+      if(messageContainer.value !== null){
+        messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+      }
     }, 100);
   });
 }
