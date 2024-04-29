@@ -637,21 +637,24 @@ async function  join() {
     const localStream = await navigator.mediaDevices.getUserMedia(
         constraints
     );
-    console.log(socket.id);
+    console.log(localStream,"Streammmm");
     joinedRoom(localStream, true, socket.id);
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
 
+
       async function connectToPeer(peerID) {
+        console.log("Start connecting",peerID);
         if (peerID === socket.id) return;
         try {
-          console.log("Connecting to peer");
+          console.log("Connecting to peer",peerID);
           const {peer} = await signalClient.connect(
               peerID,
               props.roomId,
               props.peerOptions
           );
           videoList.forEach(v => {
+            console.log("Is localll")
             if (v.isLocal) {
               peer["socket_id"] = peerID;
               onPeer(peer, v.stream);
@@ -711,14 +714,15 @@ function joinedRoom(stream, isLocal, socketId) {
       isLocal: isLocal
     };
     videoList.push(video);
-    console.log(videoList);
   }
-  for (let i = 0, len = videos.value.length; i < len; i++) {
+  setTimeout(()=>{
+    for (let i = 0, len = videos.value.length; i < len; i++) {
       if (videos.value[i].srcObject === null) {
         videos.value[i].srcObject = stream;
         videos.value[i].autoplay = props.autoplay;
       }
     }
+  },1000)
 }
 function log(message, data = null) {
   console.log("[VueWebRTC]", message, data);
