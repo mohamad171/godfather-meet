@@ -31,6 +31,7 @@ let messegeInput = ref(null);
 var players = ref([]);
 let socket;
 let myPlayer = ref();
+const targetIds = ref([])
 class messageModel {
   message;
   number;
@@ -73,6 +74,10 @@ function setMyPlayer(player) {
   console.log(myPlayer);
 }
 
+function sendTargets(){
+  socket.emit("send_action",{"room":route.params.room_id,"targets":targetIds.value})
+  targetIds.value = []
+}
 function updatePlayers(data) {
   socket = data["socket"];
   setDataPeerVideo();
@@ -114,6 +119,10 @@ function updatePlayers(data) {
       }
     }, 100);
   });
+
+  socket.on("action", data => {
+    console.log("action",data)
+  })
 }
 
 function setRoles(room_id) {
@@ -242,6 +251,7 @@ let sendMessege = room_id => {
             <div class="h-[53%] pt-[40px]">
               <button
                 class="absolute bottom-[3%] py-1 px-8 rounded-md left-[5%] bg-[#217C0B] text-[20px] w-[90%]"
+                @click="sendTargets"
               >
                 ثبت
               </button>
@@ -251,7 +261,7 @@ let sendMessege = room_id => {
                   v-for="item in players"
                   class="my-[5px] container2 w-[45%] flex items-center"
                 >
-                  <input type="checkbox" />
+                  <input type="checkbox" :value="item.id" v-model="targetIds" />
                   <span class="checkmark"></span>
                   <p class="text-[16px]">
                     {{ item.profile.user.first_name }}

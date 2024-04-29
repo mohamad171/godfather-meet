@@ -179,6 +179,35 @@ io.on('connection', (socket) => {
 
         }
     })
+
+    socket.on("send_action", (data) => {
+        axios.post(`${baseUrl}/send-action?secret=${godfatherSecretKey}`, {
+                "room_code": data["room"],
+                "socket_id": socket.id,
+                "targets":data["targets"]
+            }).then(value => {
+                if(value.data["status"] === "ok"){
+                    io.to(`god-${data["room"]}`).emit("action",value.data["data"])
+                }
+            }).catch( (error) => {
+                console.log(error)
+            })
+
+    })
+
+    socket.on("get_actions", (data) => {
+        axios.post(`${baseUrl}/actions?secret=${godfatherSecretKey}`, {
+                "room_code": data["room"],
+                "socket_id": socket.id,
+            }).then(value => {
+                if(value.data["status"] === "ok"){
+                    io.to(`god-${data["room"]}`).emit("actions",value.data["data"])
+                }
+            }).catch( (error) => {
+                console.log(error)
+            })
+
+    })
 });
 signalServer.on('request', (request) => {
     request.forward()
