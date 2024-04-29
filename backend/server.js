@@ -45,9 +45,10 @@ signalServer.on('discover', async (request) => {
             request.discover({
                 peers: Array.from(members)
             });
-            console.log(response.data)
-            if(response.data["room_role"] === "god")
+            if(response.data.data["room_role"] === "god"){
                 request.socket.join(`god-${roomId}`);
+            }
+
             else if(response.data["data"]["role"]){
                 console.log("User has role")
                 if(response.data["data"]["role"]["side"] === 0){
@@ -95,7 +96,8 @@ io.on('connection', (socket) => {
         axios.post(`${baseUrl}/send-message?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"],
                 "socket_id": socket.id,
-                "message":data["message"]
+                "message":data["message"],
+                "receiver":data["receiver"]
             }).then(value => {
                 if(value.data["status"] === "ok"){
                     if(value.data["data"]["message"]["receiver"]){

@@ -87,7 +87,7 @@ function updatePlayers(data) {
       new messageModel(
         message.message,
         message.sender.id,
-        message.sender.role.name,
+          (message.sender.role) ? message.sender.role.name : null,
         message.sender.profile.user.first_name
       )
     );
@@ -97,12 +97,12 @@ function updatePlayers(data) {
   });
   socket.on("load_messages", data => {
     for(var i=0;i < data.data.messages.length;i++){
-      var message = data.messages[i]
+      var message = data.data.messages[i]
       messages.value.push(
       new messageModel(
         message.message,
         message.sender.id,
-        message.sender.role.name,
+        (message.sender.role) ? message.sender.role.name : null,
         message.sender.profile.user.first_name
       )
     );
@@ -126,7 +126,13 @@ function setRoles(room_id) {
 let sendMessege = room_id => {
   let newMessege = messegeInput.value.value;
   messegeInput.value.value = "";
-  socket.emit("message", {message: newMessege, room: room_id});
+  if(myPlayer.value.room_role === "god"){
+    if(selectedPlayer != null)
+    socket.emit("message", {message: newMessege, room: room_id,"receiver":selectedPlayer.id});
+  }else{
+    socket.emit("message", {message: newMessege, room: room_id});
+  }
+
 };
 </script>
 <template>
@@ -218,12 +224,11 @@ let sendMessege = room_id => {
               <div
                 class="card flex justify-content-center absolute left-[17%] bottom-[17%]"
               >
-                <Dropdown
-                  v-model="selectedPlayer"
-                  :options="players"
-                  placeholder="Select"
-                  class="w-[100px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]"
-                />
+                <select v-model="selectedPlayer" class="w-[120px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]">
+                  <option v-for="player in players" :key="player.id">
+                    {{player.profile.user.first_name}} {{player.profile.user.last_name}} <span v-if="player.profile.role">({{player.profile.role.name}})</span>
+                  </option>
+                </select>
               </div>
               <button
                 class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[55px] h-[55px] mt-[5px] rounded-full flex-center mx-[2%]"
