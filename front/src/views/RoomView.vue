@@ -1,14 +1,16 @@
 <script setup>
+import Dropdown from "primevue/dropdown";
 import {ref, onMounted} from "vue";
 import {useAppwriteState} from "../stores/appwriteState";
 import WebrtcComponent from "@/components/WebrtcComponent.vue";
 import {TabGroup, TabList, Tab, TabPanels, TabPanel} from "@headlessui/vue";
+const selectedPlayer = ref();
+
 let uistate = ref({
   mobileMenu: false,
   DesktopWarning: false,
   tabs: ["پیام ها", "اکت شب", "گرداننده"]
 });
-// elements ref
 let messageContainer = ref(null);
 let messegeInput = ref(null);
 var players = ref([]);
@@ -26,7 +28,6 @@ class messageModel {
     this.name = name;
   }
 }
-
 var messages = ref([]);
 onMounted(() => {
   setInterval(() => {
@@ -182,6 +183,16 @@ let sendMessege = room_id => {
                 placeholder="اینجا بنویسید"
                 ref="messegeInput"
               />
+              <div
+                class="card flex justify-content-center absolute left-[17%] bottom-[17%]"
+              >
+                <Dropdown
+                  v-model="selectedPlayer"
+                  :options="players"
+                  placeholder="Select"
+                  class="w-[100px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]"
+                />
+              </div>
               <button
                 class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[55px] h-[55px] mt-[5px] rounded-full flex-center mx-[2%]"
                 @click="sendMessege($route.params.room_id)"

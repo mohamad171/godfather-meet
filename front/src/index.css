@@ -21,4 +21,14 @@
   body::-webkit-scrollbar {
     display: none;
   }
+  .target svg {
+    rotate: 180deg;
+  }
+   ul {
+    @apply bg-black rounded-md relative bottom-5 p-2 py-1 cursor-pointer
+  }
+  ul li {
+     @apply hover:text-white transition-all text-[#c0c0c0] my-1
+  }
 }
+
