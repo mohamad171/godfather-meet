@@ -29,6 +29,7 @@ let uistate = ref({
 let messageContainer = ref(null);
 let messegeInput = ref(null);
 var players = ref([]);
+var actions = ref([]);
 let socket;
 let myPlayer = ref();
 const targetIds = ref([])
@@ -65,13 +66,16 @@ function setDataPeerVideo() {
     if (element["socket_id"] === socket.id) {
       myPlayer.value = element;
       uistate.value.tabs[2].show = myPlayer.value["room_role"] === "god";
-      console.log(uistate.value.tabs,"dffd")
+      if(myPlayer.value.room_role === "god"){
+            socket.emit("get_actions",{"room":route.params.room_id})
+        }
     }
   });
 }
 function setMyPlayer(player) {
   myPlayer.value = player;
-  console.log(myPlayer);
+  console.log(myPlayer.value)
+
 }
 
 function sendTargets(){
@@ -121,7 +125,8 @@ function updatePlayers(data) {
   });
 
   socket.on("actions", data => {
-    console.log("action",data)
+    actions.value = data.actions;
+    console.log(actions.value)
   })
 }
 
@@ -278,6 +283,17 @@ let sendMessege = room_id => {
             >
               تقسیم نقش
             </button>
+            <div>
+                <table>
+                    <tr v-for="action in actions">
+                      <td>{{action.player.profile.user.first_name}} {{action.player.profile.user.last_name}}</td>
+                      <td v-if="action.role">{{action.role.name}}</td>
+                      <td v-if="action.target">{{action.target.profile.user.first_name}} {{action.target.profile.user.last_name}}</td>
+                    </tr>
+                </table>
+
+            </div>
+
           </TabPanel>
         </TabPanels>
       </TabGroup>
