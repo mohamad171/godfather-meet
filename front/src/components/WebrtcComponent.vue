@@ -689,10 +689,9 @@ function onPeer(peer, localStream) {
     console.log("Stream", remoteStream);
     joinedRoom(remoteStream, false, peer["socket_id"]);
     peer.on("close", () => {
-      const newList = videoList.filter(
+      videoList = videoList.filter(
           item => item.id !== remoteStream.id
       );
-      videoList = newList;
       $emit("left-room", remoteStream.id);
     });
     peer.on("error", err => {
