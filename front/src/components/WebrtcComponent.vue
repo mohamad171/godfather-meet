@@ -436,7 +436,9 @@ var props = defineProps({
     }
   })
 var signalClient;
+var myPlayer = null;
 var videoList = [];
+var players = [];
 var canvas = null;
 // var socket = null;
 
@@ -452,14 +454,15 @@ var playerStatus = ref({
   showPreLoader: true,
   Error: false
 })
-var videos = ref(null)
+var videos = ref([])
 function setMyVideo() {
-      players.value.forEach(element => {
-        if (element["socket_id"] === socket.id) {
-          myPlayer.value = element;
-        }
-      });
+  players.value.forEach(element => {
+    if (element["socket_id"] === socket.id) {
+      myPlayer.value = element;
     }
+  });
+}
+
 function sendLike(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -634,21 +637,24 @@ async function  join() {
     const localStream = await navigator.mediaDevices.getUserMedia(
         constraints
     );
-    console.log(socket.id);
+    console.log(localStream,"Streammmm");
     joinedRoom(localStream, true, socket.id);
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
 
+
       async function connectToPeer(peerID) {
+        console.log("Start connecting",peerID);
         if (peerID === socket.id) return;
         try {
-          console.log("Connecting to peer");
+          console.log("Connecting to peer",peerID);
           const {peer} = await signalClient.connect(
               peerID,
               props.roomId,
               props.peerOptions
           );
           videoList.forEach(v => {
+            console.log("Is localll")
             if (v.isLocal) {
               peer["socket_id"] = peerID;
               onPeer(peer, v.stream);
@@ -686,10 +692,9 @@ function onPeer(peer, localStream) {
     console.log("Stream", remoteStream);
     joinedRoom(remoteStream, false, peer["socket_id"]);
     peer.on("close", () => {
-      const newList = videoList.filter(
+      videoList = videoList.filter(
           item => item.id !== remoteStream.id
       );
-      videoList = newList;
       $emit("left-room", remoteStream.id);
     });
     peer.on("error", err => {
@@ -708,17 +713,15 @@ function joinedRoom(stream, isLocal, socketId) {
       isLocal: isLocal
     };
     videoList.push(video);
-    console.log(videoList);
   }
-  // TODO Here
-  setTimeout(function () {
-    for (let i = 0, len = videos.length; i < len; i++) {
-      if (videos[i].srcObject === null) {
-        videos[i].srcObject = stream;
-        videos[i].autoplay = autoplay;
+  setTimeout(()=>{
+    for (let i = 0, len = videos.value.length; i < len; i++) {
+      if (videos.value[i].srcObject === null) {
+        videos.value[i].srcObject = stream;
+        videos.value[i].autoplay = props.autoplay;
       }
     }
-  }, 1000);
+  },1000)
 }
 function log(message, data = null) {
   console.log("[VueWebRTC]", message, data);
@@ -1114,9 +1117,9 @@ onBeforeUnmount(() => {
       <div
           class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]"
       >
-        <div class="flex" v-if="myPlayer && myPlayer.room_role === 'player'">
+        <div class="flex">
           <p class="ml-[2px]">نقش شما:</p>
-          <p class="text-[#B51818]"><span ></span></p>
+          <p class="text-[#B51818]">پدرخوانده</p>
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>

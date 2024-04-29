@@ -9,8 +9,21 @@ const selectedPlayer = ref();
 let uistate = ref({
   mobileMenu: false,
   DesktopWarning: false,
-  tabs: ["پیام ها", "اکت شب", "گرداننده"]
-});
+  tabs: [{
+    "name":"پیام ها",
+    "show":true,
+  }, {
+    "name":"اکت شب",
+    "show":true,
+  },
+      {
+    "name":"گرداننده",
+    "show":true,
+  },
+
+  ]
+})
+// elements ref
 let messageContainer = ref(null);
 let messegeInput = ref(null);
 var players = ref([]);
@@ -48,9 +61,8 @@ function setDataPeerVideo() {
     }
     if (element["socket_id"] === socket.id) {
       myPlayer.value = element;
-      if (myPlayer["room_role"] !== "god") {
-        uistate.value.tabs.pop();
-      }
+      uistate.value.tabs[2].show = myPlayer.value["room_role"] === "god";
+      console.log(uistate.value.tabs,"dffd")
     }
   });
 }
@@ -122,11 +134,10 @@ let sendMessege = room_id => {
       <TabGroup>
         <TabList class="w-[100%] bg-[rgba(255,0,0,0.3)] ml-[1%] flex">
           <Tab
-            v-for="context in uistate.tabs"
+            v-for="c in uistate.tabs.filter(t => t.show === true)"
             as="template"
-            :key="context"
-            v-slot="{selected}"
-          >
+            :key="c"
+            v-slot="{selected}">
             <button
               :class="[
                 'w-[28%] rounded-lg py-2.5 text-sm font-medium leading-5',
@@ -136,7 +147,7 @@ let sendMessege = room_id => {
                   : 'text-[whitesmoke] hover:bg-white/[0.05]'
               ]"
             >
-              {{ context }}
+              {{ c.name }}
             </button>
           </Tab>
         </TabList>
