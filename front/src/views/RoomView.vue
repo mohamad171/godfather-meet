@@ -63,12 +63,25 @@ function setDataPeerVideo() {
     );
     if (div_element) {
       div_element.setAttribute("data-info", JSON.stringify(element));
+      if(element.room_role === "god"){
+        var video_item = div_element.querySelector("video")
+        video_item.addEventListener("loadedmetadata",()=>{
+          document.getElementById("god_video").srcObject = video_item.srcObject
+          div_element.style.display= "none"
+        })
+      }
+
+
+
     }
     if (element["socket_id"] === socket.id) {
       myPlayer.value = element;
       uistate.value.tabs[2].show = myPlayer.value["room_role"] === "god";
       if (myPlayer.value.room_role === "god") {
         socket.emit("get_actions", {room: route.params.room_id});
+
+        // div_element.
+        // div_element.style.display= "none"
       }
     }
   });
@@ -156,7 +169,6 @@ let sendMessege = room_id => {
 };
 </script>
 <template>
-  {{ myPlayer }}
   <div
     class="text-[white] bg-[#2E2E2E] h-[100vh] relative flex flex-col md:flex-row"
   >
@@ -246,6 +258,7 @@ let sendMessege = room_id => {
                 class="card flex justify-content-center absolute left-[17%] bottom-[17%]"
               >
                 <select
+                 v-if="myPlayer.room_role === 'god'"
                   v-model="selectedPlayer"
                   class="w-[120px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]"
                 >
@@ -308,13 +321,21 @@ let sendMessege = room_id => {
                   <th class="hover:bg-black transition-all">زمان</th>
                 </tr>
                 <tr
-                  v-for="(action, index) in 16"
+                  v-for="action in actions"
                   class="*:text-center *:text-[18px] *:border *:py-2"
                 >
-                  <td>{{ index }}</td>
-                  <td>محمد محمدی</td>
-                  <td>حسن حسنی</td>
-                  <td>۱۴:۳۶</td>
+                  <td>{{ action.id }}</td>
+                  <td>
+                    <p>{{action.player.profile.user.first_name}} {{action.player.profile.user.last_name}}</p>
+                    <small v-if="action.player.role">{{action.player.role.name}} ({{action.player.role.side}})</small>
+                    <small class="text-gray-400">#{{action.player.profile.unique_id}}</small>
+                  </td>
+                  <td>
+                    <p>{{action.target.profile.user.first_name}} {{action.target.profile.user.last_name}}</p>
+                    <small v-if="action.target.role">{{action.target.role.name}} ({{action.target.role.side}})</small>
+                    <small class="text-gray-400">#{{action.target.profile.unique_id}}</small>
+                  </td>
+                  <td>{{action.time }}</td>
                 </tr>
               </table>
             </div>
@@ -353,6 +374,7 @@ let sendMessege = room_id => {
         :token="$route.params.token"
         v-model:socket="socket"
         v-model:players="players"
+        v-model:god_video="god_video"
         v-model:myPlayer="myPlayer"
       />
     </div>

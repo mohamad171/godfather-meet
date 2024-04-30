@@ -68,6 +68,7 @@ var canvas = null;
 var socket = defineModel("socket");
 var players = defineModel("players");
 var myPlayer = defineModel("myPlayer");
+var god_video = defineModel("god_video");
 var emit = defineEmits(["update_players"]);
 var playerStatus = ref({
   isDead: true,
@@ -78,7 +79,6 @@ var playerStatus = ref({
   Error: false
 });
 var videos = ref([]);
-var god_video = ref();
 var speaker_video = ref();
 function setMyVideo() {
   players.value.forEach(element => {
@@ -276,7 +276,6 @@ async function join() {
             props.peerOptions
           );
           videoList.forEach(v => {
-            console.log("Is localll");
             if (v.isLocal) {
               peer["socket_id"] = peerID;
               onPeer(peer, v.stream);
@@ -294,7 +293,6 @@ async function join() {
     console.log("Error accessing media devices:", error);
   }
   signalClient.on("request", async request => {
-    console.log("requested", request.initiator);
     const {peer} = await request.accept(request.initiator, {
       initiator: request.initiator
     });
@@ -396,6 +394,7 @@ join();
           width="100%"
           height="100%"
           class="absolute bottom-0"
+          id="god_video"
           ref="god_video"
           playsinline
           autoplay
