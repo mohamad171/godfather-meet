@@ -1,377 +1,3 @@
-<!--<script>-->
-<!--import {ref} from "vue";-->
-<!--import {defineComponent} from "vue";-->
-<!--import {io} from "socket.io-client";-->
-<!--import "fast-crypto";-->
-<!--import SimpleSignalClient from "simple-signal-client";-->
-
-<!--export default defineComponent({-->
-<!--  data() {-->
-<!--    return {-->
-<!--      signalClient: null,-->
-<!--      myPlayer: null,-->
-<!--      videoList: [],-->
-<!--      players: [],-->
-<!--      canvas: null,-->
-<!--      socket: null,-->
-<!--      playerStatus: ref({-->
-<!--        isDead: true,-->
-<!--        microphone: true,-->
-<!--        videoCamera: false,-->
-<!--        challenge: false,-->
-<!--        showPreLoader: true,-->
-<!--        Error: false-->
-<!--      })-->
-<!--    };-->
-<!--  },-->
-<!--  emits: ["update_players"],-->
-<!--  props: {-->
-<!--    roomId: {-->
-<!--      type: String,-->
-<!--      default: "public-room-v2"-->
-<!--    },-->
-<!--    socketURL: {-->
-<!--      type: String,-->
-<!--      default: "http://localhost:3000"-->
-<!--      // default: "https://websocket.straiberry.com"-->
-<!--    },-->
-<!--    cameraHeight: {-->
-<!--      type: [Number, String],-->
-<!--      default: 160-->
-<!--    },-->
-<!--    autoplay: {-->
-<!--      type: Boolean,-->
-<!--      default: true-->
-<!--    },-->
-<!--    screenshotFormat: {-->
-<!--      type: String,-->
-<!--      default: "image/jpeg"-->
-<!--    },-->
-<!--    enableAudio: {-->
-<!--      type: Boolean,-->
-<!--      default: true-->
-<!--    },-->
-<!--    enableVideo: {-->
-<!--      type: Boolean,-->
-<!--      default: true-->
-<!--    },-->
-<!--    enableLogs: {-->
-<!--      type: Boolean,-->
-<!--      default: false-->
-<!--    },-->
-<!--    peerOptions: {-->
-<!--      type: Object,-->
-<!--      default() {-->
-<!--        return {};-->
-<!--      }-->
-<!--    },-->
-<!--    ioOptions: {-->
-<!--      type: Object,-->
-<!--      default() {-->
-<!--        return {-->
-<!--          rejectUnauthorized: false,-->
-<!--          transports: ["polling", "websocket"]-->
-<!--        };-->
-<!--      }-->
-<!--    },-->
-<!--    deviceId: {-->
-<!--      type: String,-->
-<!--      default: null-->
-<!--    },-->
-<!--    token: {-->
-<!--      type: String,-->
-<!--      default: null-->
-<!--    }-->
-<!--  },-->
-
-<!--  mounted() {-->
-<!--    join();-->
-<!--  },-->
-<!--  beforeDestroy() {-->
-<!--    if (signalClient) {-->
-<!--      signalClient.destroy();-->
-<!--    }-->
-<!--    if (socket) {-->
-<!--      socket.disconnect();-->
-<!--    }-->
-<!--  },-->
-
-<!--  methods: {-->
-<!--    setMyVideo() {-->
-<!--      players.value.forEach(element => {-->
-<!--        if (element["socket_id"] === socket.id) {-->
-<!--          myPlayer.value = element;-->
-<!--        }-->
-<!--      });-->
-<!--    },-->
-<!--    sendLike(peer_id) {-->
-<!--      socket.emit("command", {-->
-<!--        room: props.roomId,-->
-<!--        peer: peer_id,-->
-<!--        command: "like"-->
-<!--      });-->
-<!--    },-->
-<!--    sendDisLike(peer_id) {-->
-<!--      socket.emit("command", {-->
-<!--        room: props.roomId,-->
-<!--        peer: peer_id,-->
-<!--        command: "dislike"-->
-<!--      });-->
-<!--    },-->
-<!--    sendChallenge(peer_id) {-->
-<!--      socket.emit("command", {-->
-<!--        room: props.roomId,-->
-<!--        peer: peer_id,-->
-<!--        command: "challenge"-->
-<!--      });-->
-<!--    },-->
-
-<!--    onVideoClick(event) {-->
-<!--      var parent_div = event.target.parentElement;-->
-<!--      let numberHolder = parent_div.querySelector("#numberHolder");-->
-<!--      let informationHolder = parent_div.querySelector("#informationHolder");-->
-<!--      let nameHolder = parent_div.querySelector("#nameHolder");-->
-<!--      let IdHolder = parent_div.querySelector("#IdHolder");-->
-<!--      let dataInfo = parent_div.getAttribute("data-info");-->
-<!--      numberHolder.classList.toggle("hidden");-->
-<!--      informationHolder.classList.toggle("hidden");-->
-<!--      if (dataInfo) {-->
-<!--        var jData = JSON.parse(dataInfo);-->
-<!--        let fullName =-->
-<!--            jData.profile.user.first_name + " " + jData.profile.user.last_name;-->
-<!--        nameHolder.textContent = fullName;-->
-<!--        IdHolder.textContent = `#${jData.profile.unique_id}`;-->
-<!--      }-->
-<!--    },-->
-<!--    changeVideoStatus(peer_id) {-->
-<!--      if (playerStatus.videoCamera === true) {-->
-<!--        playerStatus.videoCamera = false;-->
-<!--        muteVideo(peer_id);-->
-<!--      } else {-->
-<!--        playerStatus.videoCamera = true;-->
-<!--        unmuteVideo(peer_id);-->
-<!--      }-->
-<!--    },-->
-<!--    changeVoiceStatus(peer_id) {-->
-<!--      console.log(playerStatus.microphone);-->
-<!--      if (playerStatus.microphone) {-->
-<!--        playerStatus.microphone = false;-->
-<!--        muteVoice(peer_id);-->
-<!--      } else {-->
-<!--        playerStatus.microphone = true;-->
-<!--        unmuteVoice(peer_id);-->
-<!--      }-->
-<!--    },-->
-<!--    muteVoice(peer_id) {-->
-<!--      console.log("mute");-->
-<!--      socket.emit("command", {-->
-<!--        room: props.roomId,-->
-<!--        peer: peer_id,-->
-<!--        command: "mute_voice"-->
-<!--      });-->
-<!--    },-->
-<!--    unmuteVoice(peer_id) {-->
-<!--      socket.emit("command", {-->
-<!--        room: props.roomId,-->
-<!--        peer: peer_id,-->
-<!--        command: "unmute_voice"-->
-<!--      });-->
-<!--    },-->
-<!--    muteVideo(peer_id) {-->
-<!--      socket.emit("command", {-->
-<!--        room: props.roomId,-->
-<!--        peer: peer_id,-->
-<!--        command: "mute_video"-->
-<!--      });-->
-<!--    },-->
-<!--    unmuteVideo(peer_id) {-->
-<!--      socket.emit("command", {-->
-<!--        room: props.roomId,-->
-<!--        peer: peer_id,-->
-<!--        command: "unmute_video"-->
-<!--      });-->
-<!--    },-->
-<!--    async join() {-->
-<!--      const that = this;-->
-<!--      socket = io(socketURL, props.ioOptions);-->
-<!--      signalClient = new SimpleSignalClient(socket);-->
-<!--      const constraints = {-->
-<!--        video: props.enableVideo,-->
-<!--        audio: props.enableAudio-->
-<!--      };-->
-
-<!--      socket.on("command", data => {-->
-<!--        console.log(data);-->
-<!--        var div_element = document.querySelector(-->
-<!--            "div[data-socketid='" + data["peer"] + "']"-->
-<!--        );-->
-<!--        if (div_element) {-->
-<!--          const childElement = div_element.querySelector("#reactionConatiner");-->
-<!--          switch (data["command"]) {-->
-<!--            case "like":-->
-<!--              childElement.textContent = "👍";-->
-<!--              childElement.classList.add("show-reaction");-->
-<!--              setTimeout(() => {-->
-<!--                childElement.textContent = "";-->
-<!--                childElement.classList.toggle("show-reaction");-->
-<!--              }, 800);-->
-<!--              break;-->
-<!--            case "dislike":-->
-<!--              childElement.textContent = "👎";-->
-<!--              childElement.classList.add("show-reaction");-->
-<!--              setTimeout(() => {-->
-<!--                childElement.textContent = "";-->
-<!--                childElement.classList.toggle("show-reaction");-->
-<!--              }, 800);-->
-<!--              break;-->
-<!--            case "challenge":-->
-<!--              playerStatus.challenge = !playerStatus.challenge;-->
-<!--              if (playerStatus.challenge) {-->
-<!--                childElement.textContent = "🤚";-->
-<!--              } else {-->
-<!--                childElement.textContent = "";-->
-<!--              }-->
-<!--              break;-->
-<!--          }-->
-<!--        } else {-->
-<!--          console.log("div el not recognized");-->
-<!--        }-->
-<!--      });-->
-<!--      socket.on("join_game", data => {-->
-<!--        if (data["status"]) {-->
-<!--          playerStatus.showPreLoader = false;-->
-
-<!--          socket.emit("players_info", {-->
-<!--            room: props.roomId,-->
-<!--            socket_id: socket.id,-->
-<!--            token: props.token-->
-<!--          });-->
-<!--        } else {-->
-<!--          playerStatus.showPreLoader = false;-->
-<!--          playerStatus.Error = true;-->
-<!--        }-->
-<!--      });-->
-<!--      socket.on("players_info", data => {-->
-<!--        if (data["status"] === "ok") {-->
-<!--          players = data["data"]["player"];-->
-<!--          $emit("update_players", {-->
-<!--            players: players,-->
-<!--            socket: socket-->
-<!--          });-->
-<!--        }-->
-<!--      });-->
-<!--      socket.on("leave_room", data => {-->
-<!--        if (data["status"] === "ok") {-->
-<!--          players = data["data"]["player"];-->
-<!--          $emit("update_players", {-->
-<!--            players: players,-->
-<!--            socket: socket-->
-<!--          });-->
-<!--        }-->
-<!--      });-->
-
-<!--      if (props.deviceId && props.enableVideo) {-->
-<!--        constraints.video = {deviceId: {exact: props.deviceId}};-->
-<!--      }-->
-<!--      try {-->
-<!--        const localStream = await navigator.mediaDevices.getUserMedia(-->
-<!--            constraints-->
-<!--        );-->
-<!--        log("opened", localStream);-->
-<!--        console.log(socket.id);-->
-<!--        joinedRoom(localStream, true, socket.id);-->
-<!--        signalClient.once("discover", discoveryData => {-->
-<!--          log("discovered", discoveryData);-->
-
-<!--          async function connectToPeer(peerID) {-->
-<!--            if (peerID === socket.id) return;-->
-<!--            try {-->
-<!--              log("Connecting to peer");-->
-<!--              const {peer} = await signalClient.connect(-->
-<!--                  peerID,-->
-<!--                  props.roomId,-->
-<!--                  peerOptions-->
-<!--              );-->
-<!--              videoList.forEach(v => {-->
-<!--                if (v.isLocal) {-->
-<!--                  peer["socket_id"] = peerID;-->
-<!--                  onPeer(peer, v.stream);-->
-<!--                }-->
-<!--              });-->
-<!--            } catch (e) {-->
-<!--              log("Error connecting to peer", e);-->
-<!--            }-->
-<!--          }-->
-
-<!--          discoveryData.peers.forEach(peerID => connectToPeer(peerID));-->
-<!--          $emit("opened-room", props.roomId);-->
-<!--        });-->
-<!--      } catch (error) {-->
-<!--        log("Error accessing media devices:", error);-->
-<!--      }-->
-<!--      signalClient.on("request", async request => {-->
-<!--        log("requested", request.initiator);-->
-<!--        const {peer} = await request.accept(request.initiator, {-->
-<!--          initiator: request.initiator-->
-<!--        });-->
-<!--        peer["socket_id"] = request.initiator;-->
-<!--        log("accepted", peer);-->
-<!--        videoList.forEach(v => {-->
-<!--          if (v.isLocal) {-->
-<!--            onPeer(peer, v.stream);-->
-<!--          }-->
-<!--        });-->
-<!--      });-->
-<!--      signalClient.discover({room: props.roomId, token: props.token});-->
-<!--    },-->
-<!--    onPeer(peer, localStream) {-->
-<!--      const that = this;-->
-<!--      peer.addStream(localStream);-->
-<!--      peer.on("stream", remoteStream => {-->
-<!--        console.log("Stream", remoteStream);-->
-<!--        joinedRoom(remoteStream, false, peer["socket_id"]);-->
-<!--        peer.on("close", () => {-->
-<!--          const newList = videoList.filter(-->
-<!--              item => item.id !== remoteStream.id-->
-<!--          );-->
-<!--          videoList = newList;-->
-<!--          $emit("left-room", remoteStream.id);-->
-<!--        });-->
-<!--        peer.on("error", err => {-->
-<!--          log("peer error ", err);-->
-<!--        });-->
-<!--      });-->
-<!--    },-->
-<!--    joinedRoom(stream, isLocal, socketId) {-->
-<!--      const that = this;-->
-<!--      const found = videoList.find(video => video.id === stream.id);-->
-<!--      if (found === undefined) {-->
-<!--        const video = {-->
-<!--          id: stream.id,-->
-<!--          muted: isLocal,-->
-<!--          stream: stream,-->
-<!--          socketId: socketId,-->
-<!--          isLocal: isLocal-->
-<!--        };-->
-<!--        videoList.push(video);-->
-<!--        console.log(videoList);-->
-<!--      }-->
-<!--      setTimeout(function () {-->
-<!--        for (let i = 0, len = $refs.videos.length; i < len; i++) {-->
-<!--          if ($refs.videos[i].srcObject === null) {-->
-<!--            $refs.videos[i].srcObject = stream;-->
-<!--            $refs.videos[i].autoplay = autoplay;-->
-<!--          }-->
-<!--        }-->
-<!--      }, 1000);-->
-<!--    },-->
-<!--    log(message, data = null) {-->
-<!--      console.log("[VueWebRTC]", message, data);-->
-<!--    }-->
-<!--  }-->
-<!--});-->
-<!--</script>-->
-
 <script setup>
 import {ref} from "vue";
 import {io} from "socket.io-client";
@@ -436,11 +62,8 @@ var props = defineProps({
     }
   })
 var signalClient;
-var myPlayer = null;
 var videoList = [];
-var players = [];
 var canvas = null;
-// var socket = null;
 
 var socket = defineModel('socket')
 var players = defineModel('players')
@@ -455,6 +78,8 @@ var playerStatus = ref({
   Error: false
 })
 var videos = ref([])
+var god_video = ref()
+var speaker_video = ref()
 function setMyVideo() {
   players.value.forEach(element => {
     if (element["socket_id"] === socket.id) {
@@ -487,12 +112,12 @@ function sendChallenge(peer_id) {
 
 function onVideoClick(event) {
   var parent_div = event.target.parentElement;
-  let numberHolder = parent_div.querySelector("#numberHolder");
-  let informationHolder = parent_div.querySelector("#informationHolder");
-  let nameHolder = parent_div.querySelector("#nameHolder");
-  let IdHolder = parent_div.querySelector("#IdHolder");
+  let numberHolder = document.querySelector("#numberHolder");
+  let informationHolder = document.querySelector("#informationHolder");
+  let nameHolder = document.querySelector("#nameHolder");
+  let IdHolder = document.querySelector("#IdHolder");
   let dataInfo = parent_div.getAttribute("data-info");
-  numberHolder.classList.toggle("hidden");
+  // numberHolder.classList.toggle("hidden");
   informationHolder.classList.toggle("hidden");
   if (dataInfo) {
     var jData = JSON.parse(dataInfo);
@@ -721,10 +346,15 @@ function joinedRoom(stream, isLocal, socketId) {
         videos.value[i].autoplay = props.autoplay;
       }
     }
-  },1000)
+  },2000)
 }
 function log(message, data = null) {
   console.log("[VueWebRTC]", message, data);
+}
+
+function fullScreen(video_id){
+  const newVideoSource = document.getElementById(video_id).srcObject;
+  speaker_video.value.srcObject = newVideoSource
 }
 
 
@@ -732,347 +362,7 @@ join()
 
 
 </script>
-<!-- <script setup>
-import {ref, onMounted, onBeforeUnmount} from "vue";
-import io from "socket.io-client";
-import "fast-crypto";
-import SimpleSignalClient from "simple-signal-client";
-const playerStatus = ref({
-  isDead: true,
-  microphone: true,
-  videoCamera: false,
-  challenge: false,
-  showPreLoader: true,
-  Error: false
-});
-const signalClient = ref(null);
-const myPlayer = ref(null);
-const videoList = ref([]);
-const players = ref([]);
-const canvas = ref(null);
-let socket = null;
-const videos = ref();
-const roomId = "public-room-v2";
-const socketURL = "http://localhost:3000";
-const cameraHeight = 160;
-const autoplay = true;
-const screenshotFormat = "image/jpeg";
-const enableAudio = true;
-const enableVideo = true;
-const enableLogs = false;
-const peerOptions = {};
-const ioOptions = {
-  rejectUnauthorized: false,
-  transports: ["polling", "websocket"]
-};
-const deviceId = null;
-const token = null;
 
-const setMyVideo = () => {
-  players.value.forEach(element => {
-    if (element.socket_id === socket.id) {
-      myPlayer.value = element;
-    }
-  });
-};
-
-const sendLike = peer_id => {
-  socket.emit("command", {
-    room: roomId,
-    peer: peer_id,
-    command: "like"
-  });
-};
-
-const sendDisLike = peer_id => {
-  socket.emit("command", {
-    room: roomId,
-    peer: peer_id,
-    command: "dislike"
-  });
-};
-
-const sendChallenge = peer_id => {
-  socket.emit("command", {
-    room: roomId,
-    peer: peer_id,
-    command: "challenge"
-  });
-};
-
-const onVideoClick = event => {
-  const parentDiv = event.target.parentElement;
-  const numberHolder = parentDiv.querySelector("#numberHolder");
-  const informationHolder = parentDiv.querySelector("#informationHolder");
-  const nameHolder = parentDiv.querySelector("#nameHolder");
-  const IdHolder = parentDiv.querySelector("#IdHolder");
-  const dataInfo = parentDiv.getAttribute("data-info");
-  numberHolder.classList.toggle("hidden");
-  informationHolder.classList.toggle("hidden");
-  if (dataInfo) {
-    const jData = JSON.parse(dataInfo);
-    const fullName = `${jData.profile.user.first_name} ${jData.profile.user.last_name}`;
-    nameHolder.textContent = fullName;
-    IdHolder.textContent = `#${jData.profile.unique_id}`;
-  }
-};
-
-const changeVideoStatus = peer_id => {
-  if (playerStatus.value.videoCamera) {
-    playerStatus.value.videoCamera = false;
-    muteVideo(peer_id);
-  } else {
-    playerStatus.value.videoCamera = true;
-    unmuteVideo(peer_id);
-  }
-};
-
-const changeVoiceStatus = peer_id => {
-  if (playerStatus.value.microphone) {
-    playerStatus.value.microphone = false;
-    muteVoice(peer_id);
-  } else {
-    playerStatus.value.microphone = true;
-    unmuteVoice(peer_id);
-  }
-};
-
-const muteVoice = peer_id => {
-  socket.emit("command", {
-    room: roomId,
-    peer: peer_id,
-    command: "mute_voice"
-  });
-};
-
-const unmuteVoice = peer_id => {
-  socket.emit("command", {
-    room: roomId,
-    peer: peer_id,
-    command: "unmute_voice"
-  });
-};
-
-const muteVideo = peer_id => {
-  socket.emit("command", {
-    room: roomId,
-    peer: peer_id,
-    command: "mute_video"
-  });
-};
-
-const unmuteVideo = peer_id => {
-  socket.emit("command", {
-    room: roomId,
-    peer: peer_id,
-    command: "unmute_video"
-  });
-};
-
-const join = async () => {
-  console.warn("running");
-  console.log(socket);
-  socket = io(socketURL, ioOptions);
-  signalClient.value = new SimpleSignalClient(socket);
-  const constraints = {
-    video: enableVideo,
-    audio: enableAudio
-  };
-
-  socket.on("command", data => {
-    console.log(command);
-    console.log(data);
-    const divElement = document.querySelector(
-      `div[data-socketid='${data.peer}']`
-    );
-    if (divElement) {
-      const childElement = divElement.querySelector("#reactionConatiner");
-      switch (data.command) {
-        case "like":
-          childElement.textContent = "👍";
-          childElement.classList.add("show-reaction");
-          setTimeout(() => {
-            childElement.textContent = "";
-            childElement.classList.toggle("show-reaction");
-          }, 800);
-          break;
-        case "dislike":
-          childElement.textContent = "👎";
-          childElement.classList.add("show-reaction");
-          setTimeout(() => {
-            childElement.textContent = "";
-            childElement.classList.toggle("show-reaction");
-          }, 800);
-          break;
-        case "challenge":
-          playerStatus.value.challenge = !playerStatus.value.challenge;
-          if (playerStatus.value.challenge) {
-            childElement.textContent = "🤚";
-          } else {
-            childElement.textContent = "";
-          }
-          break;
-      }
-    } else {
-      console.log("div el not recognized");
-    }
-  });
-
-  socket.on("join_game", data => {
-    if (data.status) {
-      playerStatus.value.showPreLoader = false;
-      socket.emit("players_info", {
-        room: roomId,
-        socket_id: socket.id,
-        token
-      });
-    } else {
-      playerStatus.value.showPreLoader = false;
-      playerStatus.value.Error = true;
-    }
-  });
-
-  socket.on("players_info", data => {
-    if (data.status === "ok") {
-      players.value = data.data.player;
-      emit("update_players", {players: players.value, socket: socket});
-    }
-  });
-
-  socket.on("leave_room", data => {
-    if (data.status === "ok") {
-      players.value = data.data.player;
-      emit("update_players", {players: players.value, socket: socket});
-    }
-  });
-
-  if (deviceId && enableVideo) {
-    constraints.video = {deviceId: {exact: deviceId}};
-  }
-
-  try {
-    const localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    log("opened", localStream);
-    joinedRoom(localStream, true, socket.id);
-    signalClient.value.once("discover", discoveryData => {
-      log("discovered", discoveryData);
-      async function connectToPeer(peerID) {
-        if (peerID === socket.id) return;
-        try {
-          log("Connecting to peer");
-          const {peer} = await signalClient.value.connect(
-            peerID,
-            roomId,
-            peerOptions
-          );
-          videoList.value.forEach(v => {
-            if (v.isLocal) {
-              peer.socket_id = peerID;
-              onPeer(peer, v.stream);
-            }
-          });
-        } catch (e) {
-          log("Error connecting to peer", e);
-        }
-      }
-      discoveryData.peers.forEach(peerID => connectToPeer(peerID));
-      emit("opened-room", roomId);
-    });
-  } catch (error) {
-    log("Error accessing media devices:", error);
-  }
-
-  signalClient.value.on("request", async request => {
-    log("requested", request.initiator);
-    const {peer} = await request.accept(request.initiator, {
-      initiator: request.initiator
-    });
-    peer.socket_id = request.initiator;
-    log("accepted", peer);
-    videoList.value.forEach(v => {
-      if (v.isLocal) {
-        onPeer(peer, v.stream);
-      }
-    });
-  });
-
-  signalClient.value.discover({room: roomId, token});
-};
-const onPeer = (peer, localStream) => {
-  peer.addStream(localStream);
-  peer.on("stream", remoteStream => {
-    console.log("Stream", remoteStream);
-    joinedRoom(remoteStream, false, peer.socket_id);
-    peer.on("close", () => {
-      const newList = videoList.value.filter(
-        item => item.id !== remoteStream.id
-      );
-      videoList.value = newList;
-      emit("left-room", remoteStream.id);
-    });
-    peer.on("error", err => {
-      log("peer error ", err);
-    });
-  });
-};
-
-const joinedRoom = (stream, isLocal, socketId) => {
-  const found = videoList.value.find(video => video.id === stream.id);
-  if (found === undefined) {
-    const video = {
-      id: stream.id,
-      muted: isLocal,
-      stream: stream,
-      socketId,
-      isLocal
-    };
-    videoList.value.push(video);
-  }
-  setTimeout(() => {
-    for (let i = 0; i < videos.length; i++) {
-      if (ref.videos[i].srcObject === null) {
-        ref.videos[i].srcObject = stream;
-        ref.videos[i].autoplay = autoplay;
-      }
-    }
-  }, 1000);
-};
-
-const log = (prefix, msg) => {
-  if (enableLogs) console.log(`${prefix}:`, msg);
-};
-
-const likeThisVideo = peerId => {
-  sendLike(peerId);
-};
-
-const dislikeThisVideo = peerId => {
-  sendDisLike(peerId);
-};
-
-const challengeThisVideo = peerId => {
-  sendChallenge(peerId);
-};
-
-const videoStatusChanged = peerId => {
-  changeVideoStatus(peerId);
-};
-
-const voiceStatusChanged = peerId => {
-  changeVoiceStatus(peerId);
-};
-
-onMounted(() => {
-  setTimeout(() => {
-    join();
-  }, 1000);
-  console.log(socket);
-});
-
-onBeforeUnmount(() => {
-  socket.close();
-});
-</script> -->
 <template>
   <div>
     <div
@@ -1099,21 +389,19 @@ onBeforeUnmount(() => {
       </button>
     </div>
     <div class="flex items-center h-[13vh] md:h-[39vh]">
-      <!--      <div-->
-      <!--        v-for="video in videoList"-->
-      <!--        :key="video.id"-->
-      <!--        class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]"-->
-      <!--      >-->
-      <!--        <video-->
-      <!--          width="100%"-->
-      <!--          height="100%"-->
-      <!--          :class="{selfCamera: video.isLocal}"-->
-      <!--          class="absolute bottom-0"-->
-      <!--          :ref="`videos`"-->
-      <!--          :muted="video.muted"-->
-      <!--          playsinline-->
-      <!--        ></video>-->
-      <!--      </div>-->
+<!--      God Video -->
+            <div
+              class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]"
+            >
+              <video
+                width="100%"
+                height="100%"
+                class="absolute bottom-0"
+                ref="god_video"
+                playsinline
+                autoplay
+              ></video>
+            </div>
       <div
           class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]"
       >
@@ -1131,7 +419,6 @@ onBeforeUnmount(() => {
               <video
                 width="100%"
                 height="100%"
-                :class="{selfCamera: video.isLocal}"
                 class="absolute bottom-0"
                 ref="videos"
                 :muted="video.muted"
@@ -1141,27 +428,25 @@ onBeforeUnmount(() => {
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
       <!--      Speaking video  -->
-      <!--      <div-->
-      <!--        v-for="video in videoList"-->
-      <!--        :key="video.id"-->
-      <!--        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"-->
-      <!--      >-->
-      <!--        <video-->
-      <!--          width="100%"-->
-      <!--          height="100%"-->
-      <!--          :class="{selfCamera: video.isLocal}"-->
-      <!--          class="absolute bottom-0"-->
-      <!--          :ref="`videos`"-->
-      <!--          :muted="video.muted"-->
-      <!--          playsinline-->
-      <!--        ></video>-->
-      <!--      </div>-->
+            <div
+              class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"
+            >
+              <video
+                width="100%"
+                height="100%"
+                class="absolute bottom-0"
+                ref="speaker_video"
+                playsinline
+                autoplay
+              ></video>
+            </div>
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
             class="w-[23%] h-[23%] max-h-[23%] overflow-hidden rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
             v-for="(video, index) in videoList"
             :key="video.id"
+            :class="{selfCamera: video.isLocal}"
             :data-socketId="video.socketId"
             @click="onVideoClick"
         >
@@ -1169,7 +454,7 @@ onBeforeUnmount(() => {
               src="/microphone-mute.svg"
               alt=""
               class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[white]"
-              v-if="playerStatus.microphone == false"
+              v-if="playerStatus.microphone === false"
           />
           <div
               id="numberHolder"
@@ -1184,23 +469,23 @@ onBeforeUnmount(() => {
           <div
               id="informationHolder"
               class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden"
+
           >
             <div class="[direction:ltr] text-[12px] h-[40px] flex flex-col">
               <p id="nameHolder"></p>
               <p id="IdHolder"></p>
             </div>
             <img
+                @click="fullScreen(video.id)"
                 src="/expand.svg"
                 alt=""
                 class="w-[18px] absolute bottom-1 right-1"
             />
           </div>
           <video
-              :class="video.isLocal ? 'border-2 border-green-800' : ''"
               class="w-[100%] h-[100%]"
               ref="videos"
               :id="video.id"
-              :muted="video.muted"
               playsinline
           ></video>
         </div>
