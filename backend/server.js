@@ -34,6 +34,7 @@ signalServer.on('discover', async (request) => {
             "token": token, "room_code": roomId, "action": "play",
             "socket_id": request.socket.id
         }).then((response) => {
+            console.log(response.data)
             let members = rooms.get(roomId);
             if (!members) {
                 members = new Set();
@@ -59,6 +60,7 @@ signalServer.on('discover', async (request) => {
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
         }).catch((error) => {
+            console.log(error.response.data)
             io.to(request.socket.id).emit("join_game", {"status": false, "data": "Invalid token"})
             if (error.response) {
                 console.log(error.response.data)

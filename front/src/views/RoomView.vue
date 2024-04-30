@@ -5,26 +5,27 @@ import {useAppwriteState} from "../stores/appwriteState";
 import WebrtcComponent from "@/components/WebrtcComponent.vue";
 import {TabGroup, TabList, Tab, TabPanels, TabPanel} from "@headlessui/vue";
 const selectedPlayer = ref();
-import {useRoute} from 'vue-router'
+import {useRoute} from "vue-router";
 
 const route = useRoute();
 let uistate = ref({
   mobileMenu: false,
   DesktopWarning: false,
-  tabs: [{
-    "name":"پیام ها",
-    "show":true,
-  }, {
-    "name":"اکت شب",
-    "show":true,
-  },
-      {
-    "name":"گرداننده",
-    "show":true,
-  },
-
+  tabs: [
+    {
+      name: "پیام ها",
+      show: true
+    },
+    {
+      name: "اکت شب",
+      show: true
+    },
+    {
+      name: "گرداننده",
+      show: true
+    }
   ]
-})
+});
 // elements ref
 let messageContainer = ref(null);
 let messegeInput = ref(null);
@@ -32,7 +33,7 @@ var players = ref([]);
 var actions = ref([]);
 let socket;
 let myPlayer = ref();
-const targetIds = ref([])
+const targetIds = ref([]);
 class messageModel {
   message;
   number;
@@ -66,26 +67,28 @@ function setDataPeerVideo() {
     if (element["socket_id"] === socket.id) {
       myPlayer.value = element;
       uistate.value.tabs[2].show = myPlayer.value["room_role"] === "god";
-      if(myPlayer.value.room_role === "god"){
-            socket.emit("get_actions",{"room":route.params.room_id})
-        }
+      if (myPlayer.value.room_role === "god") {
+        socket.emit("get_actions", {room: route.params.room_id});
+      }
     }
   });
 }
 function setMyPlayer(player) {
   myPlayer.value = player;
-  console.log(myPlayer.value)
-
+  console.log(myPlayer.value);
 }
 
-function sendTargets(){
-  socket.emit("send_action",{"room":route.params.room_id,"targets":targetIds.value})
-  targetIds.value = []
+function sendTargets() {
+  socket.emit("send_action", {
+    room: route.params.room_id,
+    targets: targetIds.value
+  });
+  targetIds.value = [];
 }
 function updatePlayers(data) {
   socket = data["socket"];
   setDataPeerVideo();
-  socket.emit("load_messages",{"room":route.params.room_id})
+  socket.emit("load_messages", {room: route.params.room_id});
 
   socket.on("role", role_data => {
     setMyPlayer(role_data);
@@ -96,7 +99,7 @@ function updatePlayers(data) {
       new messageModel(
         message.message,
         message.sender.id,
-          (message.sender.role) ? message.sender.role.name : null,
+        message.sender.role ? message.sender.role.name : null,
         message.sender.profile.user.first_name
       )
     );
@@ -105,20 +108,20 @@ function updatePlayers(data) {
     }, 100);
   });
   socket.on("load_messages", data => {
-    for(var i=0;i < data.data.messages.length;i++){
-      var message = data.data.messages[i]
+    for (var i = 0; i < data.data.messages.length; i++) {
+      var message = data.data.messages[i];
       messages.value.push(
-      new messageModel(
-        message.message,
-        message.sender.id,
-        (message.sender.role) ? message.sender.role.name : null,
-        message.sender.profile.user.first_name
-      )
-    );
+        new messageModel(
+          message.message,
+          message.sender.id,
+          message.sender.role ? message.sender.role.name : null,
+          message.sender.profile.user.first_name
+        )
+      );
     }
 
     setTimeout(() => {
-      if(messageContainer.value !== null){
+      if (messageContainer.value !== null) {
         messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
       }
     }, 100);
@@ -126,8 +129,8 @@ function updatePlayers(data) {
 
   socket.on("actions", data => {
     actions.value = data.actions;
-    console.log(actions.value)
-  })
+    console.log(actions.value);
+  });
 }
 
 function setRoles(room_id) {
@@ -140,13 +143,16 @@ function setRoles(room_id) {
 let sendMessege = room_id => {
   let newMessege = messegeInput.value.value;
   messegeInput.value.value = "";
-  if(myPlayer.value.room_role === "god"){
-    if(selectedPlayer != null)
-    socket.emit("message", {message: newMessege, room: room_id,"receiver":selectedPlayer.id});
-  }else{
+  if (myPlayer.value.room_role === "god") {
+    if (selectedPlayer != null)
+      socket.emit("message", {
+        message: newMessege,
+        room: room_id,
+        receiver: selectedPlayer.id
+      });
+  } else {
     socket.emit("message", {message: newMessege, room: room_id});
   }
-
 };
 </script>
 <template>
@@ -178,7 +184,8 @@ let sendMessege = room_id => {
             v-for="c in uistate.tabs.filter(t => t.show === true)"
             as="template"
             :key="c"
-            v-slot="{selected}">
+            v-slot="{selected}"
+          >
             <button
               :class="[
                 'w-[28%] rounded-lg py-2.5 text-sm font-medium leading-5',
@@ -212,7 +219,7 @@ let sendMessege = room_id => {
                   {{ item.number }}
                 </div>
                 <div
-                  class="bg-[#252525] min-h-[75px] p-2 [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-md"
+                  class="bg-[#252525] min-h-[45px] p-2 [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-md min-w-[100px]"
                 >
                   <div class="flex items-end">
                     <p class="ml-1 text-[#D9D9D9]">{{ item.name }}</p>
@@ -238,9 +245,16 @@ let sendMessege = room_id => {
               <div
                 class="card flex justify-content-center absolute left-[17%] bottom-[17%]"
               >
-                <select v-model="selectedPlayer" class="w-[120px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]">
+                <select
+                  v-model="selectedPlayer"
+                  class="w-[120px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]"
+                >
                   <option v-for="player in players" :key="player.id">
-                    {{player.profile.user.first_name}} {{player.profile.user.last_name}} <span v-if="player.profile.role">({{player.profile.role.name}})</span>
+                    {{ player.profile.user.first_name }}
+                    {{ player.profile.user.last_name }}
+                    <span v-if="player.profile.role"
+                      >({{ player.profile.role.name }})</span
+                    >
                   </option>
                 </select>
               </div>
@@ -276,24 +290,34 @@ let sendMessege = room_id => {
               </div>
             </div>
           </TabPanel>
-          <TabPanel class="flex-center pt-[50px]">
+          <TabPanel class="flex-center pt-[50px] flex-col">
             <button
               class="w-[40%] h-[80px] bg-black rounded"
               @click="setRoles($route.params.room_id)"
             >
               تقسیم نقش
             </button>
-            <div>
-                <table>
-                    <tr v-for="action in actions">
-                      <td>{{action.player.profile.user.first_name}} {{action.player.profile.user.last_name}}</td>
-                      <td v-if="action.role">{{action.role.name}}</td>
-                      <td v-if="action.target">{{action.target.profile.user.first_name}} {{action.target.profile.user.last_name}}</td>
-                    </tr>
-                </table>
-
+            <div
+              class="overflow-y-auto w-[98%] border-[white] mt-[10px] border-2 max-h-[500px]"
+            >
+              <table class="w-[100%] mx-auto">
+                <tr class="*:border *:p-2">
+                  <th class="hover:bg-black transition-all">شماره</th>
+                  <th class="hover:bg-black transition-all">اسم بازیکن</th>
+                  <th class="hover:bg-black transition-all">تارگت</th>
+                  <th class="hover:bg-black transition-all">زمان</th>
+                </tr>
+                <tr
+                  v-for="(action, index) in 16"
+                  class="*:text-center *:text-[18px] *:border *:py-2"
+                >
+                  <td>{{ index }}</td>
+                  <td>محمد محمدی</td>
+                  <td>حسن حسنی</td>
+                  <td>۱۴:۳۶</td>
+                </tr>
+              </table>
             </div>
-
           </TabPanel>
         </TabPanels>
       </TabGroup>
@@ -349,3 +373,10 @@ input:focus {
   display: none;
 }
 </style>
+<!-- {{ action.player.profile.user.first_name }}
+                    {{ action.player.profile.user.last_name }}
+                    {{ action.target.profile.user.first_name }}
+                    {{ action.target.profile.user.last_name }} -->
+<!-- <th v-if="action.role">{{ action.role.name }}</th> -->
+<!-- <th v-if="action.target">
+                  </th> -->
