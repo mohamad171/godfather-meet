@@ -60,7 +60,6 @@ signalServer.on('discover', async (request) => {
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
         }).catch((error) => {
-            console.log(error.response.data)
             io.to(request.socket.id).emit("join_game", {"status": false, "data": "Invalid token"})
             if (error.response) {
                 console.log(error.response.data)

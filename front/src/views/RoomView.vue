@@ -364,12 +364,12 @@ let sendMessege = room_id => {
         <p class="relative bottom-1">خروج</p>
       </button>
     </div>
-
+<!--socketURL="https://websocket.straiberry.com"-->
     <div class="md:w-[61%]">
       <WebrtcComponent
         width="150"
         height="150"
-        socketURL="https://websocket.straiberry.com"
+
         @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"

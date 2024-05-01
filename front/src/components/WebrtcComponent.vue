@@ -140,10 +140,26 @@ function changeVoiceStatus(peer_id) {
   if (playerStatus.value.microphone) {
     playerStatus.value.microphone = false;
     muteVoice(peer_id);
+
+    videoList.forEach(v => {
+            if (v.isLocal) {
+              v.muted = true
+              console.log("Mute voice")
+            }
+    });
+
   } else {
     playerStatus.value.microphone = true;
     unmuteVoice(peer_id);
   }
+
+
+
+  // var ele =document.querySelector("div[data-islocal='true']").
+  //   getElementsByTagName("video")
+  // console.log(ele)
+  // ele.muted = "muted"
+  // console.log(ele.muted)
 }
 function muteVoice(peer_id) {
   console.log("mute");
@@ -420,6 +436,7 @@ join();
           class="absolute bottom-0"
           ref="videos"
           :muted="video.muted"
+
           playsinline
         ></video>
       </div>
@@ -444,8 +461,10 @@ join();
           class="w-[23%] h-[23%] max-h-[23%] rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="(video, index) in videoList"
           :key="video.id"
+
           :class="{selfCamera: video.isLocal}"
           :data-socketId="video.socketId"
+          :data-isLocal="video.isLocal"
           @click="onVideoClick"
         >
           <img
