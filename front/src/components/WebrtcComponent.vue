@@ -143,7 +143,7 @@ function changeVoiceStatus(peer_id) {
     playerStatus.value.microphone = false;
     muteVoice(peer_id);
 
-    videoList.forEach(v => {
+    videoList.value.forEach(v => {
       if (v.isLocal) {
         v.muted = true;
         console.log("Mute voice");
@@ -292,7 +292,7 @@ async function join() {
             props.roomId,
             props.peerOptions
           );
-          videoList.forEach(v => {
+          videoList.value.forEach(v => {
             if (v.isLocal) {
               peer["socket_id"] = peerID;
               onPeer(peer, v.stream);
@@ -314,7 +314,7 @@ async function join() {
     });
     peer["socket_id"] = request.initiator;
     console.log("accepted", peer);
-    videoList.forEach(v => {
+    videoList.value.forEach(v => {
       if (v.isLocal) {
         onPeer(peer, v.stream);
       }
@@ -328,7 +328,7 @@ function onPeer(peer, localStream) {
     console.log("Stream", remoteStream);
     joinedRoom(remoteStream, false, peer["socket_id"]);
     peer.on("close", () => {
-      videoList = videoList.filter(item => item.id !== remoteStream.id);
+      videoList.value = videoList.value.filter(item => item.id !== remoteStream.id);
       emit("left-room", remoteStream.id);
     });
     peer.on("error", err => {
@@ -338,7 +338,7 @@ function onPeer(peer, localStream) {
 }
 function joinedRoom(stream, isLocal, socketId) {
   console.log(`${socketId} join room`,stream,isLocal)
-  const found = videoList.find(video => video.id === stream.id);
+  const found = videoList.value.find(video => video.id === stream.id);
   if (found === undefined) {
     const video = {
       id: stream.id,
@@ -347,7 +347,7 @@ function joinedRoom(stream, isLocal, socketId) {
       socketId: socketId,
       isLocal: isLocal
     };
-    videoList.push(video);
+    videoList.value.push(video);
     consoloe.log(videoList)
   }
   setTimeout(() => {
