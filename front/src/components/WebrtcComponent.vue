@@ -304,7 +304,6 @@ async function join() {
       }
 
       discoveryData.peers.forEach(peerID => connectToPeer(peerID));
-      // $emit("opened-room", props.roomId);
     });
   } catch (error) {
     console.log("Error accessing media devices:", error);
@@ -330,7 +329,7 @@ function onPeer(peer, localStream) {
     joinedRoom(remoteStream, false, peer["socket_id"]);
     peer.on("close", () => {
       videoList = videoList.filter(item => item.id !== remoteStream.id);
-      $emit("left-room", remoteStream.id);
+      emit("left-room", remoteStream.id);
     });
     peer.on("error", err => {
       console.log("peer error ", err);
