@@ -103,11 +103,15 @@ function sendDisLike(peer_id) {
   });
 }
 function sendChallenge(peer_id) {
+  var txt = "challenge"
+  if(!playerStatus.value.challenge)
+    txt = "unchallenge"
   socket.emit("command", {
     room: props.roomId,
     peer: peer_id,
-    command: "challenge"
+    command: txt
   });
+  playerStatus.value.challenge = !playerStatus.value.challenge
 }
 
 function onVideoClick(event) {
@@ -224,13 +228,10 @@ async function join() {
           }, 800);
           break;
         case "challenge":
-          playerStatus.value.challenge = !playerStatus.value.challenge;
-          if (playerStatus.value.challenge) {
-            childElement.textContent = "🤚";
-          } else {
-            childElement.textContent = "";
-          }
+          childElement.textContent = "🤚";
           break;
+        case "unchallenge":
+          childElement.textContent = "";
         case "mute_voice":
           document.getElementById(`${data["peer"]}_mute`).style.display= "block"
           break;
@@ -238,10 +239,10 @@ async function join() {
           document.getElementById(`${data["peer"]}_mute`).style.display= "none"
           break;
         case "mute_video":
-          document.getElementById(`${data["peer"]}_video_mute`).style.display= "none"
+          document.getElementById(`${data["peer"]}_video_mute`).style.display= "block"
           break;
         case "unmute_video":
-          document.getElementById(`${data["peer"]}_video_mute`).style.display= "block"
+          document.getElementById(`${data["peer"]}_video_mute`).style.display= "none"
           break;
       }
     } else {
