@@ -366,10 +366,11 @@ let sendMessege = room_id => {
     </div>
 
     <div class="md:w-[61%]">
+<!--              socketURL="https://websocket.straiberry.com"-->
+
       <WebrtcComponent
         width="150"
         height="150"
-        socketURL="https://websocket.straiberry.com"
         @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"
@@ -382,6 +383,8 @@ let sendMessege = room_id => {
   </div>
 </template>
 <style scoped>
+
+
 .flex-center {
   @apply flex items-center justify-center;
 }

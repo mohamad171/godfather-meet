@@ -660,4 +660,9 @@ video {
 .camera > div {
   margin-inline: 2px;
 }
+
+.selfCamera{
+  border-color: green;
+  border-width: 2px;
+}
 </style>
