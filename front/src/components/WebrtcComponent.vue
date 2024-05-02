@@ -231,6 +231,18 @@ async function join() {
             childElement.textContent = "";
           }
           break;
+        case "mute_voice":
+          document.getElementById(`${data["peer"]}_mute`).style.display= "block"
+          break;
+        case "unmute_voice":
+          document.getElementById(`${data["peer"]}_mute`).style.display= "none"
+          break;
+        case "mute_video":
+          document.getElementById(`${data["peer"]}_video_mute`).style.display= "none"
+          break;
+        case "unmute_video":
+          document.getElementById(`${data["peer"]}_video_mute`).style.display= "block"
+          break;
       }
     } else {
       console.log("div el not recognized");
@@ -456,12 +468,15 @@ join();
           <img
             src="/microphone-mute.svg"
             alt=""
+            :id="`${video.socketId}_mute`"
             class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[#c0bebe]"
-            v-if="playerStatus.microphone === false"
+            style="display:none"
           />
           <div
+            :id="`${video.socketId}_video_mute`"
             class="bg-[#c0bebe] absolute px-[6px] py-[5px] rounded-full bottom-1 left-8"
-            v-if="playerStatus.videoCamera == false"
+            style="display:none"
+
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
