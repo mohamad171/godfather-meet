@@ -34,7 +34,6 @@ signalServer.on('discover', async (request) => {
             "token": token, "room_code": roomId, "action": "play",
             "socket_id": request.socket.id
         }).then((response) => {
-            console.log(response.data)
             let members = rooms.get(roomId);
             if (!members) {
                 members = new Set();
@@ -43,6 +42,7 @@ signalServer.on('discover', async (request) => {
             members.add(memberId);
             request.socket.join(roomId)
             request.socket.roomId = roomId;
+            console.log(Array.from(members))
             request.discover({
                 peers: Array.from(members)
             });
@@ -51,7 +51,6 @@ signalServer.on('discover', async (request) => {
             }
 
             else if(response.data["data"]["role"]){
-                console.log("User has role")
                 if(response.data["data"]["role"]["side"] === 0){
                     console.log("Add To mafia room")
                     request.socket.join(`mafia-${roomId}`);

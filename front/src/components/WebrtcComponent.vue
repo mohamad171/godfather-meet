@@ -62,7 +62,7 @@ var props = defineProps({
   }
 });
 var signalClient;
-var videoList = [];
+var videoList = ref([]);
 var canvas = null;
 var localStream;
 var socket = defineModel("socket");
@@ -337,6 +337,7 @@ function onPeer(peer, localStream) {
   });
 }
 function joinedRoom(stream, isLocal, socketId) {
+  console.log(`${socketId} join room`,stream,isLocal)
   const found = videoList.find(video => video.id === stream.id);
   if (found === undefined) {
     const video = {
@@ -347,6 +348,7 @@ function joinedRoom(stream, isLocal, socketId) {
       isLocal: isLocal
     };
     videoList.push(video);
+    consoloe.log(videoList)
   }
   setTimeout(() => {
     for (let i = 0, len = videos.value.length; i < len; i++) {
