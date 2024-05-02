@@ -144,20 +144,17 @@ function changeVoiceStatus(peer_id) {
     muteVoice(peer_id);
 
     videoList.forEach(v => {
-            if (v.isLocal) {
-              v.muted = true
-              console.log("Mute voice")
-            }
+      if (v.isLocal) {
+        v.muted = true;
+        console.log("Mute voice");
+      }
     });
-
   } else {
     playerStatus.value.microphone = true;
     unmuteVoice(peer_id);
   }
 
   localStream.getAudioTracks()[0].enabled = playerStatus.value.microphone;
-
-
 
   // var ele =document.querySelector("div[data-islocal='true']").
   //   getElementsByTagName("video")
@@ -429,7 +426,6 @@ join();
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
-
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
       <!--      Speaking video  -->
@@ -451,7 +447,6 @@ join();
           class="w-[23%] h-[23%] max-h-[23%] rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="(video, index) in videoList"
           :key="video.id"
-
           :class="{selfCamera: video.isLocal}"
           :data-socketId="video.socketId"
           :data-isLocal="video.isLocal"
@@ -460,9 +455,25 @@ join();
           <img
             src="/microphone-mute.svg"
             alt=""
-            class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[white]"
+            class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[#c0bebe]"
             v-if="playerStatus.microphone === false"
           />
+          <div
+            class="bg-[#c0bebe] absolute px-[6px] py-[5px] rounded-full bottom-1 left-8"
+            v-if="playerStatus.videoCamera == false"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="red"
+              class="w-[15px]"
+              viewBox="0 0 640 512"
+            >
+              <path
+                d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7l-86.4-67.7 13.8 9.2c9.8 6.5 22.4 7.2 32.9 1.6s16.9-16.4 16.9-28.2V128c0-11.8-6.5-22.6-16.9-28.2s-23-5-32.9 1.6l-96 64L448 174.9V192 320v5.8l-32-25.1V128c0-35.3-28.7-64-64-64H113.9L38.8 5.1zM407 416.7L32.3 121.5c-.2 2.1-.3 4.3-.3 6.5V384c0 35.3 28.7 64 64 64H352c23.4 0 43.9-12.6 55-31.3z"
+              />
+            </svg>
+          </div>
+
           <div
             id="numberHolder"
             class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
@@ -499,7 +510,6 @@ join();
             ref="videos"
             :id="video.id"
             :muted="video.isLocal"
-
             playsinline
           ></video>
           <div
@@ -585,12 +595,23 @@ join();
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 576 512"
-            class="w-[31px] md:w-[19px] mx-auto"
+            fill="black"
+            class="w-[35px] md:w-[19px] mx-auto"
+            v-if="playerStatus.videoCamera"
           >
             <path
-              class="fill-white"
-              :class="{fillblacker: playerStatus.videoCamera}"
               d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"
+            />
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="white"
+            class="w-[35px]"
+            viewBox="0 0 640 512"
+            v-else
+          >
+            <path
+              d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7l-86.4-67.7 13.8 9.2c9.8 6.5 22.4 7.2 32.9 1.6s16.9-16.4 16.9-28.2V128c0-11.8-6.5-22.6-16.9-28.2s-23-5-32.9 1.6l-96 64L448 174.9V192 320v5.8l-32-25.1V128c0-35.3-28.7-64-64-64H113.9L38.8 5.1zM407 416.7L32.3 121.5c-.2 2.1-.3 4.3-.3 6.5V384c0 35.3 28.7 64 64 64H352c23.4 0 43.9-12.6 55-31.3z"
             />
           </svg>
         </button>
