@@ -103,9 +103,9 @@ function sendDisLike(peer_id) {
   });
 }
 function sendChallenge(peer_id) {
-  var txt = "challenge"
-  if(!playerStatus.value.challenge)
-    txt = "unchallenge"
+  var txt = "unchallenge"
+  if(playerStatus.value.challenge)
+    txt = "challenge"
   socket.emit("command", {
     room: props.roomId,
     peer: peer_id,
