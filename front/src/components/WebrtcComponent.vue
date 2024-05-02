@@ -348,7 +348,7 @@ function joinedRoom(stream, isLocal, socketId) {
       isLocal: isLocal
     };
     videoList.value.push(video);
-    consoloe.log(videoList)
+    console.log(videoList)
   }
   setTimeout(() => {
     for (let i = 0, len = videos.value.length; i < len; i++) {
