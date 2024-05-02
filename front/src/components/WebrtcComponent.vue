@@ -64,7 +64,7 @@ var props = defineProps({
 var signalClient;
 var videoList = [];
 var canvas = null;
-
+var localStream;
 var socket = defineModel("socket");
 var players = defineModel("players");
 var myPlayer = defineModel("myPlayer");
@@ -73,7 +73,7 @@ var emit = defineEmits(["update_players"]);
 var playerStatus = ref({
   isDead: true,
   microphone: true,
-  videoCamera: false,
+  videoCamera: true,
   challenge: false,
   showPreLoader: true,
   Error: false
@@ -135,6 +135,8 @@ function changeVideoStatus(peer_id) {
     playerStatus.value.videoCamera = true;
     unmuteVideo(peer_id);
   }
+
+  localStream.getVideoTracks()[0].enabled = playerStatus.value.videoCamera;
 }
 function changeVoiceStatus(peer_id) {
   if (playerStatus.value.microphone) {
@@ -153,13 +155,15 @@ function changeVoiceStatus(peer_id) {
     unmuteVoice(peer_id);
   }
 
+  localStream.getAudioTracks()[0].enabled = playerStatus.value.microphone;
+
 
 
   // var ele =document.querySelector("div[data-islocal='true']").
   //   getElementsByTagName("video")
   // console.log(ele)
-  // ele.muted = "muted"
-  // console.log(ele.muted)
+  // ele.volume = 0
+  // console.log(ele.volume)
 }
 function muteVoice(peer_id) {
   console.log("mute");
@@ -275,7 +279,7 @@ async function join() {
   }
   try {
     // TODO Change here
-    const localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    localStream = await navigator.mediaDevices.getUserMedia(constraints);
     console.log(localStream, "Streammmm");
     joinedRoom(localStream, true, socket.id);
     signalClient.once("discover", discoveryData => {
@@ -425,21 +429,7 @@ join();
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
-      <div
-        v-for="video in videoList"
-        :key="video.id"
-        class="border w-[57%] h-[95%] mt-[2.5%] rounded-2xl relative overflow-hidden hidden md:flex"
-      >
-        <video
-          width="100%"
-          height="100%"
-          class="absolute bottom-0"
-          ref="videos"
-          :muted="video.muted"
 
-          playsinline
-        ></video>
-      </div>
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
       <!--      Speaking video  -->
@@ -508,6 +498,8 @@ join();
             class="w-[100%] h-[100%]"
             ref="videos"
             :id="video.id"
+            :muted="video.isLocal"
+
             playsinline
           ></video>
           <div
