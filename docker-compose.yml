@@ -3,12 +3,12 @@ services:
   frontend:
     build:
       context: front
-      target: prod
+      target: dev
     container_name: frontend
     depends_on:
       - backend
     ports:
-      - "9000:80"
+      - "9000:5173"
     networks:
       - api
   backend:
