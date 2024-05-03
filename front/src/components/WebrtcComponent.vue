@@ -68,6 +68,7 @@ var localStream;
 var socket = defineModel("socket");
 var players = defineModel("players");
 var myPlayer = defineModel("myPlayer");
+var myRole = defineModel("myRole");
 var god_video = defineModel("god_video");
 var emit = defineEmits(["update_players"]);
 var playerStatus = ref({
@@ -250,11 +251,10 @@ async function join() {
     }
   });
   socket.on("join_game", data => {
-    console.log("Join");
+
     if (data["status"]) {
       playerStatus.value.showPreLoader = false;
-      console.log("After disable...");
-
+      myRole.value = data.data.data.role
       socket.emit("players_info", {
         room: props.roomId,
         socket_id: socket.id,
@@ -422,8 +422,7 @@ join();
         class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]"
       >
         <video
-          width="100%"
-          height="100%"
+          style="width: 100%; height: 100%;object-fit: cover;"
           class="absolute bottom-0"
           id="god_video"
           ref="god_video"
@@ -436,7 +435,7 @@ join();
       >
         <div class="flex">
           <p class="ml-[2px]">نقش شما:</p>
-          <p class="text-[#B51818]">پدرخوانده</p>
+          <p class="text-[#B51818]" v-if="myRole">{{myRole.name}}</p>
         </div>
         <p class="mx-[7%]">سناریو پدرخوانده</p>
       </div>
@@ -444,11 +443,10 @@ join();
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
       <!--      Speaking video  -->
       <div
-        class="border w-[95%] mr-[5%] h-[19vh] flex rounded-2xl relative overflow-hidden md:hidden"
+        class="border w-[95%] mr-[5%] h-[23vh] flex rounded-2xl relative overflow-hidden md:hidden"
       >
         <video
-          width="100%"
-          height="100%"
+          style="width: 100%; height: 100%;object-fit: cover;"
           class="absolute bottom-0"
           ref="speaker_video"
           playsinline
@@ -458,7 +456,7 @@ join();
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
-          class="w-[23%] h-[23%] max-h-[23%] rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
+          class="w-[23%] h-[100%] max-h-[23%] rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
           v-for="(video, index) in videoList"
           :key="video.id"
           :class="{selfCamera: video.isLocal}"

@@ -33,6 +33,7 @@ var players = ref([]);
 var actions = ref([]);
 let socket;
 let myPlayer = ref();
+let myRole = ref(null);
 const targetIds = ref([]);
 class messageModel {
   message;
@@ -87,7 +88,7 @@ function setDataPeerVideo() {
   });
 }
 function setMyPlayer(player) {
-  myPlayer.value = player;
+  myRole.value = player.role
   console.log(myPlayer.value);
 }
 
@@ -364,7 +365,7 @@ let sendMessege = room_id => {
         <p class="relative bottom-1">خروج</p>
       </button>
     </div>
-
+<!--socketURL="https://websocket.straiberry.com"-->
     <div class="md:w-[61%]">
       <WebrtcComponent
         width="150"
@@ -374,8 +375,8 @@ let sendMessege = room_id => {
         :room-id="$route.params.room_id"
         :token="$route.params.token"
         v-model:socket="socket"
+        v-model:myRole="myRole"
         v-model:players="players"
-        v-model:god_video="god_video"
         v-model:myPlayer="myPlayer"
       />
     </div>
