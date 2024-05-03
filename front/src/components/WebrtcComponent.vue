@@ -104,9 +104,9 @@ function sendDisLike(peer_id) {
   });
 }
 function sendChallenge(peer_id) {
-  var txt = "unchallenge"
+  var txt = "challenge"
   if(playerStatus.value.challenge)
-    txt = "challenge"
+    txt = "unchallenge"
   socket.emit("command", {
     room: props.roomId,
     peer: peer_id,
@@ -233,6 +233,7 @@ async function join() {
           break;
         case "unchallenge":
           childElement.textContent = "";
+          break;
         case "mute_voice":
           document.getElementById(`${data["peer"]}_mute`).style.display= "block"
           break;
@@ -437,7 +438,7 @@ join();
           <p class="ml-[2px]">نقش شما:</p>
           <p class="text-[#B51818]" v-if="myRole">{{myRole.name}}</p>
         </div>
-        <p class="mx-[7%]">سناریو پدرخوانده</p>
+        <p class="mx-[7%]" v-if="myRole">سناریو {{myRole.scenario.name}}</p>
       </div>
     </div>
     <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
