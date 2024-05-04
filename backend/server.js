@@ -56,6 +56,7 @@ signalServer.on('discover', async (request) => {
                     request.socket.join(`mafia-${roomId}`);
                 }
             }
+            console.log("User id:",response.data.data["player"]["id"])
             request.socket.join(response.data.data["player"]["id"]);
 
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
