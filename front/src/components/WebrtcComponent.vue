@@ -504,7 +504,7 @@ join();
               id="numberHolder"
               class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
           >
-            {{ index + 1 }}
+            <span v-if="myPlayer && myPlayer.number">{{ myPlayer.number }}</span>
           </div>
           <div
               class="absolute bottom-[1px] left-[37%] text-[20px] z-40"

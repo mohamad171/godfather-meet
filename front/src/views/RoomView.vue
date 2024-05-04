@@ -109,11 +109,10 @@ function updatePlayers(data) {
   });
 
   socket.on("message", message => {
-    console.log(message)
     messages.value.push(
       new messageModel(
         message.message,
-        message.sender.id,
+        message.sender.number,
         message.sender.role ? message.sender.role.name : null,
         message.sender.profile.user.first_name
       )
@@ -128,7 +127,7 @@ function updatePlayers(data) {
       messages.value.push(
         new messageModel(
           message.message,
-          message.sender.id,
+          message.sender.number,
           message.sender.role ? message.sender.role.name : null,
           message.sender.profile.user.first_name
         )
@@ -367,7 +366,7 @@ let sendMessege = room_id => {
         <p class="relative bottom-1">خروج</p>
       </button>
     </div>
-<!--socketURL="https://websocket.straiberry.com"-->
+<!--socketURL="https://websocket.godfathergame.ir"-->
     <div class="md:w-[61%]">
       <WebrtcComponent
         width="150"
@@ -375,7 +374,6 @@ let sendMessege = room_id => {
         @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"
-        socketURL="https://websocket.godfathergame.ir"
         v-model:socket="socket"
         v-model:myRole="myRole"
         v-model:players="players"
