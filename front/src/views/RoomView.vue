@@ -215,8 +215,9 @@ let sendMessege = room_id => {
         <TabPanels class="h-[93%] overflow-hidden">
           <TabPanel class="h-[100%]">
             <div class="text-[22px] m-3 mr-4">
-              گفتگو تیم
-              <span class="text-[#9c2525] font-bold">مافیا</span>
+              گفتگو با
+              <span class="text-[#9c2525] font-bold" v-if="myRole && myRole.side === 0">تیم مافیا</span>
+              <span class="text-[#f1c529] font-bold" v-else>گرداننده</span>
             </div>
             <div
               ref="messageContainer"
