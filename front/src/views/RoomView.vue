@@ -109,6 +109,7 @@ function updatePlayers(data) {
   });
 
   socket.on("message", message => {
+    console.log(message)
     messages.value.push(
       new messageModel(
         message.message,
