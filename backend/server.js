@@ -57,7 +57,7 @@ signalServer.on('discover', async (request) => {
                 }
             }
             console.log("User id:",response.data.data["player"]["id"])
-            request.socket.join(response.data.data["player"]["id"]);
+            request.socket.join(`${response.data.data["player"]["id"]}`);
 
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
@@ -105,7 +105,7 @@ io.on('connection', (socket) => {
                 if(value.data["status"] === "ok"){
                     if(value.data["data"]["message"]["receiver"]){
                         console.log("Send to",value.data["data"]["message"]["receiver"])
-                        io.to(value.data["data"]["message"]["receiver"]).emit("message",value.data["data"]["message"])
+                        io.to(`${value.data["data"]["message"]["receiver"]}`).emit("message",value.data["data"]["message"])
                     }
 
                 }
