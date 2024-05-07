@@ -119,13 +119,12 @@ function sendChallenge(peer_id) {
   playerStatus.value.challenge = !playerStatus.value.challenge
 }
 
-function onVideoClick(event) {
-  var parent_div = event.target.parentElement;
-  let numberHolder = document.querySelector("#numberHolder");
-  let informationHolder = document.querySelector("#informationHolder");
-  let nameHolder = document.querySelector("#nameHolder");
-  let IdHolder = document.querySelector("#IdHolder");
-  let dataInfo = parent_div.getAttribute("data-info");
+function onVideoClick(socketId) {
+  console.log(socketId,"sdfsdfdfsd")
+  let informationHolder = document.querySelector(`#${socketId}_informationHolder`);
+  let nameHolder = document.querySelector(`#${socketId}_nameHolder`);
+  let IdHolder = document.querySelector(`#${socketId}_IdHolder`);
+  let dataInfo = informationHolder.parentElement.getAttribute("data-info");
   // numberHolder.classList.toggle("hidden");
   informationHolder.classList.toggle("hidden");
   if (dataInfo) {
@@ -473,7 +472,7 @@ join();
             :class="{selfCamera: video.isLocal}"
             :data-socketId="video.socketId"
             :data-isLocal="video.isLocal"
-            @click="onVideoClick"
+            @click="onVideoClick(`${video.socketId}`)"
         >
           <img
               src="/microphone-mute.svg"
@@ -511,12 +510,12 @@ join();
               id="reactionConatiner"
           ></div>
           <div
-              id="informationHolder"
+              :id="video.socketId + '_informationHolder'"
               class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden rounded-lg"
           >
             <div class="[direction:ltr] text-[12px] h-[40px] flex flex-col">
-              <p id="nameHolder"></p>
-              <p id="IdHolder"></p>
+              <p :id="video.socketId + '_nameHolder'"></p>
+              <p :id="video.socketId + '_IdHolder'"></p>
             </div>
             <img
                 v-if="myPlayer && myPlayer.room_role === 'god'"
@@ -542,7 +541,7 @@ join();
           <div
               class="absolute bg-black z-50 top-[15px] flex flex-col w-[80px] rounded-lg right-[-50px] *:p-1 overflow-hidden hidden"
               id="actionPanel"
-              @click.prevent="onVideoClick"
+              @click.prevent="onVideoClick(`${video.socketId}`)"
           >
             <span
                 class="hover:bg-[#333333] transition-all cursor-pointer"
