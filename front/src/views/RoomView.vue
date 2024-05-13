@@ -73,6 +73,7 @@ function setDataPeerVideo() {
       }
 
       var number_element = document.querySelector(`#${element["socket_id"]}_number`)
+      console.log(number_element,"Number document",`#${element["socket_id"]}_number`)
       if(number_element){
         number_element.html = element["number"]
       }
