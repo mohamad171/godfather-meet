@@ -72,6 +72,10 @@ function setDataPeerVideo() {
         })
       }
 
+      var number_element = div_element.querySelector(`#${element["socket_id"]}_number`)
+      if(number_element){
+        number_element.html = element["number"]
+      }
 
 
     }
