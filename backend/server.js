@@ -132,7 +132,6 @@ io.on('connection', (socket) => {
             axios.post(`${baseUrl}/playerinfo?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"], "socket_id": socket.id,"token":data["token"]
             }).then(value => {
-                console.log(value.data)
                 io.to(data["room"]).emit("players_info", value.data)
             }).catch( (error) => {
 
