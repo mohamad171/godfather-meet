@@ -313,6 +313,7 @@ async function join() {
           );
           videoList.value.forEach(v => {
             if (v.isLocal) {
+              console.log("Here may be undefind")
               peer["socket_id"] = peerID;
               onPeer(peer, v.stream);
             }
@@ -321,7 +322,7 @@ async function join() {
           console.log("Error connecting to peer", e);
         }
       }
-
+      console.log(discoveryData.peers,"Peers")
       discoveryData.peers.forEach(peerID => connectToPeer(peerID));
     });
   } catch (error) {
