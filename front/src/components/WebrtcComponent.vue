@@ -459,6 +459,7 @@ join();
             style="width: 100%; height: 100%;object-fit: cover;"
             class="absolute bottom-0"
             ref="speaker_video"
+            muted
             playsinline
             autoplay
         ></video>
