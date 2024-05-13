@@ -375,6 +375,7 @@ let sendMessege = room_id => {
         :room-id="$route.params.room_id"
         :token="$route.params.token"
         v-model:socket="socket"
+        socketURL="https://websocket.godfathergame.ir"
         v-model:myRole="myRole"
         v-model:players="players"
         v-model:myPlayer="myPlayer"
