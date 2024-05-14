@@ -302,8 +302,9 @@ async function join() {
     socket.on("connect",()=>{
       console.log("Connect")
       joinedRoom(localStream, true, socket.id);
-    })
+      signalClient.discover({room: props.roomId, token: props.token});
 
+    })
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
       async function connectToPeer(peerID) {
@@ -342,7 +343,6 @@ async function join() {
       }
     });
   });
-    signalClient.discover({room: props.roomId, token: props.token});
   } catch (error) {
     console.log("Error accessing media devices:", error);
   }
