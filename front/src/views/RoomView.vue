@@ -106,7 +106,9 @@ function sendTargets() {
 }
 function updatePlayers(data) {
   socket = data["socket"];
-  setDataPeerVideo();
+  setTimeout(()=>{
+    setDataPeerVideo();
+  },500)
   socket.emit("load_messages", {room: route.params.room_id});
 
   socket.on("role", role_data => {
