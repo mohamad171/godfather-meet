@@ -175,6 +175,11 @@ let sendMessege = room_id => {
     socket.emit("message", {message: newMessege, room: room_id});
   }
 };
+
+function exit(){
+  socket.disconnect()
+
+}
 </script>
 <template>
   <div
@@ -369,6 +374,7 @@ let sendMessege = room_id => {
       />
       <button
         class="bg-[#B51818] w-[100px] py-1 h-[32px] rounded-xl text-[18px] [box-shadow:0px_4px_4px_0px_rgba(0,0,0,0.1)]"
+        @click="exit"
       >
         <p class="relative bottom-1">خروج</p>
       </button>
