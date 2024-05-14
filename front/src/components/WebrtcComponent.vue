@@ -120,20 +120,25 @@ function sendChallenge(peer_id) {
 }
 
 function onVideoClick(socketId) {
-  console.log(socketId,"sdfsdfdfsd")
-  let informationHolder = document.querySelector(`#${socketId}_informationHolder`);
-  let nameHolder = document.querySelector(`#${socketId}_nameHolder`);
-  let IdHolder = document.querySelector(`#${socketId}_IdHolder`);
-  let dataInfo = informationHolder.parentElement.getAttribute("data-info");
-  // numberHolder.classList.toggle("hidden");
-  informationHolder.classList.toggle("hidden");
-  if (dataInfo) {
-    var jData = JSON.parse(dataInfo);
-    let fullName =
-        jData.profile.user.first_name + " " + jData.profile.user.last_name;
-    nameHolder.textContent = fullName;
-    IdHolder.textContent = `#${jData.profile.unique_id}`;
+  var div_element = document.querySelector(
+      "div[data-socketid='" + element["socket_id"] + "']"
+    );
+  if(div_element){
+    let informationHolder = div_element.querySelector(`#informationHolder`);
+    let nameHolder = div_element.querySelector(`#nameHolder`);
+    let IdHolder = div_element.querySelector(`#IdHolder`);
+    let dataInfo = informationHolder.parentElement.getAttribute("data-info");
+    // numberHolder.classList.toggle("hidden");
+    informationHolder.classList.toggle("hidden");
+    if (dataInfo) {
+      var jData = JSON.parse(dataInfo);
+      let fullName =
+          jData.profile.user.first_name + " " + jData.profile.user.last_name;
+      nameHolder.textContent = fullName;
+      IdHolder.textContent = `#${jData.profile.unique_id}`;
+    }
   }
+
 }
 
 function changeVideoStatus(peer_id) {
@@ -511,19 +516,19 @@ join();
               id="numberHolder"
               class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute"
           >
-            <span :id="`${video.socketId}_number`">-1</span>
+            <span :id="`peer_number`">-1</span>
           </div>
           <div
               class="absolute bottom-[1px] left-[37%] text-[20px] z-40"
               id="reactionConatiner"
           ></div>
           <div
-              :id="video.socketId + '_informationHolder'"
+              id="informationHolder"
               class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden rounded-lg"
           >
             <div class="[direction:ltr] text-[12px] h-[40px] flex flex-col">
-              <p :id="video.socketId + '_nameHolder'"></p>
-              <p :id="video.socketId + '_IdHolder'"></p>
+              <p id="nameHolder"></p>
+              <p id="IdHolder"></p>
             </div>
             <img
                 v-if="myPlayer && myPlayer.room_role === 'god'"
