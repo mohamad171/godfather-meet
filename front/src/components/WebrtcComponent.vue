@@ -121,7 +121,7 @@ function sendChallenge(peer_id) {
 
 function onVideoClick(socketId) {
   var div_element = document.querySelector(
-      "div[data-socketid='" + element["socket_id"] + "']"
+      "div[data-socketid='" + socketId + "']"
     );
   if(div_element){
     let informationHolder = div_element.querySelector(`#informationHolder`);
