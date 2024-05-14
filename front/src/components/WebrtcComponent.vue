@@ -299,7 +299,7 @@ async function join() {
   try {
     // TODO Change here
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    socket.on("connection",(d)=>{
+    socket.on("connect",(d)=>{
       console.log("Connect")
       joinedRoom(localStream, true, socket.id);
     })
