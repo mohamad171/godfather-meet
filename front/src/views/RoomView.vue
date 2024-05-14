@@ -33,6 +33,7 @@ var players = ref([]);
 var actions = ref([]);
 let socket;
 let myPlayer = ref();
+let myRole = ref(null);
 const targetIds = ref([]);
 class messageModel {
   message;
@@ -71,6 +72,11 @@ function setDataPeerVideo() {
         })
       }
 
+      var number_element = document.querySelector(`#${element["socket_id"]}_number`)
+      console.log(number_element,"Number document",`#${element["socket_id"]}_number`)
+      if(number_element){
+        number_element.html = element["number"]
+      }
 
 
     }
@@ -87,7 +93,7 @@ function setDataPeerVideo() {
   });
 }
 function setMyPlayer(player) {
-  myPlayer.value = player;
+  myRole.value = player.role
   console.log(myPlayer.value);
 }
 
@@ -111,7 +117,7 @@ function updatePlayers(data) {
     messages.value.push(
       new messageModel(
         message.message,
-        message.sender.id,
+        message.sender.number,
         message.sender.role ? message.sender.role.name : null,
         message.sender.profile.user.first_name
       )
@@ -126,7 +132,7 @@ function updatePlayers(data) {
       messages.value.push(
         new messageModel(
           message.message,
-          message.sender.id,
+          message.sender.number,
           message.sender.role ? message.sender.role.name : null,
           message.sender.profile.user.first_name
         )
@@ -214,8 +220,9 @@ let sendMessege = room_id => {
         <TabPanels class="h-[93%] overflow-hidden">
           <TabPanel class="h-[100%]">
             <div class="text-[22px] m-3 mr-4">
-              گفتگو تیم
-              <span class="text-[#9c2525] font-bold">مافیا</span>
+              گفتگو با
+              <span class="text-[#9c2525] font-bold" v-if="myRole && myRole.side === 0">تیم مافیا</span>
+              <span class="text-[#f1c529] font-bold" v-else>گرداننده</span>
             </div>
             <div
               ref="messageContainer"
@@ -364,18 +371,18 @@ let sendMessege = room_id => {
         <p class="relative bottom-1">خروج</p>
       </button>
     </div>
-
+<!--socketURL="https://websocket.godfathergame.ir"-->
     <div class="md:w-[61%]">
       <WebrtcComponent
         width="150"
         height="150"
-        socketURL="https://websocket.straiberry.com"
         @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"
         v-model:socket="socket"
+        socketURL="https://websocket.godfathergame.ir"
+        v-model:myRole="myRole"
         v-model:players="players"
-        v-model:god_video="god_video"
         v-model:myPlayer="myPlayer"
       />
     </div>

@@ -34,7 +34,6 @@ signalServer.on('discover', async (request) => {
             "token": token, "room_code": roomId, "action": "play",
             "socket_id": request.socket.id
         }).then((response) => {
-            console.log(response.data)
             let members = rooms.get(roomId);
             if (!members) {
                 members = new Set();
@@ -43,6 +42,7 @@ signalServer.on('discover', async (request) => {
             members.add(memberId);
             request.socket.join(roomId)
             request.socket.roomId = roomId;
+            console.log(Array.from(members))
             request.discover({
                 peers: Array.from(members)
             });
@@ -51,12 +51,14 @@ signalServer.on('discover', async (request) => {
             }
 
             else if(response.data["data"]["role"]){
-                console.log("User has role")
                 if(response.data["data"]["role"]["side"] === 0){
                     console.log("Add To mafia room")
                     request.socket.join(`mafia-${roomId}`);
                 }
             }
+            console.log("User id:",response.data.data["player"]["id"])
+            request.socket.join(`${response.data.data["player"]["id"]}`);
+
             io.to(roomId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
         }).catch((error) => {
@@ -103,7 +105,7 @@ io.on('connection', (socket) => {
                 if(value.data["status"] === "ok"){
                     if(value.data["data"]["message"]["receiver"]){
                         console.log("Send to",value.data["data"]["message"]["receiver"])
-                        io.to(value.data["data"]["message"]["receiver"]).emit("message",value.data["data"]["message"])
+                        io.to(`${value.data["data"]["message"]["receiver"]}`).emit("message",value.data["data"]["message"])
                     }
 
                 }
@@ -130,7 +132,6 @@ io.on('connection', (socket) => {
             axios.post(`${baseUrl}/playerinfo?secret=${godfatherSecretKey}`, {
                 "room_code": data["room"], "socket_id": socket.id,"token":data["token"]
             }).then(value => {
-                console.log(value.data)
                 io.to(data["room"]).emit("players_info", value.data)
             }).catch( (error) => {
 
