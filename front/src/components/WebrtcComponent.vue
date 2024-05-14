@@ -209,7 +209,9 @@ async function join() {
     audio: props.enableAudio
   };
 
-  socket.on("connect")
+  socket.on("connection",(d)=>{
+    console.log("Connect")
+  })
 
   socket.on("command", data => {
     console.log(data);
@@ -292,18 +294,16 @@ async function join() {
     }
   });
 
+
   if (props.deviceId && props.enableVideo) {
     constraints.video = {deviceId: {exact: props.deviceId}};
   }
   try {
     // TODO Change here
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
-
+    joinedRoom(localStream, true, socket.id);
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
-      setTimeout(()=>{
-        joinedRoom(localStream, true, socket.id);
-      },500)
       async function connectToPeer(peerID) {
         console.log("Start connecting", peerID);
         if (peerID === socket.id) return;
