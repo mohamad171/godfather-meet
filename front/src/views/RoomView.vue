@@ -172,7 +172,7 @@ let sendMessege = room_id => {
 };
 
 function exit() {
-  console.log("Exit pressed");
+  window.location.assign("https://meet.godfathergame.ir/goodbye-screen")
   socket.disconnect();
 }
 </script>

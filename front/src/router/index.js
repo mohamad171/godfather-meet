@@ -16,7 +16,7 @@ const router = createRouter({
       component: RoomView
     },
     {
-      path: "/room/:room_id/:token/goodbye-screen",
+      path: "/goodbye-screen",
       name: "goodbyeScreen",
       component: goodbyeScreen
     }
