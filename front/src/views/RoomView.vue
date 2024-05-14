@@ -74,6 +74,7 @@ function setDataPeerVideo() {
 
       var number_element = div_element.querySelector(`#peer_number`)
       if(number_element){
+        console.log(element["number"])
         number_element.html = element["number"]
       }
 
