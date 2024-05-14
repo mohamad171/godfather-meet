@@ -64,36 +64,31 @@ function setDataPeerVideo() {
     );
     if (div_element) {
       div_element.setAttribute("data-info", JSON.stringify(element));
-      if(element.room_role === "god"){
-        var video_item = div_element.querySelector("video")
-        video_item.addEventListener("loadedmetadata",()=>{
-          document.getElementById("god_video").srcObject = video_item.srcObject
-          div_element.style.display= "none"
-        })
+      if (element.room_role === "god") {
+        var video_item = div_element.querySelector("video");
+        video_item.addEventListener("loadedmetadata", () => {
+          document.getElementById("god_video").srcObject = video_item.srcObject;
+          div_element.style.display = "none";
+        });
       }
 
-      var number_element = div_element.querySelector(`#peer_number`)
-      if(number_element){
-        console.log(element["number"])
-        number_element.innerHTML = element["number"]
+      var number_element = div_element.querySelector(`#peer_number`);
+      if (number_element) {
+        console.log(element["number"]);
+        number_element.innerHTML = element["number"];
       }
-
-
     }
     if (element["socket_id"] === socket.id) {
       myPlayer.value = element;
       uistate.value.tabs[2].show = myPlayer.value["room_role"] === "god";
       if (myPlayer.value.room_role === "god") {
         socket.emit("get_actions", {room: route.params.room_id});
-
-        // div_element.
-        // div_element.style.display= "none"
       }
     }
   });
 }
 function setMyPlayer(player) {
-  myRole.value = player.role
+  myRole.value = player.role;
   console.log(myPlayer.value);
 }
 
@@ -106,9 +101,9 @@ function sendTargets() {
 }
 function updatePlayers(data) {
   socket = data["socket"];
-  setTimeout(()=>{
+  setTimeout(() => {
     setDataPeerVideo();
-  },1000)
+  }, 1000);
   socket.emit("load_messages", {room: route.params.room_id});
 
   socket.on("role", role_data => {
@@ -176,10 +171,9 @@ let sendMessege = room_id => {
   }
 };
 
-function exit(){
-  console.log("Exit pressed")
-  socket.disconnect()
-
+function exit() {
+  console.log("Exit pressed");
+  socket.disconnect();
 }
 </script>
 <template>
@@ -229,7 +223,11 @@ function exit(){
           <TabPanel class="h-[100%]">
             <div class="text-[22px] m-3 mr-4">
               گفتگو با
-              <span class="text-[#9c2525] font-bold" v-if="myRole && myRole.side === 0">تیم مافیا</span>
+              <span
+                class="text-[#9c2525] font-bold"
+                v-if="myRole && myRole.side === 0"
+                >تیم مافیا</span
+              >
               <span class="text-[#f1c529] font-bold" v-else>گرداننده</span>
             </div>
             <div
@@ -273,7 +271,7 @@ function exit(){
                 class="card flex justify-content-center absolute left-[17%] bottom-[17%]"
               >
                 <select
-                 v-if="myPlayer.room_role === 'god'"
+                  v-if="myPlayer.room_role === 'god'"
                   v-model="selectedPlayer"
                   class="w-[120px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]"
                 >
@@ -341,16 +339,34 @@ function exit(){
                 >
                   <td>{{ action.id }}</td>
                   <td>
-                    <p>{{action.player.profile.user.first_name}} {{action.player.profile.user.last_name}}</p>
-                    <small v-if="action.player.role">{{action.player.role.name}} ({{action.player.role.side}})</small>
-                    <small class="text-gray-400">#{{action.player.profile.unique_id}}</small>
+                    <p>
+                      {{ action.player.profile.user.first_name }}
+                      {{ action.player.profile.user.last_name }}
+                    </p>
+                    <small v-if="action.player.role"
+                      >{{ action.player.role.name }} ({{
+                        action.player.role.side
+                      }})</small
+                    >
+                    <small class="text-gray-400"
+                      >#{{ action.player.profile.unique_id }}</small
+                    >
                   </td>
                   <td>
-                    <p>{{action.target.profile.user.first_name}} {{action.target.profile.user.last_name}}</p>
-                    <small v-if="action.target.role">{{action.target.role.name}} ({{action.target.role.side}})</small>
-                    <small class="text-gray-400">#{{action.target.profile.unique_id}}</small>
+                    <p>
+                      {{ action.target.profile.user.first_name }}
+                      {{ action.target.profile.user.last_name }}
+                    </p>
+                    <small v-if="action.target.role"
+                      >{{ action.target.role.name }} ({{
+                        action.target.role.side
+                      }})</small
+                    >
+                    <small class="text-gray-400"
+                      >#{{ action.target.profile.unique_id }}</small
+                    >
                   </td>
-                  <td>{{action.time }}</td>
+                  <td>{{ action.time }}</td>
                 </tr>
               </table>
             </div>
@@ -380,7 +396,7 @@ function exit(){
         <p class="relative bottom-1">خروج</p>
       </button>
     </div>
-<!--socketURL="https://websocket.godfathergame.ir"-->
+    <!--socketURL="https://websocket.godfathergame.ir"-->
     <div class="md:w-[61%]">
       <WebrtcComponent
         width="150"
