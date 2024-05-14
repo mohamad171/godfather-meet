@@ -177,6 +177,7 @@ let sendMessege = room_id => {
 };
 
 function exit(){
+  console.log("Exit pressed")
   socket.disconnect()
 
 }
