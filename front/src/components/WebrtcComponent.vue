@@ -301,7 +301,9 @@ async function join() {
 
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
-      joinedRoom(localStream, true, socket.id);
+      setTimeout(()=>{
+        joinedRoom(localStream, true, socket.id);
+      },500)
       async function connectToPeer(peerID) {
         console.log("Start connecting", peerID);
         if (peerID === socket.id) return;
