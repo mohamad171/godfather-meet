@@ -199,6 +199,8 @@ async function join() {
     audio: props.enableAudio
   };
 
+  socket.on("connect")
+
   socket.on("command", data => {
     console.log(data);
     var div_element = document.querySelector(
@@ -277,11 +279,10 @@ async function join() {
   try {
     // TODO Change here
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    console.log(localStream, "Streammmm");
-    joinedRoom(localStream, true, socket.id);
+
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
-
+      joinedRoom(localStream, true, socket.id);
       async function connectToPeer(peerID) {
         console.log("Start connecting", peerID);
         if (peerID === socket.id) return;
@@ -305,10 +306,7 @@ async function join() {
 
       discoveryData.peers.forEach(peerID => connectToPeer(peerID));
     });
-  } catch (error) {
-    console.log("Error accessing media devices:", error);
-  }
-  signalClient.on("request", async request => {
+    signalClient.on("request", async request => {
     const {peer} = await request.accept(request.initiator, {
       initiator: request.initiator
     });
@@ -320,7 +318,11 @@ async function join() {
       }
     });
   });
-  signalClient.discover({room: props.roomId, token: props.token});
+    signalClient.discover({room: props.roomId, token: props.token});
+  } catch (error) {
+    console.log("Error accessing media devices:", error);
+  }
+
 }
 function onPeer(peer, localStream) {
   peer.addStream(localStream);
