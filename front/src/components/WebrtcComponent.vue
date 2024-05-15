@@ -359,6 +359,7 @@ function onPeer(peer, localStream) {
   peer.on("stream", remoteStream => {
     console.log("Stream", remoteStream);
     joinedRoom(remoteStream, false, peer["socket_id"]);
+
     peer.on("close", () => {
       videoList.value = videoList.value.filter(item => item.id !== remoteStream.id);
       emit("left-room", remoteStream.id);
@@ -390,7 +391,7 @@ function joinedRoom(stream, isLocal, socketId) {
         videos.value[i].autoplay = props.autoplay;
       }
     }
-  }, 2000);
+  }, 500);
 }
 
 function log(message, data = null) {
