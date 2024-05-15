@@ -84,9 +84,6 @@ function setDataPeerVideo() {
       if (myPlayer.value.room_role === "god") {
         socket.emit("get_actions", {room: route.params.room_id});
       }
-    }else{
-      console.log(element)
-
     }
   });
 }
