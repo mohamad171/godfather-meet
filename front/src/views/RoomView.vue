@@ -108,7 +108,7 @@ function updatePlayers(data) {
   socket = data["socket"];
   setTimeout(() => {
     setDataPeerVideo();
-  }, 1000);
+  }, 2500);
   socket.emit("load_messages", {room: route.params.room_id});
 
   socket.on("role", role_data => {

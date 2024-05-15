@@ -391,7 +391,7 @@ function joinedRoom(stream, isLocal, socketId) {
         videos.value[i].autoplay = props.autoplay;
       }
     }
-  }, 500);
+  }, 2000);
 }
 
 function log(message, data = null) {
