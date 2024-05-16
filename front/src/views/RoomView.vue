@@ -82,16 +82,16 @@ function setDataPeerVideo() {
       }
       console.log(element)
 
-      if(!element.voice){
-        document.getElementById(`${element["socket_id"]}_mute`).style.display = "block"
-      }else{
+      if(element.voice){
         document.getElementById(`${element["socket_id"]}_mute`).style.display = "none"
+      }else{
+        document.getElementById(`${element["socket_id"]}_mute`).style.display = "block"
       }
 
-      if(!element.video){
-        document.getElementById(`${element["socket_id"]}_video_mute`).style.display = "block"
-      }else{
+      if(element.video){
         document.getElementById(`${element["socket_id"]}_video_mute`).style.display = "none"
+      }else{
+        document.getElementById(`${element["socket_id"]}_video_mute`).style.display = "block"
       }
 
     }else{
