@@ -80,6 +80,7 @@ function setDataPeerVideo() {
         console.log(element["number"]);
         number_element.innerHTML = element["number"];
       }
+      console.log(element)
 
       if(!element.voice){
         document.getElementById(`${element["socket_id"]}_mute`).style.display = "block"
