@@ -291,7 +291,7 @@ async function join() {
 
     if (data["status"]) {
       playerStatus.value.showPreLoader = false;
-      // myRole.value = data.data.data.role
+      myRole.value = data.data.data.role
       socket.emit("load_messages", {room: props.roomId});
 
 

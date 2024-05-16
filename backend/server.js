@@ -59,7 +59,7 @@ signalServer.on('discover', async (request) => {
             console.log("User id:",response.data.data["player"]["id"])
             request.socket.join(`${response.data.data["player"]["id"]}`);
 
-            io.to(roomId).emit("join_game", {"status": true, "data": response.data})
+            io.to(memberId).emit("join_game", {"status": true, "data": response.data})
             log('joined ' + roomId + ' ' + memberId)
         }).catch((error) => {
             io.to(request.socket.id).emit("join_game", {"status": false, "data": "Invalid token"})
