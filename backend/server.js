@@ -118,7 +118,8 @@ io.on('connection', (socket) => {
 
         if (socket.rooms.has(data["room"])) {
             axios.post(`${baseUrl}/command?secret=${godfatherSecretKey}`, {
-                "room_code": data["room"], "socket_id": socket.id,"command":data["command"]
+                "room_code": data["room"], "socket_id": socket.id,"command":data["command"],
+                "target_socket_id": (data.has("target_socket_id")) ? data["target_socket_id"] : null
             }).then(value => {
                 io.to(data["room"]).emit("command", data)
             }).catch( (error) => {
