@@ -116,6 +116,7 @@ function updatePlayers(data) {
   });
 
   socket.on("message", message => {
+    console.log("message")
     messages.value.push(
       new messageModel(
         message.message,
@@ -129,6 +130,7 @@ function updatePlayers(data) {
     }, 100);
   });
   socket.on("load_messages", data => {
+    console.log("Load messages",data)
     for (var i = 0; i < data.data.messages.length; i++) {
       var message = data.data.messages[i];
       messages.value.push(
