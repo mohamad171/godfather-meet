@@ -109,8 +109,6 @@ function updatePlayers(data) {
   setTimeout(() => {
     setDataPeerVideo();
   }, 2500);
-  socket.emit("load_messages", {room: route.params.room_id});
-
   socket.on("role", role_data => {
     setMyPlayer(role_data);
   });
@@ -164,6 +162,7 @@ function setRoles(room_id) {
 }
 
 let sendMessege = room_id => {
+  console.log("Call send message")
   let newMessege = messegeInput.value.value;
   messegeInput.value.value = "";
   if (myPlayer.value.room_role === "god") {

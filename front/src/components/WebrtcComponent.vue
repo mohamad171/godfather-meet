@@ -292,6 +292,8 @@ async function join() {
     if (data["status"]) {
       playerStatus.value.showPreLoader = false;
       myRole.value = data.data.data.role
+      socket.emit("load_messages", {room: props.roomId});
+
     } else {
       playerStatus.value.showPreLoader = false;
       playerStatus.value.Error = true;
