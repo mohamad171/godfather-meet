@@ -104,16 +104,12 @@ function sendTargets() {
   });
   targetIds.value = [];
 }
-function updatePlayers(data) {
-  socket = data["socket"];
-  setTimeout(() => {
-    setDataPeerVideo();
-  }, 2500);
-  socket.on("role", role_data => {
-    setMyPlayer(role_data);
-  });
 
-  socket.on("message", message => {
+var is_socket_init = false;
+
+function initSocket(){
+  if(!is_socket_init){
+    socket.on("message", message => {
     console.log("message")
     messages.value.push(
       new messageModel(
@@ -127,32 +123,48 @@ function updatePlayers(data) {
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
     }, 100);
   });
-  socket.on("load_messages", data => {
-    console.log("Load messages",data)
-    for (var i = 0; i < data.data.messages.length; i++) {
-      var message = data.data.messages[i];
-      messages.value.push(
-        new messageModel(
-          message.message,
-          message.sender.number,
-          message.sender.role ? message.sender.role.name : null,
-          message.sender.profile.user.first_name
-        )
-      );
-    }
-
-    setTimeout(() => {
-      if (messageContainer.value !== null) {
-        messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+    socket.on("load_messages", data => {
+      console.log("Load messages",data)
+      for (var i = 0; i < data.data.messages.length; i++) {
+        var message = data.data.messages[i];
+        messages.value.push(
+          new messageModel(
+            message.message,
+            message.sender.number,
+            message.sender.role ? message.sender.role.name : null,
+            message.sender.profile.user.first_name
+          )
+        );
       }
-    }, 100);
-  });
 
-  socket.on("actions", data => {
-    actions.value = data.actions;
-    console.log(actions.value);
-  });
+      setTimeout(() => {
+        if (messageContainer.value !== null) {
+          messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+        }
+      }, 100);
+    });
+
+    socket.on("actions", data => {
+      actions.value = data.actions;
+      console.log(actions.value);
+    });
+    is_socket_init = true;
+  }
+
 }
+
+function updatePlayers(data) {
+  socket = data["socket"];
+  setTimeout(() => {
+    setDataPeerVideo();
+  }, 2500);
+  socket.on("role", role_data => {
+    setMyPlayer(role_data);
+  });
+  initSocket()
+}
+
+
 
 function setRoles(room_id) {
   if (socket) {
