@@ -198,6 +198,24 @@ function muteVideo(peer_id) {
   });
 }
 
+function kill(peer_id,target_peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    target_socket_id: target_peer_id,
+    command: "kill"
+  });
+}
+
+function revive(peer_id,target_peer_id) {
+  socket.emit("command", {
+    room: props.roomId,
+    peer: peer_id,
+    target_socket_id: target_peer_id,
+    command: "revive"
+  });
+}
+
 function unmuteVideo(peer_id) {
   socket.emit("command", {
     room: props.roomId,
@@ -258,6 +276,12 @@ async function join() {
         case "unmute_video":
           document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
           break;
+        case "kill":
+          document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
+          break;
+        case "revive":
+          document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
+          break;
       }
     } else {
       console.log("div el not recognized");
@@ -268,11 +292,6 @@ async function join() {
     if (data["status"]) {
       playerStatus.value.showPreLoader = false;
       myRole.value = data.data.data.role
-      socket.emit("players_info", {
-        room: props.roomId,
-        socket_id: socket.id,
-        token: props.token
-      });
     } else {
       playerStatus.value.showPreLoader = false;
       playerStatus.value.Error = true;
@@ -391,10 +410,12 @@ function joinedRoom(stream, isLocal, socketId) {
       }
     }
 
-    emit("update_players", {
-        players: players,
-        socket: socket
+    socket.emit("players_info", {
+        room: props.roomId,
+        socket_id: socket.id,
+        token: props.token
       });
+
   }, 2000);
 }
 
@@ -482,7 +503,7 @@ join();
         ></video>
       </div>
       <!-- 16th container -->
-      <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
+      <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%] deadPlayer">
         <div
             class="w-[23%] h-[100%] max-h-[23%] rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
             v-for="(video, index) in videoList"
