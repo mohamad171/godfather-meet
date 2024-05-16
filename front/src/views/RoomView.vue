@@ -67,12 +67,13 @@ function setDataPeerVideo() {
       console.log(element["room_role"])
       if (element["room_role"] === "god") {
         var video_item = div_element.querySelector("video");
-        console.log(video_item)
-        video_item.addEventListener("loadedmetadata", () => {
+        if(video_item){
+          console.log(video_item)
           document.getElementById("god_video").srcObject = video_item.srcObject;
           div_element.style.display = "none";
-          console.log("Set video to god video")
-        });
+        }
+
+
 
 
       }
