@@ -503,7 +503,7 @@ join();
         ></video>
       </div>
       <!-- 16th container -->
-      <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%] deadPlayer">
+      <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
         <div
             class="w-[23%] h-[100%] max-h-[23%] rounded-lg relative md:w-[19%] md:min-h-[30%] md:my-2"
             v-for="(video, index) in videoList"
