@@ -89,9 +89,9 @@ function setDataPeerVideo() {
       }
 
       if(!element.video){
-        document.getElementById(`${element["socket_id"]}_video`).style.display = "block"
+        document.getElementById(`${element["socket_id"]}_video_mute`).style.display = "block"
       }else{
-        document.getElementById(`${element["socket_id"]}_video`).style.display = "none"
+        document.getElementById(`${element["socket_id"]}_video_mute`).style.display = "none"
       }
 
     }else{
