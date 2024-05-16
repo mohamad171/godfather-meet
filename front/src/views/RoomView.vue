@@ -80,6 +80,19 @@ function setDataPeerVideo() {
         console.log(element["number"]);
         number_element.innerHTML = element["number"];
       }
+
+      if(!element.voice){
+        document.getElementById(`${element["socket_id"]}_mute`).style.display = "block"
+      }else{
+        document.getElementById(`${element["socket_id"]}_mute`).style.display = "none"
+      }
+
+      if(!element.video){
+        document.getElementById(`${element["socket_id"]}_video`).style.display = "block"
+      }else{
+        document.getElementById(`${element["socket_id"]}_video`).style.display = "none"
+      }
+
     }else{
       console.log("Div element not found")
     }
