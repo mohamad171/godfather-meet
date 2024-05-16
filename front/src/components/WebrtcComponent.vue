@@ -371,7 +371,6 @@ function onPeer(peer, localStream) {
 }
 
 function joinedRoom(stream, isLocal, socketId) {
-  console.log(`${socketId} join`, stream, isLocal)
   const found = videoList.value.find(video => video.id === stream.id);
   if (found === undefined) {
     const video = {
@@ -391,6 +390,11 @@ function joinedRoom(stream, isLocal, socketId) {
         videos.value[i].autoplay = props.autoplay;
       }
     }
+
+    emit("update_players", {
+        players: players,
+        socket: socket
+      });
   }, 2000);
 }
 
