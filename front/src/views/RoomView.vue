@@ -63,8 +63,11 @@ onMounted(() => {
 });
 
 function setGodVideo(){
-  var elements = document.querySelector("div[data-socketid]")
-  console.log(elements)
+  document.querySelectorAll("div[data-socketid]").forEach( element => {
+    var info = JSON.parse(element.getAttribute("data-info"))
+    console.log("All video items info",info)
+  })
+
 
 }
 
