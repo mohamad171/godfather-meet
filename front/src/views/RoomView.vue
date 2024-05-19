@@ -63,7 +63,7 @@ onMounted(() => {
 });
 
 function setGodVideo(){
-  document.querySelectorAll("div[data-socketid]").forEach( element => {
+  document.querySelectorAll("div[data-info]").forEach( element => {
     var info = JSON.parse(element.getAttribute("data-info"))
     if(info["room_role"] === "god"){
       var video_item = element.querySelector("video");
