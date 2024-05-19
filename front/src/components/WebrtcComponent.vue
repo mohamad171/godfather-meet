@@ -270,11 +270,21 @@ async function join() {
           document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
           break;
         case "kill":
-          console.log(data)
+          var div_element = document.querySelector(
+          "div[data-socketid='" + data["target_socket_id"] + "']"
+          );
+          if(div_element){
+            div_element.querySelector("video").classList.add("deadPlayer");
+          }
           document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
           break;
         case "revive":
-          document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
+          var div_element = document.querySelector(
+          "div[data-socketid='" + data["target_socket_id"] + "']"
+          );
+          if(div_element){
+            div_element.querySelector("video").classList.remove("deadPlayer");
+          }
           break;
       }
     } else {
