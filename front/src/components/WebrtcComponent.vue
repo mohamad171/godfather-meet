@@ -287,7 +287,7 @@ async function join() {
           break;
           case "kick":
             if(data["target_socket_id"] === socket.id.toString()){
-              signalClient.disconnect();
+              signalClient.destroy();
             }
             break;
       }
