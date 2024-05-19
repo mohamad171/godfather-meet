@@ -71,6 +71,8 @@ function setGodVideo(){
           document.getElementById("god_video").srcObject = video_item.srcObject;
           element.style.display = "none";
         }
+    }else{
+      console.log(info)
     }
 
   })
