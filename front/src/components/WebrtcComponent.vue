@@ -287,7 +287,10 @@ async function join() {
           break;
           case "kick":
             if(data["target_socket_id"] === socket.id.toString()){
+              // TODO Secure here
               signalClient.destroy();
+              window.location.assign("https://meet.godfathergame.ir/goodbye-screen")
+              socket.disconnect();
             }
             break;
       }
