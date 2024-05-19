@@ -69,17 +69,17 @@ function setDataPeerVideo() {
     );
     if (div_element) {
       div_element.setAttribute("data-info", JSON.stringify(element));
-      console.log(element["room_role"])
-      if (element["room_role"] === "god") {
-        var video_item = div_element.querySelector("video");
-        if (video_item) {
-          console.log(video_item)
-          document.getElementById("god_video").srcObject = video_item.srcObject;
-          div_element.style.display = "none";
-        }
-
-
-      }
+      // console.log(element["room_role"])
+      // if (element["room_role"] === "god") {
+      //   var video_item = div_element.querySelector("video");
+      //   if (video_item) {
+      //     console.log(video_item)
+      //     document.getElementById("god_video").srcObject = video_item.srcObject;
+      //     div_element.style.display = "none";
+      //   }
+      //
+      //
+      // }
 
       var number_element = div_element.querySelector(`#peer_number`);
       if (number_element) {
