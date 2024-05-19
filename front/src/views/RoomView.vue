@@ -62,6 +62,13 @@ onMounted(() => {
   }, 2000);
 });
 
+function setGodVideo(){
+  document.querySelector("div[data-socketid]").forEach(element => {
+    console.log(element)
+  })
+
+}
+
 function setDataPeerVideo() {
   players.value.forEach(element => {
     var div_element = document.querySelector(
@@ -83,8 +90,6 @@ function setDataPeerVideo() {
         console.log(element["number"]);
         number_element.innerHTML = element["number"];
       }
-      console.log(element)
-
       // if(element.voice){
       //   document.getElementById(`${element["socket_id"]}_mute`).style.display = "none"
       // }else{
@@ -107,6 +112,8 @@ function setDataPeerVideo() {
         socket.emit("get_actions", {room: route.params.room_id});
       }
     }
+
+    setGodVideo()
   });
 }
 
