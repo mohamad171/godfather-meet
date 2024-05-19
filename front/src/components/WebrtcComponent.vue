@@ -200,21 +200,12 @@ function muteVideo(peer_id) {
   });
 }
 
-function kill(peer_id,target_peer_id) {
+function GodPlayerAction(command,target_peer_id) {
   socket.emit("command", {
     room: props.roomId,
-    peer: peer_id,
+    peer: socket.id,
     target_socket_id: target_peer_id,
-    command: "kill"
-  });
-}
-
-function revive(peer_id,target_peer_id) {
-  socket.emit("command", {
-    room: props.roomId,
-    peer: peer_id,
-    target_socket_id: target_peer_id,
-    command: "revive"
+    command: command
   });
 }
 
@@ -440,9 +431,9 @@ let showActionPanel = event => {
   let parentDiv = el.parentElement;
   parentDiv.querySelector("#actionPanel").classList.toggle("hidden");
 };
-let actionIndetifier = event => {
-  console.log(event.target.textContent);
-};
+function actionIndetifier(command,target_socket_id) {
+ GodPlayerAction(command,target_socket_id)
+}
 join();
 </script>
 
@@ -591,17 +582,17 @@ join();
           >
             <span
                 class="hover:bg-[#333333] transition-all cursor-pointer"
-                @click="actionIndetifier"
+                @click="actionIndetifier('kill',video.socketId)"
             >کشتن</span
             >
             <span
                 class="hover:bg-[#333333] transition-all cursor-pointer"
-                @click="actionIndetifier"
-            >تارگت</span
+                @click="actionIndetifier('revive',video.socketId)"
+            >بازگرداندن</span
             >
             <span
                 class="hover:bg-[#333333] transition-all cursor-pointer"
-                @click="actionIndetifier"
+                @click="actionIndetifier('kick',video.socketId)"
             >کیک</span
             >
           </div>
