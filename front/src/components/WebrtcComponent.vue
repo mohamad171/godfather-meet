@@ -274,16 +274,15 @@ async function join() {
           "div[data-socketid='" + data["target_socket_id"] + "']"
           );
           if(div_element){
-            div_element.querySelector("video").classList.add("deadPlayer");
+            div_element.classList.add("deadPlayer");
           }
-          document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
           break;
         case "revive":
           var div_element = document.querySelector(
           "div[data-socketid='" + data["target_socket_id"] + "']"
           );
           if(div_element){
-            div_element.querySelector("video").classList.remove("deadPlayer");
+            div_element.classList.remove("deadPlayer");
           }
           break;
       }
