@@ -121,6 +121,14 @@ io.on('connection', (socket) => {
                 "room_code": data["room"], "socket_id": socket.id,"command":data["command"],
                 "target_socket_id": ("target_socket_id" in data) ? data["target_socket_id"] : null
             }).then(value => {
+                if(data["command"] === "kick"){
+                    io.in(data["room"]).fetchSockets().then(s => {
+                        if(s.id == data["target_socket_id"]){
+                            s.leave(data["room"])
+                            s.disconnect()
+                        }
+                    })
+                }
                 io.to(data["room"]).emit("command", data)
             }).catch( (error) => {
 
