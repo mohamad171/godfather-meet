@@ -362,6 +362,7 @@ async function join() {
       discoveryData.peers.forEach(peerID => connectToPeer(peerID));
     });
     signalClient.on("request", async request => {
+      console.log("Request",request)
     const {peer} = await request.accept(request.initiator, {
       initiator: request.initiator
     });
