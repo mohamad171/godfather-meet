@@ -65,7 +65,13 @@ onMounted(() => {
 function setGodVideo(){
   document.querySelectorAll("div[data-socketid]").forEach( element => {
     var info = JSON.parse(element.getAttribute("data-info"))
-    console.log("All video items info",info)
+    if(info.room_role === "god"){
+      var video_item = element.querySelector("video");
+        if (video_item) {
+          document.getElementById("god_video").srcObject = video_item.srcObject;
+        }
+    }
+
   })
 
 
@@ -78,15 +84,6 @@ function setDataPeerVideo() {
     );
     if (div_element) {
       div_element.setAttribute("data-info", JSON.stringify(element));
-      if (element["room_role"] === "god") {
-        var video_item = div_element.querySelector("video");
-        if (video_item) {
-          console.log(video_item)
-          document.getElementById("god_video").srcObject = video_item.srcObject;
-          // div_element.style.display = "none";
-        }
-      }
-
       var number_element = div_element.querySelector(`#peer_number`);
       if (number_element) {
         console.log(element["number"]);
