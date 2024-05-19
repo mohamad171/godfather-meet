@@ -69,6 +69,7 @@ function setGodVideo(){
       var video_item = element.querySelector("video");
         if (video_item) {
           document.getElementById("god_video").srcObject = video_item.srcObject;
+          element.style.display = "none";
         }
     }
 
