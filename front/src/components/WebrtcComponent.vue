@@ -42,7 +42,7 @@ var props = defineProps({
     type: Object,
     default() {
       return {
-        config:{iceServers:[{urls:'stun:185.239.106.141:3478',username:"godfather",credential:"GodfatherMeet"}]}
+
       };
     }
   },
