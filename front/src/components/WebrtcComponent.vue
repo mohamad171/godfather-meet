@@ -285,6 +285,11 @@ async function join() {
             div_element.classList.remove("deadPlayer");
           }
           break;
+          case "kick":
+            if(data["target_socket_id"] === socket.id.toString()){
+              signalClient.disconnect();
+            }
+            break;
       }
     } else {
       console.log("div el not recognized");
@@ -361,6 +366,7 @@ async function join() {
       console.log(discoveryData.peers,"Peers")
       discoveryData.peers.forEach(peerID => connectToPeer(peerID));
     });
+
     signalClient.on("request", async request => {
       console.log("Request",request)
     const {peer} = await request.accept(request.initiator, {
