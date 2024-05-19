@@ -279,6 +279,7 @@ async function join() {
           document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
           break;
         case "kill":
+          console.log(data)
           document.getElementById(`${data["peer"]}_video_mute`).style.display = "none"
           break;
         case "revive":
