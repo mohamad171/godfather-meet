@@ -416,6 +416,7 @@ function joinedRoom(stream, isLocal, socketId) {
         videos.value[i].autoplay = props.autoplay;
       }
     }
+    console.log("Finish for loop")
 
     socket.emit("players_info", {
         room: props.roomId,
@@ -423,7 +424,7 @@ function joinedRoom(stream, isLocal, socketId) {
         token: props.token
       });
 
-  }, 2000);
+  }, 1500);
 }
 
 function log(message, data = null) {
