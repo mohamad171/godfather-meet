@@ -123,7 +123,8 @@ io.on('connection', (socket) => {
             }).then(value => {
                 if(data["command"] === "kick"){
                     io.in(data["room"]).fetchSockets().then(s => {
-                        if(s.id == data["target_socket_id"]){
+                        console.log(s.id,data["target_socket_id"])
+                        if(s.id === data["target_socket_id"]){
                             s.leave(data["room"])
                             s.disconnect()
                         }
