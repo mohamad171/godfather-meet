@@ -74,7 +74,7 @@ function setDataPeerVideo() {
         if (video_item) {
           console.log(video_item)
           document.getElementById("god_video").srcObject = video_item.srcObject;
-          div_element.style.display = "none";
+          // div_element.style.display = "none";
         }
       }
 
