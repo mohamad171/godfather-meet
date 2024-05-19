@@ -72,7 +72,9 @@ function setGodVideo(){
           element.style.display = "none";
         }
     }else{
-      console.log(info)
+      if(!info["is_alive"]){
+        element.classList.add("deadPlayer")
+      }
     }
 
   })
