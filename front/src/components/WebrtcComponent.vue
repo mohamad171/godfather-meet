@@ -49,7 +49,7 @@ var props = defineProps({
     default() {
       return {
         rejectUnauthorized: false,
-        transports: ["websocket","polling"]
+        transports: ["websocket", "polling"]
       };
     }
   },
@@ -332,12 +332,12 @@ async function join() {
   try {
     // TODO Change here
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    socket.on("connect",()=>{
-      console.log("Connect")
+    console.log("After get user media");
+    socket.on("connect", () => {
+      console.log("Connect");
+      console.log("Connect");
       signalClient.discover({room: props.roomId, token: props.token});
-
-
-    })
+    });
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
       joinedRoom(localStream, true, socket.id);
@@ -545,10 +545,11 @@ join();
               <p id="nameHolder"></p>
               <p id="IdHolder"></p>
             </div>
-            <Popover class="relative">
+            <Popover
+              class="relative"
+              v-if="myPlayer && myPlayer.room_role === 'god'">
               <PopoverButton @click.prevent="onVideoClick">
                 <img
-                  v-if="true"
                   src="/threeDots.svg"
                   class="z-50 w-[15px] absolute top-0 cursor-pointer right-2"
               /></PopoverButton>
@@ -684,4 +685,4 @@ video {
   border-width: 2px;
 }
 </style>
-<!-- v-if="myPlayer && myPlayer.room_role === 'god'" -->
+<!--  -->
