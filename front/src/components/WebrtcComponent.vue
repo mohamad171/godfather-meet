@@ -333,12 +333,7 @@ async function join() {
     // TODO Change here
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
     console.log("After get user media");
-
-  } catch (error) {
-    console.log("Error accessing media devices:", error);
-  }
-
-  socket.on("connect", () => {
+    socket.on("connect", () => {
       console.log("Connect");
       console.log("Connect");
       signalClient.discover({room: props.roomId, token: props.token});
@@ -384,6 +379,12 @@ async function join() {
         }
       });
     });
+
+  } catch (error) {
+    console.log("Error accessing media devices:", error);
+  }
+
+
 }
 
 function onPeer(peer, localStream) {
