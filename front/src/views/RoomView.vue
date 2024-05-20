@@ -412,7 +412,7 @@ function exit() {
         <p class="relative bottom-1">خروج</p>
       </button>
     </div>
-    <!--socketURL="https://websocket.godfathergame.ir"-->
+    <!--socketURL="wss://websocket.godfathergame.ir"-->
     <div class="md:w-[61%]">
       <WebrtcComponent
         width="150"

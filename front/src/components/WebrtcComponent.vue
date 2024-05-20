@@ -11,7 +11,7 @@ var props = defineProps({
   },
   socketURL: {
     type: String,
-    default: "http://localhost:3000"
+    default: "ws://localhost:3000"
     // default: "https://websocket.straiberry.com"
   },
   cameraHeight: {
@@ -333,7 +333,12 @@ async function join() {
     // TODO Change here
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
     console.log("After get user media");
-    socket.on("connect", () => {
+
+  } catch (error) {
+    console.log("Error accessing media devices:", error);
+  }
+
+  socket.on("connect", () => {
       console.log("Connect");
       console.log("Connect");
       signalClient.discover({room: props.roomId, token: props.token});
@@ -379,9 +384,6 @@ async function join() {
         }
       });
     });
-  } catch (error) {
-    console.log("Error accessing media devices:", error);
-  }
 }
 
 function onPeer(peer, localStream) {
