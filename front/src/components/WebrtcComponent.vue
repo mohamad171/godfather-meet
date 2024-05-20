@@ -51,7 +51,7 @@ var props = defineProps({
     default() {
       return {
         rejectUnauthorized: false,
-        transports: ["polling", "websocket"]
+        transports: ["websocket","polling"]
       };
     }
   },
