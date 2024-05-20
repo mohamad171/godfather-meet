@@ -1,9 +1,12 @@
 <script setup>
+import Toast from "primevue/toast";
+import {useToast} from "primevue/usetoast";
 import {ref} from "vue";
 import {io} from "socket.io-client";
 import "fast-crypto";
 import SimpleSignalClient from "simple-signal-client";
 import {Popover, PopoverButton, PopoverPanel} from "@headlessui/vue";
+const toast = useToast();
 var props = defineProps({
   roomId: {
     type: String,
@@ -379,12 +382,9 @@ async function join() {
         }
       });
     });
-
   } catch (error) {
     console.log("Error accessing media devices:", error);
   }
-
-
 }
 
 function onPeer(peer, localStream) {
@@ -475,6 +475,15 @@ join();
       <div
         class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]">
         <video
+          @click="
+            toast.add({
+              severity: 'info',
+              summary: 'Info',
+              detail: 'Message Content',
+              life: 3000,
+              group: 'tl'
+            })
+          "
           style="width: 100%; height: 100%; object-fit: cover"
           class="absolute bottom-0"
           id="god_video"
@@ -532,7 +541,6 @@ join();
                 d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7l-86.4-67.7 13.8 9.2c9.8 6.5 22.4 7.2 32.9 1.6s16.9-16.4 16.9-28.2V128c0-11.8-6.5-22.6-16.9-28.2s-23-5-32.9 1.6l-96 64L448 174.9V192 320v5.8l-32-25.1V128c0-35.3-28.7-64-64-64H113.9L38.8 5.1zM407 416.7L32.3 121.5c-.2 2.1-.3 4.3-.3 6.5V384c0 35.3 28.7 64 64 64H352c23.4 0 43.9-12.6 55-31.3z" />
             </svg>
           </div>
-
           <div
             id="numberHolder"
             class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute">
@@ -548,19 +556,18 @@ join();
               <p id="nameHolder"></p>
               <p id="IdHolder"></p>
             </div>
-            <Popover
-              class="relative"
-              v-if="myPlayer && myPlayer.room_role === 'god'">
-              <PopoverButton @click.prevent="onVideoClick">
-                <img
-                  src="/threeDots.svg"
-                  class="z-50 w-[15px] absolute top-0 cursor-pointer right-2"
+            <img
+              @click="fullScreen(video.id)"
+              src="/expand.svg"
+              alt=""
+              class="w-[18px] absolute bottom-1 right-1" />
+            <Popover v-if="myPlayer && myPlayer.room_role === 'god'">
+              <PopoverButton
+                class="z-50 w-[15px] absolute top-0 cursor-pointer right-2 focus:outline-none">
+                <img src="/threeDots.svg"
               /></PopoverButton>
               <PopoverPanel
-                class="absolute bg-black z-50 top-[15px] flex flex-col w-[80px] rounded-lg right-[-50px] *:p-1 overflow-hidden"
-                id="actionPanel"
-                @click.prevent="onVideoClick(`${video.socketId}`)">
-                >
+                class="absolute bg-black z-50 top-[15px] flex flex-col w-[100px] rounded-lg right-[-50px] *:p-1 overflow-hidden">
                 <span
                   class="hover:bg-[#333333] transition-all cursor-pointer"
                   @click="actionIndetifier('kill', video.socketId)"
@@ -578,11 +585,6 @@ join();
                 >
               </PopoverPanel>
             </Popover>
-            <img
-              @click="fullScreen(video.id)"
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1" />
           </div>
           <video
             class="w-[100%] h-[100%]"
@@ -661,13 +663,13 @@ join();
       </div>
     </div>
   </div>
+  <Toast position="bottom-right" group="tl" class="test" />
 </template>
 
 <style scoped>
-.flex-center {
-  @apply flex items-center justify-center;
+.p-toast {
+  @apply !bg-white;
 }
-
 video {
   width: 100%;
 }
