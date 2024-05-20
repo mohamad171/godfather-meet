@@ -339,12 +339,13 @@ async function join() {
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
     socket.on("connect",()=>{
       console.log("Connect")
-      joinedRoom(localStream, true, socket.id);
       signalClient.discover({room: props.roomId, token: props.token});
+
 
     })
     signalClient.once("discover", discoveryData => {
       console.log("discovered", discoveryData);
+      joinedRoom(localStream, true, socket.id);
       async function connectToPeer(peerID) {
         console.log("Start connecting", peerID);
         if (peerID === socket.id) return;
