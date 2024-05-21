@@ -173,6 +173,7 @@ io.on("connection", socket => {
         })
         .then(value => {
           console.log(value.data);
+          console.log("Sending messages to: "+socket.id);
           io.to(socket.id).emit("load_messages", value.data);
           console.log("After emit")
         })
