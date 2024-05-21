@@ -173,7 +173,8 @@ io.on("connection", socket => {
         })
         .then(value => {
           console.log(value.data);
-          socket.emit("load_messages", value.data);
+          io.to(socket.id).emit("load_messages", value.data);
+          console.log("After emit")
         })
         .catch(error => {});
     }
