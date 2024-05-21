@@ -327,7 +327,7 @@ function exit() {
               <p class="mr-2 text-[20px] mb-1">تارگت خود را انتخاب کنید</p>
               <div class="flex flex-wrap w-[90%] pr-[4%] justify-between">
                 <label
-                  v-for="item in players"
+                  v-for="item in players.filter((e) => e.room_role !== 'god' && e.is_alive)"
                   class="my-[5px] container2 w-[45%] flex items-center">
                   <input type="checkbox" :value="item.id" v-model="targetIds" />
                   <span class="checkmark"></span>
