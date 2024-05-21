@@ -147,6 +147,7 @@ function initSocket() {
         messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
       }, 100);
     });
+    console.log("Start listening to load_messages")
     socket.on("load_messages", data => {
       console.log("Load messages", data);
       for (var i = 0; i < data.data.messages.length; i++) {
