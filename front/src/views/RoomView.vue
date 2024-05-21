@@ -186,6 +186,7 @@ function updatePlayers(data) {
   socket.on("role", role_data => {
     setMyPlayer(role_data);
   });
+
   initSocket();
 }
 

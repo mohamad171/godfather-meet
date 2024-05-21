@@ -304,7 +304,7 @@ async function join() {
     if (data["status"]) {
       playerStatus.value.showPreLoader = false;
       myRole.value = data.data.data.role;
-      socket.emit("load_messages", {room: props.roomId});
+
     } else {
       playerStatus.value.showPreLoader = false;
       playerStatus.value.Error = true;
@@ -313,6 +313,7 @@ async function join() {
   socket.on("players_info", data => {
     if (data["status"] === "ok") {
       players.value = data["data"]["player"];
+      socket.emit("load_messages", {room: props.roomId});
       emit("update_players", {
         players: players,
         socket: socket
