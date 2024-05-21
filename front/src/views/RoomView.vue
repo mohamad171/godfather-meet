@@ -416,8 +416,6 @@ function exit() {
     <!--socketURL="wss://websocket.godfathergame.ir"-->
     <div class="md:w-[61%]">
       <WebrtcComponent
-        width="150"
-        height="150"
         @update_players="updatePlayers"
         :room-id="$route.params.room_id"
         :token="$route.params.token"
