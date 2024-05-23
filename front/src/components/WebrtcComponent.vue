@@ -407,6 +407,7 @@ function onPeer(peer, localStream) {
 }
 
 function joinedRoom(stream, isLocal, socketId) {
+  console.log("Joined Room",stream, isLocal, socketId)
   const found = videoList.value.find(video => video.id === stream.id);
   if (found === undefined) {
     const video = {
