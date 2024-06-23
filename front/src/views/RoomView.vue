@@ -422,7 +422,7 @@ function exit() {
         :token="$route.params.token"
         v-model:socket="socket"
         v-model:myRole="myRole"
-        socketURL="wss://websocket.godfathergame.ir"
+        socketURL="ws://127.0.0.1:8080"
         v-model:players="players"
         v-model:myPlayer="myPlayer" />
     </div>
