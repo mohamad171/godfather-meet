@@ -21,23 +21,28 @@ def is_in_room(sid, room_id):
     return False
 
 
-# @sio.on('message')
-# def on_message_event(sid, data):
-#     pass
-#
-#
+@sio.on('message')
+def on_message_event(sid, data):
+    status, result = rest_api.send_message(data["room"], data["message"], sid, data["receiver"])
+    if status:
+        if result["data"]["message"]["receiver"]:
+            sio.emit(to=result["data"]["message"]["receiver"], event="message", data=result["data"]["message"])
+
+
 @sio.on('command')
 async def on_command_event(sid, data):
     room = data["room"]
     if is_in_room(sid, room):
-        status,result = rest_api.command(room,data["command"],sid,
-                                         target_socket_id=data["target_socket_id"] if "target_socket_id" in data else None)
+        status, result = rest_api.command(room, data["command"], sid,
+                                          target_socket_id=data[
+                                              "target_socket_id"] if "target_socket_id" in data else None)
 
         if status:
             if data["command"] == "kick":
                 pass
             else:
-                await sio.emit(to=room,event="command",data=data)
+                await sio.emit(to=room, event="command", data=data)
+
 
 @sio.on('players_info')
 async def on_players_info_event(sid, data):
@@ -54,9 +59,9 @@ async def on_players_info_event(sid, data):
 async def on_load_messages_event(sid, data):
     room = data["room"]
     if is_in_room(sid, room):
-        status,result = rest_api.messages(room,sid)
+        status, result = rest_api.messages(room, sid)
         if status:
-            await sio.emit(to="load_messages",event="load_messages",data=result)
+            await sio.emit(to="load_messages", event="load_messages", data=result)
 
 
 #
@@ -66,9 +71,13 @@ async def on_load_messages_event(sid, data):
 #     pass
 #
 #
-# @sio.on('send_action')
-# def on_send_action_event(sid, data):
-#     pass
+@sio.on('send_action')
+def on_send_action_event(sid, data):
+    status, result = rest_api.send_action(data["room"], sid, data["targets"])
+    if status:
+        sio.emit(to=f"god-{data['room']}", event="actions", data=result["data"])
+
+
 #
 #
 # @sio.on('get_actions')
