@@ -311,6 +311,7 @@ async function join() {
     }
   });
   socket.on("players_info", data => {
+    console.log("User data",data)
     if (data["status"] === "ok") {
       players.value = data["data"]["player"];
       socket.emit("load_messages", {room: props.roomId});
@@ -336,17 +337,13 @@ async function join() {
   try {
     // TODO Change here
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    console.log("After get user media");
     socket.on("connect", () => {
-      console.log("Connect");
       console.log("Connect");
       signalClient.discover({room: props.roomId, token: props.token});
     });
     signalClient.once("discover", discoveryData => {
-      console.log("discovered", discoveryData);
       joinedRoom(localStream, true, socket.id);
       async function connectToPeer(peerID) {
-        console.log("Start connecting", peerID);
         if (peerID === socket.id) return;
         try {
           console.log("Connecting to peer", peerID);
@@ -357,7 +354,6 @@ async function join() {
           );
           videoList.value.forEach(v => {
             if (v.isLocal) {
-              console.log("Here may be undefind");
               peer["socket_id"] = peerID;
               onPeer(peer, v.stream);
             }
@@ -366,17 +362,14 @@ async function join() {
           console.log("Error connecting to peer", e);
         }
       }
-      console.log(discoveryData.peers, "Peers");
       discoveryData.peers.forEach(peerID => connectToPeer(peerID));
     });
 
     signalClient.on("request", async request => {
-      console.log("Request", request);
       const {peer} = await request.accept(request.initiator, {
         initiator: request.initiator
       });
       peer["socket_id"] = request.initiator;
-      console.log("accepted", peer);
       videoList.value.forEach(v => {
         if (v.isLocal) {
           onPeer(peer, v.stream);
@@ -407,7 +400,6 @@ function onPeer(peer, localStream) {
 }
 
 function joinedRoom(stream, isLocal, socketId) {
-  console.log("Joined Room",stream, isLocal, socketId)
   const found = videoList.value.find(video => video.id === stream.id);
   if (found === undefined) {
     const video = {
@@ -418,7 +410,6 @@ function joinedRoom(stream, isLocal, socketId) {
       isLocal: isLocal
     };
     videoList.value.push(video);
-    console.log(videoList);
   }
   setTimeout(() => {
     for (let i = 0, len = videos.value.length; i < len; i++) {
@@ -427,7 +418,6 @@ function joinedRoom(stream, isLocal, socketId) {
         videos.value[i].autoplay = props.autoplay;
       }
     }
-    console.log("Finish for loop");
 
     socket.emit("players_info", {
       room: props.roomId,

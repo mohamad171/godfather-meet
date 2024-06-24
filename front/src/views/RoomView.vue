@@ -87,7 +87,6 @@ function setDataPeerVideo() {
       div_element.setAttribute("data-info", JSON.stringify(element));
       var number_element = div_element.querySelector(`#peer_number`);
       if (number_element) {
-        console.log(element["number"]);
         number_element.innerHTML = element["number"];
       }
       // if(element.voice){
@@ -118,7 +117,6 @@ function setDataPeerVideo() {
 
 function setMyPlayer(player) {
   myRole.value = player.role;
-  console.log(myPlayer.value);
 }
 
 function sendTargets() {
@@ -134,7 +132,6 @@ var is_socket_init = false;
 function initSocket() {
   if (!is_socket_init) {
     socket.on("message", message => {
-      console.log("message");
       messages.value.push(
         new messageModel(
           message.message,
@@ -147,9 +144,7 @@ function initSocket() {
         messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
       }, 100);
     });
-    console.log("Start listening to load_messages")
     socket.on("load_messages", data => {
-      console.log("Load messages", data);
       for (var i = 0; i < data.data.messages.length; i++) {
         var message = data.data.messages[i];
         messages.value.push(
@@ -172,7 +167,6 @@ function initSocket() {
 
     socket.on("actions", data => {
       actions.value = data.actions;
-      console.log(actions.value);
     });
     is_socket_init = true;
   }
@@ -192,13 +186,11 @@ function updatePlayers(data) {
 
 function setRoles(room_id) {
   if (socket) {
-    console.log("Sending request...");
     socket.emit("set_roles", {room: room_id});
   }
 }
 
 let sendMessege = room_id => {
-  console.log("Call send message");
   let newMessege = messegeInput.value.value;
   messegeInput.value.value = "";
   if (myPlayer.value.room_role === "god") {
@@ -206,7 +198,7 @@ let sendMessege = room_id => {
       socket.emit("message", {
         message: newMessege,
         room: room_id,
-        receiver: selectedPlayer.id
+        receiver: selectedPlayer.value
       });
   } else {
     socket.emit("message", {message: newMessege, room: room_id});
@@ -303,7 +295,7 @@ function exit() {
                   v-if="myPlayer.room_role === 'god'"
                   v-model="selectedPlayer"
                   class="w-[120px] flex items-center justify-between py-[5px] px-[5px] rounded-md bg-black target border border-[#333333]">
-                  <option v-for="player in players" :key="player.id">
+                  <option v-for="player in players" :key="player.id" :value="player.id">
                     {{ player.profile.user.first_name }}
                     {{ player.profile.user.last_name }}
                     <span v-if="player.profile.role"
@@ -422,7 +414,7 @@ function exit() {
         :token="$route.params.token"
         v-model:socket="socket"
         v-model:myRole="myRole"
-        socketURL="ws://127.0.0.1:8080"
+        socketURL="wss://54de-18-134-130-196.ngrok-free.app"
         v-model:players="players"
         v-model:myPlayer="myPlayer" />
     </div>
