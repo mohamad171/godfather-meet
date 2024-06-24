@@ -13,7 +13,7 @@ services:
       - api
   backend:
     build:
-      context: backend
+      context: py_backend
     networks:
       - api
     ports:

@@ -22,11 +22,14 @@ def is_in_room(sid, room_id):
 
 
 @sio.on('message')
-def on_message_event(sid, data):
-    status, result = rest_api.send_message(data["room"], data["message"], sid, data["receiver"])
+async def on_message_event(sid, data):
+    print(data)
+    status, result = rest_api.send_message(data["room"], data["message"], sid, data["receiver"] if "receiver" in data else None)
     if status:
-        if result["data"]["message"]["receiver"]:
-            sio.emit(to=result["data"]["message"]["receiver"], event="message", data=result["data"]["message"])
+        for message in result["data"]["message"]:
+            if message["receiver"]:
+                print(f"Send message to {message['receiver']}")
+                await sio.emit(to=message["receiver"], event="message", data=message)
 
 
 @sio.on('command')
@@ -58,31 +61,46 @@ async def on_players_info_event(sid, data):
 @sio.on('load_messages')
 async def on_load_messages_event(sid, data):
     room = data["room"]
+    print("Load messages...",sid)
     if is_in_room(sid, room):
         status, result = rest_api.messages(room, sid)
         if status:
-            await sio.emit(to="load_messages", event="load_messages", data=result)
+            await sio.emit(to=sid, event="load_messages", data=result)
 
 
-#
-#
-# @sio.on('set_roles')
-# def on_set_roles_event(sid, data):
-#     pass
-#
-#
+
+@sio.on('set_roles')
+async def on_set_roles_event(sid, data):
+    room = data["room"]
+    if is_in_room(sid,room):
+        status , result = rest_api.set_roles(room,sid)
+        if status:
+            for player in result["data"]["players"]:
+                if player["room_role"] == "player":
+                    if player["role"]["side"] == 0:
+                        await sio.enter_room(player["socket_id"],room=f'mafia-{player["room"]["code"]}')
+
+                    await sio.emit(to=player["socket_id"],event="role",data=player)
+
+
+
+
+
+
 @sio.on('send_action')
-def on_send_action_event(sid, data):
+async def on_send_action_event(sid, data):
     status, result = rest_api.send_action(data["room"], sid, data["targets"])
     if status:
-        sio.emit(to=f"god-{data['room']}", event="actions", data=result["data"])
+        await sio.emit(to=f"god-{data['room']}", event="actions", data=result["data"])
 
 
 #
 #
-# @sio.on('get_actions')
-# def on_get_actions_event(sid, data):
-#     pass
+@sio.on('get_actions')
+async def on_get_actions_event(sid, data):
+    status, result = rest_api.get_actions(data["room"], sid)
+    if status:
+        await sio.emit(to=f"god-{data['room']}", event="actions", data=result["data"])
 
 
 @sio.on('simple-signal[discover]')
@@ -112,9 +130,11 @@ async def on_discover_event(sid, data):
                     print("Join to Mafia Room")
                     await sio.enter_room(sid, f'mafia-{roomId}')
             await sio.enter_room(sid, roomId)
-            await sio.enter_room(sid, result["data"]["player"]["id"])
+            print(result["data"]["player"]["id"])
+            await sio.enter_room(sid, str(result["data"]["player"]["id"]))
+            discover_data = {"id": sid,"discoveryData": {"id": sid, "peers": members}}
             await sio.emit(to=sid, event="simple-signal[discover]",
-                           data={"discoveryData": {"id": sid, "peers": members}})
+                           data=discover_data)
             await sio.emit(to=sid, event="join_game", data={"status": True, "data": result})
         else:
             await sio.emit(to=sid, event="join_game", data={"status": False, "data": "Invalid Token"})
@@ -133,7 +153,35 @@ def connect(sid, environ, auth):
 
 @sio.event
 def disconnect(sid):
+    for key,value in rooms.items():
+        if "members" in value and sid in value["members"]:
+            value["members"].remove(sid)
+            # rooms[key]["memebrs"] = value["members"]
     print('disconnect ', sid)
+
+@sio.on("simple-signal[offer]")
+async def on_offer_event(sid, data):
+    print('New offer ',{
+        "initiator":sid,"sessionId":data["sessionId"],"signal":data["signal"],
+        "metadata":data["metadata"],"target":data["target"]
+    })
+    await sio.emit(to=data["target"], event="simple-signal[offer]",data={
+        "initiator":sid,"sessionId":data["sessionId"],"signal":data["signal"],
+        "metadata":data["metadata"]
+    })
+
+
+@sio.on("simple-signal[signal]")
+async def on_signal_event(sid, data):
+    print('New signal ', sid)
+    await sio.emit(to=data["target"],event="simple-signal[signal]",data = {
+        "sessionId":data["sessionId"],"signal":data["signal"],"metadata":data["metadata"]
+    })
+
+
+@sio.on("simple-signal[accept]")
+def on_accept_event(sid, data):
+    print('accept ', sid, data)
 
 
 @sio.on('*')
