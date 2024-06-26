@@ -145,6 +145,7 @@ function initSocket() {
       }, 100);
     });
     socket.on("load_messages", data => {
+      messages.value.splice(0)
       for (var i = 0; i < data.data.messages.length; i++) {
         var message = data.data.messages[i];
         messages.value.push(
