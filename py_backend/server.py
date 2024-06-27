@@ -68,6 +68,14 @@ async def on_load_messages_event(sid, data):
             await sio.emit(to=sid, event="load_messages", data=result)
 
 
+@sio.on('random_card')
+async def on_random_card_event(sid, data):
+    room = data["room"]
+    if is_in_room(sid, room):
+        status, result = rest_api.send_random_card(room, sid)
+        if status:
+            await sio.emit(to=f"god-{data['room']}", event="actions", data=result["data"])
+
 
 @sio.on('set_roles')
 async def on_set_roles_event(sid, data):

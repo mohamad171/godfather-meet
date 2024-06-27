@@ -104,3 +104,13 @@ class BackendInterface:
         if response.status_code == 200:
             return True, response.json()
         return False, None
+
+    def send_random_card(self, room_code,socket_id):
+        data = {
+            "room_code": room_code,
+            "socket_id": socket_id,
+        }
+        response = requests.post(f"{self.base_url}/random-card?secret={self.token}", data=data,timeout=20)
+        if response.status_code == 200:
+            return True, response.json()
+        return False, None

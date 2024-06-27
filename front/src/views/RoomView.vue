@@ -127,6 +127,12 @@ function sendTargets() {
   targetIds.value = [];
 }
 
+function sendRandomCard() {
+  socket.emit("random_card", {
+    room: route.params.room_id,
+  });
+}
+
 var is_socket_init = false;
 
 function initSocket() {
@@ -169,6 +175,7 @@ function initSocket() {
     socket.on("actions", data => {
       actions.value = data.actions;
     });
+
     is_socket_init = true;
   }
 }
@@ -319,6 +326,12 @@ function exit() {
                 @click="sendTargets">
                 ثبت
               </button>
+              <button
+                  v-if="myPlayer && !myPlayer.value.is_alive"
+                class="absolute bottom-[3%] py-1 px-8 rounded-md left-[5%] bg-yellow text-black w-[90%]"
+                @click="sendRandomCard">
+                انتخاب کارت تصادفی
+              </button>
               <p class="mr-2 text-[20px] mb-1">تارگت خود را انتخاب کنید</p>
               <div class="flex flex-wrap w-[90%] pr-[4%] justify-between">
                 <label
@@ -347,6 +360,7 @@ function exit() {
                   <th class="hover:bg-black transition-all">شماره</th>
                   <th class="hover:bg-black transition-all">اسم بازیکن</th>
                   <th class="hover:bg-black transition-all">تارگت</th>
+                  <th class="hover:bg-black transition-all">کارت</th>
                   <th class="hover:bg-black transition-all">زمان</th>
                 </tr>
                 <tr
@@ -367,7 +381,7 @@ function exit() {
                       >#{{ action.player.profile.unique_id }}</small
                     >
                   </td>
-                  <td>
+                  <td v-if="action.target">
                     <p>
                       {{ action.target.profile.user.first_name }}
                       {{ action.target.profile.user.last_name }}
@@ -380,6 +394,18 @@ function exit() {
                     <small class="text-gray-400"
                       >#{{ action.target.profile.unique_id }}</small
                     >
+                  </td>
+                  <td v-else>
+                    -
+                  </td>
+                  <td>
+                    <p v-if="action.card">
+                      {{ action.card }}
+                    </p>
+                    <p v-else>
+                      -
+                    </p>
+
                   </td>
                   <td>{{ action.time }}</td>
                 </tr>
