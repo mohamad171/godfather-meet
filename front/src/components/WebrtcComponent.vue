@@ -591,19 +591,22 @@ join();
         </div>
       </div>
       <!-- reaction panel container  -->
-      <div v-if="myPlayer && myPlayer.value.is_alive"
+      <div
         class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]">
         <button
+            v-if="myPlayer && myPlayer.is_alive"
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3"
           @click="sendLike(socket.id)">
           <p class="text-center pt-1">👍</p>
         </button>
         <button
+            v-if="myPlayer && myPlayer.is_alive"
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendDisLike(socket.id)">
           <p class="text-center pt-[7px]">👎</p>
         </button>
         <button
+            v-if="myPlayer && myPlayer.is_alive"
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendChallenge(socket.id)"
           :class="{'bg-white': playerStatus.challenge}">

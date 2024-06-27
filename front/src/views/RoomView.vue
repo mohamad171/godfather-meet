@@ -131,6 +131,7 @@ function sendRandomCard() {
   socket.emit("random_card", {
     room: route.params.room_id,
   });
+  myPlayer.value.is_select_card = true
 }
 
 var is_socket_init = false;
@@ -320,19 +321,34 @@ function exit() {
             </div>
           </TabPanel>
           <TabPanel>
-            <div class="h-[53%] pt-[40px]">
+            <div class="h-[53%] pt-[40px]" v-if="myPlayer && myPlayer.is_alive">
               <button
                 class="absolute bottom-[3%] py-1 px-8 rounded-md left-[5%] bg-[#217C0B] text-[20px] w-[90%]"
                 @click="sendTargets">
                 ثبت
               </button>
-              <button
-                  v-if="myPlayer && !myPlayer.value.is_alive"
-                class="absolute bottom-[3%] py-1 px-8 rounded-md left-[5%] bg-yellow text-black w-[90%]"
-                @click="sendRandomCard">
-                انتخاب کارت تصادفی
-              </button>
               <p class="mr-2 text-[20px] mb-1">تارگت خود را انتخاب کنید</p>
+              <div class="flex flex-wrap w-[90%] pr-[4%] justify-between">
+                <label
+                  v-for="item in players.filter((e) => e.room_role !== 'god' && e.is_alive)"
+                  class="my-[5px] container2 w-[45%] flex items-center">
+                  <input type="checkbox" :value="item.id" v-model="targetIds" />
+                  <span class="checkmark"></span>
+                  <p class="text-[16px]">
+                    {{ item.profile.user.first_name }}
+                    {{ item.profile.user.last_name }}
+                  </p>
+                </label>
+              </div>
+            </div>
+            <div class="h-[53%] pt-[40px]" v-if="myPlayer && !myPlayer.is_alive">
+              <button
+                  v-if="myPlayer && !myPlayer.is_select_card"
+                class="absolute bottom-[3%] py-1 px-8 rounded-md left-[5%] bg-[#217C0B] text-[20px] w-[90%]"
+                @click="sendRandomCard">
+                انتخاب تصادفی کارت
+              </button>
+              <p class="mr-2 text-[20px] mb-1">برای انتخاب تصادفی کرد روی دکمه پایین کلیک کنید</p>
               <div class="flex flex-wrap w-[90%] pr-[4%] justify-between">
                 <label
                   v-for="item in players.filter((e) => e.room_role !== 'god' && e.is_alive)"
@@ -364,7 +380,7 @@ function exit() {
                   <th class="hover:bg-black transition-all">زمان</th>
                 </tr>
                 <tr
-                  v-for="action in actions"
+                  v-for="action in actions.reverse()"
                   class="*:text-center *:text-[18px] *:border *:py-2">
                   <td>{{ action.id }}</td>
                   <td>
