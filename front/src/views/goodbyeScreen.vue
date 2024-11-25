@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[100%] h-[100vh] inset-0 bg-black flex items-center justify-center text-white flex-col"
+    class="w-[100%] h-[100dvh] inset-0 bg-black flex items-center justify-center text-white flex-col"
   >
     <p class="text-[20px] m-4">شما از اتاق خارج شدید</p>
     <button

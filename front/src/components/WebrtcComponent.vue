@@ -122,9 +122,7 @@ function sendChallenge(peer_id) {
 }
 
 function onVideoClick(socketId) {
-  var div_element = document.querySelector(
-    "div[data-socketid='" + socketId + "']"
-  );
+  var div_element = document.querySelector("div[data-socketid='" + socketId + "']");
   if (div_element) {
     let informationHolder = div_element.querySelector(`#informationHolder`);
     let nameHolder = div_element.querySelector(`#nameHolder`);
@@ -134,8 +132,7 @@ function onVideoClick(socketId) {
     informationHolder.classList.toggle("hidden");
     if (dataInfo) {
       var jData = JSON.parse(dataInfo);
-      let fullName =
-        jData.profile.user.first_name + " " + jData.profile.user.last_name;
+      let fullName = jData.profile.user.first_name + " " + jData.profile.user.last_name;
       nameHolder.textContent = fullName;
       IdHolder.textContent = `#${jData.profile.unique_id}`;
     }
@@ -225,9 +222,7 @@ async function join() {
 
   socket.on("command", data => {
     console.log(data);
-    var div_element = document.querySelector(
-      "div[data-socketid='" + data["peer"] + "']"
-    );
+    var div_element = document.querySelector("div[data-socketid='" + data["peer"] + "']");
     if (div_element) {
       const childElement = div_element.querySelector("#reactionConatiner");
       switch (data["command"]) {
@@ -254,25 +249,19 @@ async function join() {
           childElement.textContent = "";
           break;
         case "mute_voice":
-          document.getElementById(`${data["peer"]}_mute`).style.display =
-            "block";
+          document.getElementById(`${data["peer"]}_mute`).style.display = "block";
           break;
         case "unmute_voice":
-          document.getElementById(`${data["peer"]}_mute`).style.display =
-            "none";
+          document.getElementById(`${data["peer"]}_mute`).style.display = "none";
           break;
         case "mute_video":
-          document.getElementById(`${data["peer"]}_video_mute`).style.display =
-            "block";
+          document.getElementById(`${data["peer"]}_video_mute`).style.display = "block";
           break;
         case "unmute_video":
-          document.getElementById(`${data["peer"]}_video_mute`).style.display =
-            "none";
+          document.getElementById(`${data["peer"]}_video_mute`).style.display = "none";
           break;
         case "kill":
-          var div_element = document.querySelector(
-            "div[data-socketid='" + data["target_socket_id"] + "']"
-          );
+          var div_element = document.querySelector("div[data-socketid='" + data["target_socket_id"] + "']");
           if (div_element) {
             div_element.classList.add("deadPlayer");
           }
@@ -280,12 +269,10 @@ async function join() {
             room: props.roomId,
             socket_id: socket.id,
             token: props.token
-          })
+          });
           break;
         case "revive":
-          var div_element = document.querySelector(
-            "div[data-socketid='" + data["target_socket_id"] + "']"
-          );
+          var div_element = document.querySelector("div[data-socketid='" + data["target_socket_id"] + "']");
           if (div_element) {
             div_element.classList.remove("deadPlayer");
           }
@@ -294,9 +281,7 @@ async function join() {
           if (data["target_socket_id"] === socket.id.toString()) {
             // TODO Secure here
             signalClient.destroy();
-            window.location.assign(
-              "https://meet.godfathergame.ir/goodbye-screen"
-            );
+            window.location.assign("https://meet.godfathergame.ir/goodbye-screen");
             socket.disconnect();
           }
           break;
@@ -316,7 +301,7 @@ async function join() {
     }
   });
   socket.on("players_info", data => {
-    console.log("User data",data)
+    console.log("User data", data);
     if (data["status"] === "ok") {
       players.value = data["data"]["player"];
       emit("update_players", {
@@ -351,11 +336,7 @@ async function join() {
         if (peerID === socket.id) return;
         try {
           console.log("Connecting to peer", peerID);
-          const {peer} = await signalClient.connect(
-            peerID,
-            props.roomId,
-            props.peerOptions
-          );
+          const {peer} = await signalClient.connect(peerID, props.roomId, props.peerOptions);
           videoList.value.forEach(v => {
             if (v.isLocal) {
               peer["socket_id"] = peerID;
@@ -392,9 +373,7 @@ function onPeer(peer, localStream) {
     joinedRoom(remoteStream, false, peer["socket_id"]);
 
     peer.on("close", () => {
-      videoList.value = videoList.value.filter(
-        item => item.id !== remoteStream.id
-      );
+      videoList.value = videoList.value.filter(item => item.id !== remoteStream.id);
       emit("left-room", remoteStream.id);
     });
     peer.on("error", err => {
@@ -447,45 +426,20 @@ join();
 
 <template>
   <div>
-    <div
-      v-if="playerStatus.showPreLoader"
-      class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col">
+    <div v-if="playerStatus.showPreLoader" class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col">
       <div
         class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-[red] font-[800]"
         role="status"></div>
       <p class="text-[green] font-[800] text-[20px] mt-2">درحال ورود به اتاق</p>
     </div>
-    <div
-      v-if="playerStatus.Error"
-      class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col">
-      <p class="text-[red] font-[800] text-[20px] mt-2">
-        خطا در هنگام ورود به اتاق
-      </p>
-      <button
-        class="border p-2 rounded-lg hover:text-black hover:bg-white transition-all mt-2">
-        بازگشت به اپلیکیشن
-      </button>
+    <div v-if="playerStatus.Error" class="absolute inset-0 bg-[rgba(0,0,0,1)] z-[60] flex items-center justify-center flex-col">
+      <p class="text-[red] font-[800] text-[20px] mt-2">خطا در هنگام ورود به اتاق</p>
+      <button class="border p-2 rounded-lg hover:text-black hover:bg-white transition-all mt-2">بازگشت به اپلیکیشن</button>
     </div>
-    <div class="flex items-center h-[13vh] md:h-[39vh]">
+    <div class="flex items-center h-[13dvh] md:h-[39dvh]">
       <!--      God Video -->
-      <div
-        class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]">
-        <video
-          @click="
-            toast.add({
-              severity: 'info',
-              summary: 'Info',
-              detail: 'Message Content',
-              life: 3000,
-              group: 'tl'
-            })
-          "
-          style="width: 100%; height: 100%; object-fit: cover"
-          class="absolute bottom-0"
-          id="god_video"
-          ref="god_video"
-          playsinline
-          autoplay></video>
+      <div class="w-[37%] mx-[5%] overflow-hidden rounded-2xl border-[#F1C529] border-[4px] relative h-[100%] md:h-[65%] md:mt-[84px] md:ml-[2%] md:w-[40%]">
+        <video style="width: 100%; height: 100%; object-fit: cover" class="absolute bottom-0" id="god_video" ref="god_video" playsinline autoplay></video>
       </div>
       <div
         class="h-[65%] min-h-[65px] bg-[#252525] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-2xl p-2 w-[45%] md:absolute md:bottom-3 md:right-[44%] md:h-[45px] z-20 md:w-[200px]">
@@ -496,17 +450,10 @@ join();
         <p class="mx-[7%]" v-if="myRole">سناریو {{ myRole.scenario.name }}</p>
       </div>
     </div>
-    <div class="px-2 mt-1 h-[76vh] pb-[45px] relative md:pb-0 md:h-[60vh]">
+    <div class="px-2 mt-1 h-[76dvh] pb-[45px] relative md:pb-0 md:h-[60dvh]">
       <!--      Speaking video  -->
-      <div
-        class="border w-[95%] mr-[5%] h-[23vh] flex rounded-2xl relative overflow-hidden md:hidden">
-        <video
-          style="width: 100%; height: 100%; object-fit: cover"
-          class="absolute bottom-0"
-          ref="speaker_video"
-          muted
-          playsinline
-          autoplay></video>
+      <div class="border w-[95%] mr-[5%] h-[23dvh] flex rounded-2xl relative overflow-hidden md:hidden">
+        <video style="width: 100%; height: 100%; object-fit: cover" class="absolute bottom-0" ref="speaker_video" muted playsinline autoplay></video>
       </div>
       <!-- 16th container -->
       <div class="flex flex-wrap justify-end camera h-[70%] mt-1 md:h-[100%]">
@@ -524,89 +471,50 @@ join();
             :id="`${video.socketId}_mute`"
             class="absolute w-[25px] bottom-1 left-1 rounded-full border p-1 bg-[#c0bebe]"
             style="display: none" />
-          <div
-            :id="`${video.socketId}_video_mute`"
-            class="bg-[#c0bebe] absolute px-[6px] py-[5px] rounded-full bottom-1 left-8"
-            style="display: none">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="red"
-              class="w-[15px]"
-              viewBox="0 0 640 512">
+          <div :id="`${video.socketId}_video_mute`" class="bg-[#c0bebe] absolute px-[6px] py-[5px] rounded-full bottom-1 left-8" style="display: none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="red" class="w-[15px]" viewBox="0 0 640 512">
               <path
                 d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7l-86.4-67.7 13.8 9.2c9.8 6.5 22.4 7.2 32.9 1.6s16.9-16.4 16.9-28.2V128c0-11.8-6.5-22.6-16.9-28.2s-23-5-32.9 1.6l-96 64L448 174.9V192 320v5.8l-32-25.1V128c0-35.3-28.7-64-64-64H113.9L38.8 5.1zM407 416.7L32.3 121.5c-.2 2.1-.3 4.3-.3 6.5V384c0 35.3 28.7 64 64 64H352c23.4 0 43.9-12.6 55-31.3z" />
             </svg>
           </div>
-          <div
-            id="numberHolder"
-            class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute">
+          <div id="numberHolder" class="bg-[black] [box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] rounded-full w-[25px] text-center left-1 absolute">
             <span :id="`peer_number`">-1</span>
           </div>
-          <div
-            class="absolute bottom-[1px] left-[37%] text-[20px] z-40"
-            id="reactionConatiner"></div>
-          <div
-            id="informationHolder"
-            class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden rounded-lg">
+          <div class="absolute bottom-[1px] left-[37%] text-[20px] z-40" id="reactionConatiner"></div>
+          <div id="informationHolder" class="absolute inset-0 bg-[rgba(0,0,0,0.55)] z-20 hidden rounded-lg">
             <div class="[direction:ltr] text-[12px] h-[40px] flex flex-col">
               <p id="nameHolder"></p>
               <p id="IdHolder"></p>
             </div>
-            <img
-              @click="fullScreen(video.id)"
-              src="/expand.svg"
-              alt=""
-              class="w-[18px] absolute bottom-1 right-1" />
+            <img @click="fullScreen(video.id)" src="/expand.svg" alt="" class="w-[18px] absolute bottom-1 right-1" />
             <Popover v-if="myPlayer && myPlayer.room_role === 'god'">
-              <PopoverButton
-                class="z-50 w-[15px] absolute top-0 cursor-pointer right-2 focus:outline-none">
-                <img src="/threeDots.svg"
-              /></PopoverButton>
-              <PopoverPanel
-                class="absolute bg-black z-50 top-[15px] flex flex-col w-[100px] rounded-lg right-[-50px] *:p-1 overflow-hidden">
-                <span
-                  class="hover:bg-[#333333] transition-all cursor-pointer"
-                  @click="actionIndetifier('kill', video.socketId)"
-                  >کشتن</span
-                >
-                <span
-                  class="hover:bg-[#333333] transition-all cursor-pointer"
-                  @click="actionIndetifier('revive', video.socketId)"
-                  >بازگرداندن</span
-                >
-                <span
-                  class="hover:bg-[#333333] transition-all cursor-pointer"
-                  @click="actionIndetifier('kick', video.socketId)"
-                  >کیک</span
-                >
+              <PopoverButton class="z-50 w-[15px] absolute top-0 cursor-pointer right-2 focus:outline-none"> <img src="/threeDots.svg" /></PopoverButton>
+              <PopoverPanel class="absolute bg-black z-50 top-[15px] flex flex-col w-[100px] rounded-lg right-[-50px] *:p-1 overflow-hidden">
+                <span class="hover:bg-[#333333] transition-all cursor-pointer" @click="actionIndetifier('kill', video.socketId)">کشتن</span>
+                <span class="hover:bg-[#333333] transition-all cursor-pointer" @click="actionIndetifier('revive', video.socketId)">بازگرداندن</span>
+                <span class="hover:bg-[#333333] transition-all cursor-pointer" @click="actionIndetifier('kick', video.socketId)">کیک</span>
               </PopoverPanel>
             </Popover>
           </div>
-          <video
-            class="w-[100%] h-[100%]"
-            ref="videos"
-            :id="video.id"
-            :muted="video.isLocal"
-            playsinline></video>
+          <video class="w-[100%] h-[100%]" ref="videos" :id="video.id" :muted="video.isLocal" playsinline></video>
         </div>
       </div>
       <!-- reaction panel container  -->
-      <div
-        class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]">
+      <div class="w-[100%] flex justify-between h-[55px] mt-1 [direction:ltr] absolute bottom-0 px-[5%] md:w-[42%] md:px-0 md:bottom-[80px] md:h-[40px]">
         <button
-            v-if="myPlayer && myPlayer.is_alive"
+          v-if="myPlayer && myPlayer.is_alive"
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] ml-3"
           @click="sendLike(socket.id)">
           <p class="text-center pt-1">👍</p>
         </button>
         <button
-            v-if="myPlayer && myPlayer.is_alive"
+          v-if="myPlayer && myPlayer.is_alive"
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendDisLike(socket.id)">
           <p class="text-center pt-[7px]">👎</p>
         </button>
         <button
-            v-if="myPlayer && myPlayer.is_alive"
+          v-if="myPlayer && myPlayer.is_alive"
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px]"
           @click="sendChallenge(socket.id)"
           :class="{'bg-white': playerStatus.challenge}">
@@ -616,22 +524,13 @@ join();
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center text-[34px] md:text-[20px] transition-[300ms]"
           :class="{'bg-white': playerStatus.microphone}"
           @click="changeVoiceStatus(socket.id)">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 384 512"
-            class="w-[29px] md:w-[17px] mx-auto"
-            v-if="playerStatus.microphone">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-[29px] md:w-[17px] mx-auto" v-if="playerStatus.microphone">
             <path
               class="fill-white"
               :class="{fillblacker: playerStatus.microphone}"
               d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z" />
           </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 512"
-            fill="white"
-            class="w-[39px] md:w-[27px] mx-auto"
-            v-if="playerStatus.microphone == false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="white" class="w-[39px] md:w-[27px] mx-auto" v-if="playerStatus.microphone == false">
             <path
               d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L472.1 344.7c15.2-26 23.9-56.3 23.9-88.7V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 21.2-5.1 41.1-14.2 58.7L416 300.8V96c0-53-43-96-96-96s-96 43-96 96v54.3L38.8 5.1zm362.5 407l-43.1-33.9C346.1 382 333.3 384 320 384c-70.7 0-128-57.3-128-128v-8.7L144.7 210c-.5 1.9-.7 3.9-.7 6v40c0 89.1 66.2 162.7 152 174.4V464H248c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H344V430.4c20.4-2.8 39.7-9.1 57.3-18.2z" />
           </svg>
@@ -640,21 +539,11 @@ join();
           class="[box-shadow:0px_4px_4px_0px_rgba(192,0,0,0.25)] bg-[#252525] w-[60px] rounded-full flex-center transition-[300ms]"
           :class="{'bg-white': playerStatus.videoCamera}"
           @click="changeVideoStatus(socket.id)">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 576 512"
-            fill="black"
-            class="w-[35px] md:w-[19px] mx-auto"
-            v-if="playerStatus.videoCamera">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="black" class="w-[35px] md:w-[19px] mx-auto" v-if="playerStatus.videoCamera">
             <path
               d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z" />
           </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="white"
-            class="w-[35px]"
-            viewBox="0 0 640 512"
-            v-else>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="white" class="w-[35px] mx-auto" viewBox="0 0 640 512" v-else>
             <path
               d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7l-86.4-67.7 13.8 9.2c9.8 6.5 22.4 7.2 32.9 1.6s16.9-16.4 16.9-28.2V128c0-11.8-6.5-22.6-16.9-28.2s-23-5-32.9 1.6l-96 64L448 174.9V192 320v5.8l-32-25.1V128c0-35.3-28.7-64-64-64H113.9L38.8 5.1zM407 416.7L32.3 121.5c-.2 2.1-.3 4.3-.3 6.5V384c0 35.3 28.7 64 64 64H352c23.4 0 43.9-12.6 55-31.3z" />
           </svg>
